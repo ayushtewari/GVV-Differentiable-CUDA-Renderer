@@ -1,0 +1,382 @@
+﻿  Compiling CUDA source file ..\..\src\Renderer\Mesh\CUDABasedRasterization.cu...
+  
+  Z:\RTMPC\work\CudaRenderer\cpp\build\Win64>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\bin\nvcc.exe" -gencode=arch=compute_61,code=\"sm_61,compute_61\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64" -x cu  -IZ:\RTMPC\work\CudaRenderer\cpp\cmakeTF2Windows\.. -IZ:\RTMPC\work\CudaRenderer\cpp\cmakeTF2Windows\..\thirdParty\Shared\cutil\inc -I"D:\Anaconda3\Lib\site-packages\tensorflow\include" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\eigen_archive" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\com_google_absl" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src" -IZ:\RTMPC\work\CudaRenderer\cpp\cmakeTF2Windows\.. -IZ:\RTMPC\work\CudaRenderer\cpp\cmakeTF2Windows\..\thirdParty\Shared\cutil\inc -I"D:\Anaconda3\Lib\site-packages\tensorflow\include" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\eigen_archive" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\com_google_absl" -I"D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\include"     --keep-dir x64\Release -maxrregcount=0  --machine 64 --compile -cudart static -Xcompiler=-Ob2    -DNDEBUG -DWIN32 -D_WINDOWS -DGOOGLE_CUDA -D_USE_MATH_DEFINES -D"CMAKE_INTDIR=\"Release\"" -DCustomTensorFlowOperators_EXPORTS -DWIN32 -D_WINDOWS -D_GLIBCXX_USE_CXX11_ABI=0 -DNDEBUG -DGOOGLE_CUDA -D_USE_MATH_DEFINES -D"CMAKE_INTDIR=\"Release\"" -DCustomTensorFlowOperators_EXPORTS -D_WINDLL -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /FdCustomTensorFlowOperators.dir\Release\vc140.pdb /FS /Zi  /MD /GR" -o CustomTensorFlowOperators.dir\Release\CUDABasedRasterization.cu.obj "Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.cu" 
+  CUDABasedRasterization.cu
+  CudaRendererGrad.cpp
+  CudaRenderer.cpp
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/lib/bfloat16/bfloat16.h(112): warning C4800: 'float': forcing value to bool 'true' or 'false' (performance warning)
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/allocator.h(286): warning C4800: 'tensorflow::uint32': forcing value to bool 'true' or 'false' (performance warning)
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/allocator.h(288): warning C4800: 'tensorflow::uint32': forcing value to bool 'true' or 'false' (performance warning)
+D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/wire_format_lite.h(935): warning C4244: 'argument': conversion from 'google::protobuf::uint64' to 'google::protobuf::uint32', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/parse_context.h(269): warning C4244: '-=': conversion from 'google::protobuf::stringpiece_ssize_type' to 'int', possible loss of data
+d:\anaconda3\lib\site-packages\tensorflow\include\external\eigen_archive\unsupported\eigen\cxx11\src/Tensor/Tensor.h(76): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+  d:\anaconda3\lib\site-packages\tensorflow\include\external\eigen_archive\unsupported\eigen\cxx11\src/Tensor/TensorMap.h(33): note: see reference to class template instantiation 'Eigen::Tensor<T,1,1,int>' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor_types.h(105): note: see reference to class template instantiation 'Eigen::TensorMap<Eigen::Tensor<T,1,1,int>,16,Eigen::MakePointer>' being compiled
+          with
+          [
+              T=float
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/node_def_util.h(139): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(168): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(176): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(334): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(342): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(743): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/op_kernel.h(748): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/shape_inference.h(292): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/shape_inference.h(331): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/shape_inference.h(804): warning C4267: 'initializing': conversion from 'size_t' to 'const tensorflow::int32', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.cpp(41): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.cpp(43): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.cpp(98): warning C4244: '=': conversion from 'tensorflow::int64' to 'int', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.cpp(99): warning C4244: '=': conversion from 'tensorflow::int64' to 'int', possible loss of data
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=float
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(137): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<float>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=float
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=double
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=double
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(139): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<double>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=double
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::int32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::int32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(141): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::int32>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::int32
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::uint32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::uint32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(143): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::uint32>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::uint32
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::uint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::uint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(145): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::uint16>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::uint16
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::uint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::uint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(147): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::uint8>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::uint8
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::int16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::int16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(149): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::int16>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::int16
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::int8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::int8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(151): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::int8>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::int8
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(153): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<std::basic_string<char,std::char_traits<char>,std::allocator<char>>>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=std::basic_string<char,std::char_traits<char>,std::allocator<char>>
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::complex64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::complex64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(155): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::complex64>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::complex64
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::complex128
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::complex128
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(157): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::complex128>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::complex128
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::int64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::int64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(159): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::int64>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::int64
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::uint64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::uint64
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(161): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::uint64>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::uint64
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=bool
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=bool
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(163): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<bool>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=bool
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::qint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::qint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(165): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::qint8>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::qint8
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::quint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::quint8
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(167): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::quint8>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::quint8
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::qint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::qint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(169): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::qint16>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::qint16
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::quint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::quint16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(171): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::quint16>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::quint16
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::qint32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::qint32
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(173): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::qint32>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::qint32
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::bfloat16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::bfloat16
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(175): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::bfloat16>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::bfloat16
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=Eigen::half
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=Eigen::half
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(177): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<Eigen::half>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=Eigen::half
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(963): warning C4624: 'tensorflow::Tensor::ValueAndTensorBuffer<T>': destructor was implicitly defined as deleted
+          with
+          [
+              T=tensorflow::ResourceHandle
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(990): note: see reference to class template instantiation 'tensorflow::Tensor::ValueAndTensorBuffer<T>' being compiled
+          with
+          [
+              T=tensorflow::ResourceHandle
+          ]
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/tensor.h(179): note: see reference to function template instantiation 'tensorflow::Tensor::Tensor<tensorflow::ResourceHandle>(T,tensorflow::Tensor::host_scalar_tag)' being compiled
+          with
+          [
+              T=tensorflow::ResourceHandle
+          ]
+D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(247): warning C4800: 'google::protobuf::Map<std::string,tensorflow::AttrValue>::std::size_type': forcing value to bool 'true' or 'false' (performance warning)
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(245): note: while compiling class template member function 'bool google::protobuf::internal::MapField<tensorflow::NameAttrList_AttrEntry_DoNotUse,std::string,tensorflow::AttrValue,google::protobuf::internal::WireFormatLite::TYPE_STRING,google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,0>::DeleteMapValue(const google::protobuf::MapKey &)'
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/attr_value.pb.h(798): note: see reference to class template instantiation 'google::protobuf::internal::MapField<tensorflow::NameAttrList_AttrEntry_DoNotUse,std::string,tensorflow::AttrValue,google::protobuf::internal::WireFormatLite::TYPE_STRING,google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,0>' being compiled
+D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(247): warning C4800: 'google::protobuf::Map<std::string,std::string>::std::size_type': forcing value to bool 'true' or 'false' (performance warning)
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(245): note: while compiling class template member function 'bool google::protobuf::internal::MapField<tensorflow::FunctionDef_RetEntry_DoNotUse,std::string,std::string,google::protobuf::internal::WireFormatLite::TYPE_STRING,google::protobuf::internal::WireFormatLite::TYPE_STRING,0>::DeleteMapValue(const google::protobuf::MapKey &)'
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/function.pb.h(688): note: see reference to class template instantiation 'google::protobuf::internal::MapField<tensorflow::FunctionDef_RetEntry_DoNotUse,std::string,std::string,google::protobuf::internal::WireFormatLite::TYPE_STRING,google::protobuf::internal::WireFormatLite::TYPE_STRING,0>' being compiled
+D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(247): warning C4800: 'google::protobuf::Map<google::protobuf::uint32,tensorflow::FunctionDef_ArgAttrs>::std::size_type': forcing value to bool 'true' or 'false' (performance warning)
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\external\protobuf_archive\src\google/protobuf/map_field_inl.h(245): note: while compiling class template member function 'bool google::protobuf::internal::MapField<tensorflow::FunctionDef_ArgAttrEntry_DoNotUse,google::protobuf::uint32,tensorflow::FunctionDef_ArgAttrs,google::protobuf::internal::WireFormatLite::TYPE_UINT32,google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,0>::DeleteMapValue(const google::protobuf::MapKey &)'
+  D:\Anaconda3\Lib\site-packages\tensorflow\include\tensorflow/core/framework/function.pb.h(706): note: see reference to class template instantiation 'google::protobuf::internal::MapField<tensorflow::FunctionDef_ArgAttrEntry_DoNotUse,google::protobuf::uint32,tensorflow::FunctionDef_ArgAttrs,google::protobuf::internal::WireFormatLite::TYPE_UINT32,google::protobuf::internal::WireFormatLite::TYPE_MESSAGE,0>' being compiled
+  Generating Code...
+  CUDABasedRasterization.cpp
+Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.cpp(31): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.cpp(32): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.cpp(53): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+     Creating library Z:/RTMPC/work/CudaRenderer/cpp/binaries/Win64/Release/CustomTensorFlowOperators.lib and object Z:/RTMPC/work/CudaRenderer/cpp/binaries/Win64/Release/CustomTensorFlowOperators.exp
+  CustomTensorFlowOperators.vcxproj -> Z:\RTMPC\work\CudaRenderer\cpp\binaries\Win64\Release\CustomTensorFlowOperators.dll

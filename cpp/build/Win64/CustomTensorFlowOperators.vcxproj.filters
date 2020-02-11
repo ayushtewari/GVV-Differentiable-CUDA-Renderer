@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\StringProcessing.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.cpp">
+      <Filter>TensorflowOperators\CudaRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Camera\camera.cpp">
+      <Filter>Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Camera\camera_container.cpp">
+      <Filter>Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Color\color.cpp">
+      <Filter>Renderer\Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.cpp">
+      <Filter>Renderer\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\trimesh.cpp">
+      <Filter>Renderer\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TensorflowOperators\CudaRenderer\CudaRendererGrad.cpp">
+      <Filter>TensorflowOperators\CudaRenderer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\CameraUtil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\IndexHelper.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\MathConstants.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\StringProcessing.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\cudaUtil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\cuda_SimpleMatrixUtil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float1x2.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float1x3.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float1x4.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float2x1.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float2x2.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float2x3.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float2x4.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float3x1.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float3x2.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float3x3.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float3x4.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float4x1.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float4x2.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float4x3.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Utils\float4x4.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\TensorflowOperators\CudaRenderer\CudaRenderer.h">
+      <Filter>TensorflowOperators\CudaRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Camera\camera.h">
+      <Filter>Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Camera\camera_container.h">
+      <Filter>Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Color\color.h">
+      <Filter>Renderer\Color</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterization.h">
+      <Filter>Renderer\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\CUDABasedRasterizationInput.h">
+      <Filter>Renderer\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Z:\RTMPC\work\CudaRenderer\cpp\src\Renderer\Mesh\trimesh.h">
+      <Filter>Renderer\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\TensorflowOperators\CudaRenderer\CudaRendererGrad.h">
+      <Filter>TensorflowOperators\CudaRenderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\..\src\Renderer\Mesh\CUDABasedRasterization.cu">
+      <Filter>Renderer\Mesh</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\..\src\Renderer\Mesh\trimesh.cu">
+      <Filter>Renderer\Mesh</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Z:\RTMPC\work\CudaRenderer\cpp\cmakeTF2Windows\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{D8ADE04B-B33F-3FAA-AED1-E7AA97DDC48E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TensorflowOperators">
+      <UniqueIdentifier>{15E3A746-D40E-37F9-81BF-395AC1697E60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{C5E6E4F8-0C1F-36C2-8EB9-DF28095BB771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Camera">
+      <UniqueIdentifier>{FD7EE952-CB97-391F-9CB6-5DC5AFC0C4DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Color">
+      <UniqueIdentifier>{24729152-75F8-35CD-8CA2-68C8E415D73B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\Mesh">
+      <UniqueIdentifier>{70F397E3-198D-3ED7-A93F-C09799279BB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TensorflowOperators\CudaRenderer">
+      <UniqueIdentifier>{42A2CAF7-6FF3-3DB5-AA07-80C3807DC230}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
