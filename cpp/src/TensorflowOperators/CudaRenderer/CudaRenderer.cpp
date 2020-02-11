@@ -10,7 +10,7 @@ REGISTER_OP("CudaRendererGpu")
 .Output("depth_buffer: int32")
 .Output("render_buffer: float")
 .Output("vertex_color_buffer: float")
-
+.Attr("faces: list(int)")
 .Attr("render_resolution_u: int = 512")
 .Attr("render_resolution_v: int = 512")
 .Attr("camera_file_path_boundary_check: string = 'None'")
@@ -22,6 +22,10 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	: 
 	OpKernel(context) 
 {
+	std::vector<int> faces;
+
+	OP_REQUIRES_OK(context, context->GetAttr("faces", &faces));
+
 	OP_REQUIRES_OK(context, context->GetAttr("camera_file_path_boundary_check", &cameraFilePath));
 	OP_REQUIRES(context,cameraFilePath != std::string("None"),errors::InvalidArgument("camera_file_path_boundary_check not set!",cameraFilePath));
 
@@ -78,7 +82,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 
 	std::cout << std::endl;
 
-	cudaBasedRasterization = new CUDABasedRasterization(mesh, cameras);
+	cudaBasedRasterization = new CUDABasedRasterization(mesh, cameras, faces);
 }
 
 //==============================================================================================//

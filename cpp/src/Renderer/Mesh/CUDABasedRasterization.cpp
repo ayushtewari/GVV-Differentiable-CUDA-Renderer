@@ -12,7 +12,8 @@ using namespace Eigen;
 
 //==============================================================================================//
 
-CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* cm)
+CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* cm,
+	std::vector<int>faces)
 	:
 	mesh(mesh),
 	cameras(cm)
@@ -47,7 +48,28 @@ CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* 
 		cutilSafeCall(cudaMalloc(&input.d_projectedVertices,					sizeof(float3)*	mesh->N*cameras->getNrCameras()));
 
 		input.d_vertices					= mesh->d_vertices;
-		input.d_facesVertex					= mesh->d_facesVertex;
+
+
+		if(faces.size() % 3 == 0)
+		{
+			int numFaces = (faces.size() / 3);
+			cutilSafeCall(cudaMalloc(&input.d_facesVertex, sizeof(int3) * numFaces));
+			int3 * h_facesVertex = new int3[numFaces];
+			for (int f = 0; f < numFaces; f++)
+			{
+				h_facesVertex[f].x = faces[f * 3 + 0];
+				h_facesVertex[f].y = faces[f * 3 + 1];
+				h_facesVertex[f].z = faces[f * 3 + 2];
+			}
+			cutilSafeCall(cudaMemcpy(input.d_facesVertex, h_facesVertex, sizeof(int3)*numFaces, cudaMemcpyHostToDevice));
+		}
+		else
+		{
+			std::cout << "No triangular faces!" << std::endl;
+		}
+
+
+
 		input.F								= mesh->F;
 		input.N								= mesh->N;
 		input.numberOfCameras				= cameras->getNrCameras();

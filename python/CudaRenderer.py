@@ -19,6 +19,7 @@ customOperators = tf.load_op_library(r"\\winfs-inf.mpi-inf.mpg.de\HPS\RTMPC\work
 class CudaRendererGpu:
 
     def __init__(self,
+                 faces,
                  cameraFilePath = '',
                  meshFilePath = '',
                  renderResolutionU = 512,
@@ -26,6 +27,7 @@ class CudaRendererGpu:
                  pointsGlobalSpace = None,
                  nodeName=''):
 
+        self.faces = faces
         self.cameraFilePath = cameraFilePath
         self.meshFilePath = meshFilePath
 
@@ -41,11 +43,12 @@ class CudaRendererGpu:
         if(cameraFilePath != '' and meshFilePath != '' and pointsGlobalSpace is not None and nodeName != ''):
 
             self.cudaRendererOperator = customOperators.cuda_renderer_gpu(  pointsGlobalSpace,
+                                                                            faces = self.faces,
                                                                             render_resolution_u =  self.renderResolutionU,
                                                                             render_resolution_v = self.renderResolutionV,
-                                                                            camera_file_path_boundary_check = cameraFilePath,
-                                                                            mesh_file_path_boundary_check = meshFilePath,
-                                                                            name=nodeName)
+                                                                            camera_file_path_boundary_check = self.cameraFilePath,
+                                                                            mesh_file_path_boundary_check = self.meshFilePath,
+                                                                            name=self.nodeName)
 
         else:
 

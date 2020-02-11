@@ -27,7 +27,8 @@ class CUDABasedRasterization
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterization(trimesh* mesh, camera_container* cm);
+		CUDABasedRasterization(trimesh* mesh, camera_container* cm,
+			std::vector<int>faces);
 		~CUDABasedRasterization();
 
 		void renderBuffers();
