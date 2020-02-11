@@ -1,8 +1,8 @@
-./cpp/binaries/
-./cpp/build/
-./python/.idea/
-./python/.pytest_cache/
-./python/__pycache__/
-./python/result/
-./python/utils/__pycache__/
-./python/data/__pycache__/
+/cpp/binaries/
+/cpp/build/
+/python/.idea/
+/python/.pytest_cache/
+/python/__pycache__/
+/python/result/
+/python/utils/__pycache__/
+/python/data/__pycache__/
