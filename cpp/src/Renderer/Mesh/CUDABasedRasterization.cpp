@@ -47,9 +47,6 @@ CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* 
 		cutilSafeCall(cudaMalloc(&input.d_BBoxes,								sizeof(int4)*	mesh->F*cameras->getNrCameras()));
 		cutilSafeCall(cudaMalloc(&input.d_projectedVertices,					sizeof(float3)*	mesh->N*cameras->getNrCameras()));
 
-		input.d_vertices					= mesh->d_vertices;
-
-
 		if(faces.size() % 3 == 0)
 		{
 			int numFaces = (faces.size() / 3);
@@ -62,6 +59,8 @@ CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* 
 				h_facesVertex[f].z = faces[f * 3 + 2];
 			}
 			cutilSafeCall(cudaMemcpy(input.d_facesVertex, h_facesVertex, sizeof(int3)*numFaces, cudaMemcpyHostToDevice));
+
+			input.F = numFaces;
 		}
 		else
 		{
@@ -70,7 +69,6 @@ CUDABasedRasterization::CUDABasedRasterization(trimesh* mesh, camera_container* 
 
 
 
-		input.F								= mesh->F;
 		input.N								= mesh->N;
 		input.numberOfCameras				= cameras->getNrCameras();
 		input.d_cameraExtrinsics			= cameras->getD_allCameraExtrinsics();
