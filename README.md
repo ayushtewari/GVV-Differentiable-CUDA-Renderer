@@ -13,12 +13,19 @@ Description here!
 5. Python 3.5
 6. CMake 3.9 and higher
 
-### Installation:
+### Installation Linux:
 1. Clone the repository 
-2. Change the cmake in cpp/cmakeTF2Linux / cpp/cmakeTF2Windows (lines under "TO BE CUSTOMIZED") pointing to your CUDA and TF path
-3. Run createBuildLinux.sh/createBuildWin64.bat
-4. Navigate to cpp/build/Linux and run make / Navigate to cpp/build/Win64 and compile with Visual studio (tested on VS 2015 x64)
-5. If compilation finished, there should be the files cpp/binaries/Linux/Release/libCustomTensorFlowOperators.so / cpp/binaries/Win64/Release/CustomTensorFlowOperators.dll
+2. Change the cmake in cpp/cmakeTF2Linux (lines under "TO BE CUSTOMIZED") pointing to your CUDA and TF path
+3. Run createBuildLinux.sh
+4. Navigate to cpp/build/Linux and run make 
+5. If compilation finished, there should be the files cpp/binaries/Linux/Release/libCustomTensorFlowOperators.so
+
+### Installation Windows:
+1. Clone the repository 
+2. Change the cmake in cpp/cmakeTF2Windows (lines under "TO BE CUSTOMIZED") pointing to your CUDA and TF path
+3. Run createBuildWin64.bat
+4. Navigate to cpp/build/Win64 and compile with Visual studio (tested on VS 2015 x64)
+5. If compilation finished, there should be the files cpp/binaries/Win64/Release/CustomTensorFlowOperators.dll
 
 ### Examples
 1. Run the simple test in python/test_render.py
