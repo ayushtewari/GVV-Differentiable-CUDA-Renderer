@@ -31,7 +31,7 @@ Description here!
 1. Run the simple test in python/test_render.py
 
 ### Citation:
-	@Inproceedings{Cae+17,
+	@Inproceedings{gvv_cuda_render,
 	}
 	
 If you encounter any problems with the code, want to report bugs, etc. please contact us at mhaberma@mpi-inf.mpg.de.
