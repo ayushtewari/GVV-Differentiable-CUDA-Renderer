@@ -5,7 +5,7 @@ Description here!
 
 #### NEW: Tensorflow implementation available!
 
-### Requirements:
+### Requirements (supported versions we tested):
 1. Tensorflow 2.0.0-beta0
 2. GPU that supports compute capability 7.0
 3. CUDA 10.0
