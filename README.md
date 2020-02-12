@@ -1,4 +1,4 @@
-# Cuda Renderer 
+# GVV-Neural-Renderer
 Check our [project page](http://gvv.mpi-inf.mpg.de/) for additional information.
 
 Description here!
