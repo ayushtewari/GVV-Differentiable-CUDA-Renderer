@@ -4,7 +4,7 @@
 //
 //==============================================================================================//
 // Description:
-//      Todo
+//      Implements a cuda based rasterizer that is differentiable
 //
 //==============================================================================================//
 // Input:
@@ -29,7 +29,7 @@
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/shape_inference.h"
 
-#include "../../Renderer/Mesh/CUDABasedRasterization.h"
+#include "../../Renderer/CUDABasedRasterization.h"
 
 //==============================================================================================//
 
@@ -56,28 +56,30 @@ class CudaRenderer : public OpKernel
 
 	private:
 
-		//operator settings and flags
-		std::string cameraFilePath;
-		std::string meshFilePath;
-
 		int numberOfBatches;
 		int numberOfCameras;
 		int numberOfPoints;
 		int renderResolutionU;
 		int renderResolutionV;
+		int textureResolutionU;
+		int textureResolutionV;
 
 		CUDABasedRasterization* cudaBasedRasterization;
-		camera_container* cameras;
-		trimesh* mesh;
 
 		//GPU input
-		const float* d_inputDataPointerPointsGlobalSpace;
+		const float* d_inputVertexPos;
+		const float* d_inputVertexColor;
+		const float* d_inputTexture;
 
+		//GPU output
 		float*	d_outputBarycentricCoordinatesBuffer;
 		int*	d_outputFaceIDBuffer;
 		int*	d_outputDepthBuffer;
 		float*	d_outputRenderBuffer;
 		float*	d_outputVertexColorBuffer;
+
+		bool*	d_outputBoundary;
+		bool*	d_outputVisible;
 };
 
 //==============================================================================================//

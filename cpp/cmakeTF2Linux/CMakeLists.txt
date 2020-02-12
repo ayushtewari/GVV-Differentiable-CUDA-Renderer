@@ -7,7 +7,7 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED
 
-SET (CUDADIR /usr/lib/cuda-10.0/bin/nvcc)
+SET (CUDA_PATH /usr/lib/cuda-10.0/bin/nvcc)
 SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf20/lib/python3.5/site-packages/tensorflow)
 
 #############################################################################################
@@ -15,8 +15,8 @@ SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf20/lib/pyth
 
 SET(PROJECT_NAME CustomTensorFlowOperators)
 
-SET( CUDACXX CUDADIR)
-SET( CMAKE_CUDA_COMPILER CUDADIR)
+SET( CUDACXX ${CUDA_PATH})
+SET( CMAKE_CUDA_COMPILER ${CUDA_PATH})
 
 PROJECT(${PROJECT_NAME} CXX CUDA)
 MESSAGE("++++ Project name: "${PROJECT_NAME})
@@ -65,19 +65,13 @@ FILE(GLOB_RECURSE cppFiles
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.cpp
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.h
 
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.h
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.h
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.h
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.cpp
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.h
 )
 
 FILE(GLOB cudaFiles
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.cu
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.cu
 )
 
 ##############################################################################################
@@ -95,9 +89,9 @@ MESSAGE("++++ Set output lib properties")
 
 ADD_DEFINITIONS(-DGOOGLE_CUDA -D_USE_MATH_DEFINES)
 
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/ReleaseTF2")
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/ReleaseTF2")
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/ReleaseTF2")
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${cppFiles} ${cudaFiles})

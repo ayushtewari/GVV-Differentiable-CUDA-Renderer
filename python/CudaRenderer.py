@@ -5,12 +5,20 @@
 
 import tensorflow as tf
 from tensorflow.python.framework import ops
+from sys import platform
 
 ########################################################################################################################
 # Load custom operators
 ########################################################################################################################
 
-customOperators = tf.load_op_library(r"\\winfs-inf.mpi-inf.mpg.de\HPS\RTMPC\work\CudaRenderer\cpp\binaries\Win64\Release\CustomTensorFlowOperators.dll")
+RENDER_OPERATORS_PATH = ""
+
+if platform == "linux" or platform == "linux2":
+    RENDER_OPERATORS_PATH = "../cpp/binaries/Linux/Release/libCustomTensorFlowOperators.so"
+elif platform == "win32" or platform == "win64":
+    RENDER_OPERATORS_PATH = "../cpp/binaries/Win64/Release/CustomTensorFlowOperators.dll"
+
+customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 
 ########################################################################################################################
 # CudaRendererGpu class
@@ -19,40 +27,48 @@ customOperators = tf.load_op_library(r"\\winfs-inf.mpi-inf.mpg.de\HPS\RTMPC\work
 class CudaRendererGpu:
 
     def __init__(self,
-                 faces,
-                 cameraFilePath = '',
-                 meshFilePath = '',
-                 renderResolutionU = 512,
-                 renderResolutionV = 512,
-                 pointsGlobalSpace = None,
+                 faces_attr,
+                 texCoords_attr,
+                 numberOfVertices_attr,
+                 extrinsics_attr,
+                 intrinsics_attr,
+                 renderResolutionU_attr,
+                 renderResolutionV_attr,
+
+                 vertexPos_input ,
+                 vertexColor_input,
+                 texture_input,
+
                  nodeName=''):
 
-        self.faces = faces
-        self.cameraFilePath = cameraFilePath
-        self.meshFilePath = meshFilePath
-
-        self.renderResolutionU = renderResolutionU
-        self.renderResolutionV = renderResolutionV
+        self.faces_attr                 = faces_attr
+        self.texCoords_attr             = texCoords_attr
+        self.numberOfVertices_attr      = numberOfVertices_attr
+        self.extrinsics_attr            = extrinsics_attr
+        self.intrinsics_attr            = intrinsics_attr
+        self.renderResolutionU_attr     = renderResolutionU_attr
+        self.renderResolutionV_attr     = renderResolutionV_attr
 
  
-        self.pointsGlobalSpace = pointsGlobalSpace
-        self.nodeName = nodeName
+        self.vertexPos_input            = vertexPos_input
+        self.vertexColor_input          = vertexColor_input
+        self.texture_input              = texture_input
 
-        self.cudaRendererOperator = None
+        self.nodeName                   = nodeName
 
-        if(cameraFilePath != '' and meshFilePath != '' and pointsGlobalSpace is not None and nodeName != ''):
+        self.cudaRendererOperator = customOperators.cuda_renderer_gpu(  faces                   = self.faces_attr,
+                                                                        texture_coordinates     = self.texCoords_attr,
+                                                                        number_of_vertices      = self.numberOfVertices_attr,
+                                                                        extrinsics              = self.extrinsics_attr ,
+                                                                        intrinsics              = self.intrinsics_attr,
+                                                                        render_resolution_u     = self.renderResolutionU_attr,
+                                                                        render_resolution_v     = self.renderResolutionV_attr,
 
-            self.cudaRendererOperator = customOperators.cuda_renderer_gpu(  pointsGlobalSpace,
-                                                                            faces = self.faces,
-                                                                            render_resolution_u =  self.renderResolutionU,
-                                                                            render_resolution_v = self.renderResolutionV,
-                                                                            camera_file_path_boundary_check = self.cameraFilePath,
-                                                                            mesh_file_path_boundary_check = self.meshFilePath,
-                                                                            name=self.nodeName)
+                                                                        vertex_pos              = self.vertexPos_input,
+                                                                        vertex_color            = self.vertexColor_input,
+                                                                        texture                 = self.texture_input,
 
-        else:
-
-            raise ValueError('Invalid argument during the construction of the projected mesh boundary operator!')
+                                                                        name                    = self.nodeName)
 
 
     def getBaryCentricBuffer(self):

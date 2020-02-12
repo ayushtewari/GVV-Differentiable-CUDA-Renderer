@@ -13,8 +13,8 @@ SET(TENSORFLOW_PATH D:/Anaconda3/Lib/site-packages/tensorflow)
 #############################################################################################
 #CUDA 
 
-SET( CUDACXX CUDADIR)
-SET( CMAKE_CUDA_COMPILER CUDADIR)
+SET( CUDACXX ${CUDADIR})
+SET( CMAKE_CUDA_COMPILER ${CUDADIR})
 
 #############################################################################################
 #Project 
@@ -69,19 +69,13 @@ FILE(GLOB_RECURSE cppFiles
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.cpp
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.h
 
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.h
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.h
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.cpp
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.h
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.cpp
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.h
 )
 
 FILE(GLOB cudaFiles
 	${CMAKE_SOURCE_DIR}/../src/TensorflowOperators/CudaRenderer/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Color/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Camera/*.cu
-	${CMAKE_SOURCE_DIR}/../src/Renderer/Mesh/*.cu
+	${CMAKE_SOURCE_DIR}/../src/Renderer/*.cu
 )
 
 ##############################################################################################

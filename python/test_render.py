@@ -3,21 +3,34 @@ import CudaRenderer
 import utils.CheckGPU as CheckGPU
 import cv2 as cv
 import utils.OBJReader as OBJReader
+import utils.CameraReader as CameraReader
+
+
 freeGPU = CheckGPU.get_free_gpu()
 
 if freeGPU:
+
     testMesh3D = test_mesh_tensor.getGTMesh()
 
     objreader = OBJReader.OBJReader('data/magdalena.obj')
+    cameraReader = CameraReader.CameraReader('data/cameras.calibration')
 
     renderer = CudaRenderer.CudaRendererGpu(
-                     faces = objreader.facesVertexId,
-                     cameraFilePath = 'data/cameras.calibration',
-                     meshFilePath = 'data/magdalena.obj',
-                     renderResolutionU = 1024,
-                     renderResolutionV = 1024,
-                     pointsGlobalSpace = testMesh3D,
-                     nodeName='test')
+                                            faces_attr                  = objreader.facesVertexId,
+                                            texCoords_attr              = objreader.textureCoordinates,
+                                            numberOfVertices_attr       = len(objreader.vertexCoordinates),
+                                            extrinsics_attr             = cameraReader.extrinsics,
+                                            intrinsics_attr             = cameraReader.intrinsics,
+                                            renderResolutionU_attr      = 1024,
+                                            renderResolutionV_attr      = 1024,
 
-    vertexColorBuffer = renderer.getVertexColorBuffer()[0][0].numpy()
+                                            vertexPos_input             = testMesh3D,
+                                            vertexColor_input           = [objreader.vertexColors],
+                                            texture_input               = [objreader.textureMap],
+
+                                            nodeName                    = 'test')
+
+    vertexColorBuffer = renderer.getRenderBuffer()[0][0].numpy() * 255.0
+
+    vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
     cv.imwrite('result/new.png',vertexColorBuffer)

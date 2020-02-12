@@ -2,10 +2,10 @@
 //==============================================================================================//
 
 #include <cuda_runtime.h> 
-#include "../../Utils/cudaUtil.h"
+#include "../Utils/cudaUtil.h"
 #include "CUDABasedRasterizationInput.h"
-#include "../../Utils/CameraUtil.h"
-#include "../../Utils/IndexHelper.h"
+#include "../Utils/CameraUtil.h"
+#include "../Utils/IndexHelper.h"
 
 #ifndef FLT_MAX
 #define FLT_MAX  1000000

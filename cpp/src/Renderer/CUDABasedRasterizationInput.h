@@ -28,31 +28,39 @@ struct CUDABasedRasterizationInput
 	//////////////////////////
 
 	//camera and frame
-	int					numberOfCameras;						//number of cameras
-	float4*				d_cameraExtrinsics;						//camera extrinsics
-	float3*				d_cameraIntrinsics;						//camera intrinsics
-	int					w;										//frame width
-	int					h;										//frame height
+	int					numberOfCameras;						//number of cameras													//INIT IN CONSTRUCTOR
+	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
+	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR
+	int					w;										//frame width														//INIT IN CONSTRUCTOR
+	int					h;										//frame height														//INIT IN CONSTRUCTOR
 
 	//geometry
-	int					F;										//number of faces
-	int					N;										//number of vertices
-	int3*				d_facesVertex;							//part of face data structure
+	int					F;										//number of faces													//INIT IN CONSTRUCTOR
+	int					N;										//number of vertices												//INIT IN CONSTRUCTOR
+	int3*				d_facesVertex;							//part of face data structure										//INIT IN CONSTRUCTOR
 
 	//texture 
-	int					texWidth;
-	int					texHeight;
-	float*				d_textureCoordinates;
+	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR
+
+	//////////////////////////
+	//STATES 
+	//////////////////////////
+
+	//misc
+	int4*				d_BBoxes;								//bbox for each triangle											//INIT IN CONSTRUCTOR
+	float3*				d_projectedVertices;					//vertex position on image with depth after projection				//INIT IN CONSTRUCTOR
 
 	//////////////////////////
 	//INPUTS
 	//////////////////////////
 
 	float3*				d_vertices;								//vertex positions
-	uchar3*				d_vertexColor;
+	float3*				d_vertexColor;							//vertex color
 
 	//texture
-	float*				d_textureMap;
+	int					texWidth;								//dimension of texture
+	int					texHeight;								//dimension of texture
+	const float*		d_textureMap;							//texture map
 
 	//////////////////////////
 	//OUTPUT 
@@ -69,10 +77,5 @@ struct CUDABasedRasterizationInput
 	bool*				d_visibilities;							//is visible flag (per vertex per view)
 	bool*				d_boundaries;							//is boundary flag (per vertex per view)
 
-	//////////////////////////
-	//STATES 
-	//////////////////////////
-																//misc
-	int4*				d_BBoxes;								//bbox for each triangle
-	float3*				d_projectedVertices;					//vertex position on image with depth after projection
+	
 };

@@ -8,8 +8,11 @@
 #include "time.h"
 #include <iostream>
 #include "CUDABasedRasterizationInput.h"
-#include "../Camera/camera_container.h"
-#include "../Mesh/trimesh.h"
+#include <vector>
+#include <cuda_runtime.h>
+#include "cutil.h"
+#include "cutil_inline_runtime.h"
+#include "cutil_math.h"
 
 //==============================================================================================//
 
@@ -27,27 +30,17 @@ class CUDABasedRasterization
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterization(trimesh* mesh, camera_container* cm,
-			std::vector<int>faces);
+		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV);
 		~CUDABasedRasterization();
 
 		void renderBuffers();
 		void checkVisibility(bool checkBoundary);
-
-		void copyDepthBufferGPU2CPU();
-		void copyBarycentricBufferGPU2CPU();
-		void copyFaceIdBufferGPU2CPU();
-		void copyRenderBufferGPU2CPU();
-		void copyVertexColorBufferGPU2CPU();
 
 		//=================================================//
 		//=================================================//
 
 		//getter
 		
-		camera_container*						getCameras()								{ return cameras; };
-		trimesh*								getMesh()									{ return mesh; };
-
 		//getter for geometry
 		inline int								getNumberOfFaces()							{ return input.F;};
 		inline int								getNumberOfVertices()						{ return input.N; };
@@ -55,11 +48,11 @@ class CUDABasedRasterization
 		inline float3*							get_D_vertices()							{ return input.d_vertices; };
 		inline bool*							get_D_visibilities()						{ return input.d_visibilities; };
 		inline bool*							get_D_boundaries()							{ return input.d_boundaries; };
-		inline uchar3*							get_D_vertexColor()							{ return input.d_vertexColor; };
+		inline float3*							get_D_vertexColor()							{ return input.d_vertexColor; };
 
 		//getter for texture
 		inline float*							get_D_textureCoordinates()					{ return input.d_textureCoordinates; };
-		inline float*							get_D_textureMap()							{ return input.d_textureMap; };
+		inline const float*						get_D_textureMap()							{ return input.d_textureMap; };
 		inline int								getTextureWidth()							{ return input.texWidth; };
 		inline int								getTextureHeight()							{ return input.texHeight; };
 
@@ -85,10 +78,12 @@ class CUDABasedRasterization
 		//=================================================//
 
 		//setter
-		inline void							setCameras(camera_container* inputCameras)						{ cameras=inputCameras; }
-		inline void							setMesh(trimesh* inputMesh)										{ mesh=inputMesh; }
 		inline void							set_D_vertices(float3* d_inputVertices)							{ input.d_vertices = d_inputVertices; };
-		inline void							set_D_boundaries(bool* d_inputBoundaries)						{ input.d_boundaries = d_inputBoundaries; };
+		inline void							set_D_vertexColors(float3* d_inputVertexColors)					{ input.d_vertexColor = d_inputVertexColors; };
+		inline void							set_D_textureMap(const float* newTextureMap)					{ input.d_textureMap = newTextureMap; };
+		inline void							setTextureWidth(int newTextureWidth)							{ input.texWidth = newTextureWidth; };
+		inline void							setTextureHeight(int newTextureHeight)							{ input.texHeight = newTextureHeight; };
+
 
 		inline void							set_D_faceIDBuffer(int* newFaceBuffer)							{ input.d_faceIDBuffer = newFaceBuffer; };
 		inline void							set_D_depthBuffer(int* newDepthBuffer)							{ input.d_depthBuffer = newDepthBuffer; };
@@ -96,22 +91,16 @@ class CUDABasedRasterization
 		inline void							set_D_renderBuffer(float* newRenderBuffer)						{ input.d_renderBuffer = newRenderBuffer; };
 		inline void							set_D_vertexColorBuffer(float* newVertexColorbuffer)			{ input.d_vertexColorBuffer = newVertexColorbuffer; };
 
+		inline void							set_D_boundaries(bool* d_inputBoundaries)						{ input.d_boundaries = d_inputBoundaries; };
+		inline void							set_D_visibilities(bool* d_inputvisibilities)					{ input.d_visibilities = d_inputvisibilities; };
+
+
 	//variables
 
 	private:
 
 		//device memory
 		CUDABasedRasterizationInput input;
-
-		//host memory
-		float*						h_barycentricCoordinatesBuffer;
-		int4*						h_faceIDBuffer;				
-		int*						h_depthBuffer;				
-		float*						h_renderBuffer;
-		float*						h_vertexColorBuffer;
-
-		camera_container*           cameras;
-		trimesh*                    mesh;
 };
 
 //==============================================================================================//
