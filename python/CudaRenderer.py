@@ -69,7 +69,7 @@ class CudaRendererGpu:
                                                                         vertex_pos              = self.vertexPos_input,
                                                                         vertex_color            = self.vertexColor_input,
                                                                         texture                 = self.texture_input,
-                                                                        sh_coefff               = self.shCoeff_input,
+                                                                        sh_coeff               = self.shCoeff_input,
 
                                                                         name                    = self.nodeName)
 

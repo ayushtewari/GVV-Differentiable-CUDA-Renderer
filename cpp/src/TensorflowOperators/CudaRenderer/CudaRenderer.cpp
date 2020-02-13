@@ -7,7 +7,7 @@ REGISTER_OP("CudaRendererGpu")
 .Input("vertex_pos: float")
 .Input("vertex_color: float")
 .Input("texture: float")
-.Input("sh_coefff: float")
+.Input("sh_coeff: float")
 
 .Output("barycentric_buffer: float")
 .Output("face_buffer: int32")
@@ -244,6 +244,7 @@ void CudaRenderer::Compute(OpKernelContext* context)
 			cudaBasedRasterization->renderBuffers();
 		}
 	}
+
 	catch (std::exception e)
 	{
 		std::cerr << "Compute projected mesh boundary error!" << std::endl;
