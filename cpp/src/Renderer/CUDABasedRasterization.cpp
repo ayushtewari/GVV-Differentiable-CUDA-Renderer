@@ -78,6 +78,10 @@ CUDABasedRasterization::~CUDABasedRasterization()
 	cutilSafeCall(cudaFree(input.d_cameraIntrinsics));
 	cutilSafeCall(cudaFree(input.d_textureCoordinates));
 	cutilSafeCall(cudaFree(input.d_facesVertex));
+	cutilSafeCall(cudaFree(input.d_vertexFaces));
+	cutilSafeCall(cudaFree(input.d_vertexFacesId));
+	cutilSafeCall(cudaFree(input.d_faceNormals));
+	cutilSafeCall(cudaFree(input.d_vertexNormals));
 }
 
 //==============================================================================================//
