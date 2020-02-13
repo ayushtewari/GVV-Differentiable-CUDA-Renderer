@@ -70,6 +70,7 @@ class CudaRenderer : public OpKernel
 		const float* d_inputVertexPos;
 		const float* d_inputVertexColor;
 		const float* d_inputTexture;
+		const float* d_inputSHCoeff;
 
 		//GPU output
 		float*	d_outputBarycentricCoordinatesBuffer;

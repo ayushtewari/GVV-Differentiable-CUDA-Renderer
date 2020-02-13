@@ -16,6 +16,14 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 		input.F = (faces.size() / 3);
 		cutilSafeCall(cudaMalloc(&input.d_facesVertex, sizeof(int3) * input.F));
 		cutilSafeCall(cudaMemcpy(input.d_facesVertex, faces.data(), sizeof(int3)*input.F, cudaMemcpyHostToDevice));
+
+		// Get the vertexFaces, vertexFacesId
+		std::vector<int> vertexFaces, vertexFacesId;
+		getVertexFaces(numberOfVertices, faces, vertexFaces, vertexFacesId);
+		cutilSafeCall(cudaMalloc(&input.d_vertexFaces, sizeof(int) * vertexFaces.size()));
+		cutilSafeCall(cudaMemcpy(input.d_vertexFaces, vertexFaces.data(), sizeof(int)*vertexFaces.size(), cudaMemcpyHostToDevice));
+		cutilSafeCall(cudaMalloc(&input.d_vertexFacesId, sizeof(int) * vertexFacesId.size()));
+		cutilSafeCall(cudaMemcpy(input.d_vertexFacesId, vertexFacesId.data(), sizeof(int)*vertexFacesId.size(), cudaMemcpyHostToDevice));
 	}
 	else
 	{
@@ -54,8 +62,10 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 
 	//misc
 	input.N = numberOfVertices;
-	cutilSafeCall(cudaMalloc(&input.d_BBoxes, sizeof(int4)*	input.F*input.numberOfCameras));
-	cutilSafeCall(cudaMalloc(&input.d_projectedVertices, sizeof(float3) *	numberOfVertices * input.numberOfCameras));
+	cutilSafeCall(cudaMalloc(&input.d_BBoxes,				sizeof(int4)   *	input.F*input.numberOfCameras));
+	cutilSafeCall(cudaMalloc(&input.d_projectedVertices,	sizeof(float3) *	numberOfVertices * input.numberOfCameras));
+	cutilSafeCall(cudaMalloc(&input.d_faceNormals,			sizeof(float3) *	input.F * input.numberOfCameras));
+	cutilSafeCall(cudaMalloc(&input.d_vertexNormals,		sizeof(float3) *	input.N * input.numberOfCameras));
 }
 
 //==============================================================================================//
@@ -68,6 +78,39 @@ CUDABasedRasterization::~CUDABasedRasterization()
 	cutilSafeCall(cudaFree(input.d_cameraIntrinsics));
 	cutilSafeCall(cudaFree(input.d_textureCoordinates));
 	cutilSafeCall(cudaFree(input.d_facesVertex));
+}
+
+//==============================================================================================//
+
+void CUDABasedRasterization::getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId)
+{
+	int vertexId;
+	int faceId;
+	int startId;
+	int numFacesPerVertex;
+	
+	for (int i = 0; i<numberOfVertices; i++) 
+	{
+		vertexId = i;
+		startId = vertexFaces.size();
+		
+		for (int j = 0; j<faces.size(); j += 3)
+		{
+			faceId = int(j / 3);
+			if (vertexId == faces[j] || vertexId == faces[j + 1] || vertexId == faces[j + 2])
+			{
+				vertexFaces.push_back(faceId);
+			}
+		}
+		numFacesPerVertex = vertexFaces.size() - startId;
+		if (numFacesPerVertex>0)
+		{
+			vertexFacesId.push_back(startId);
+			vertexFacesId.push_back(numFacesPerVertex);
+		}
+		else
+			std::cout << "WARNING:: --------- no faces for vertex " << vertexId << " --------- " << std::endl;
+	}
 }
 
 //==============================================================================================//

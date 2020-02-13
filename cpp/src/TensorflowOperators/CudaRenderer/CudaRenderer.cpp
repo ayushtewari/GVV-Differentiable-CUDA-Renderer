@@ -7,6 +7,7 @@ REGISTER_OP("CudaRendererGpu")
 .Input("vertex_pos: float")
 .Input("vertex_color: float")
 .Input("texture: float")
+.Input("sh_coefff: float")
 
 .Output("barycentric_buffer: float")
 .Output("face_buffer: int32")
@@ -116,6 +117,12 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorTextureFlat = inputTensorTexture.flat_inner_dims<float, 1>();
 	d_inputTexture = inputTensorTextureFlat.data();
 
+	//[3]
+	//Grab the sh coeffs 
+	const Tensor& inputTensorSHCoeff = context->input(3);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorSHCoeffFlat = inputTensorSHCoeff.flat_inner_dims<float, 1>();
+	d_inputSHCoeff = inputTensorSHCoeffFlat.data();
+
 	//---MISC---
 
 	numberOfBatches      = inputTensorVertexPos.dim_size(0); 
@@ -221,6 +228,7 @@ void CudaRenderer::Compute(OpKernelContext* context)
 			cudaBasedRasterization->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints * 3);
 			cudaBasedRasterization->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints * 3);
 			cudaBasedRasterization->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
+			cudaBasedRasterization->set_D_shCoeff(						d_inputSHCoeff							+ b * 27);
 
 			//set output
 			cudaBasedRasterization->set_D_barycentricCoordinatesBuffer(	d_outputBarycentricCoordinatesBuffer	+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);

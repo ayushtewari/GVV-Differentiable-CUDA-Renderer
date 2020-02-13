@@ -33,6 +33,7 @@ class CUDABasedRasterization
 		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV);
 		~CUDABasedRasterization();
 
+		void getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId);
 		void renderBuffers();
 		void checkVisibility(bool checkBoundary);
 
@@ -55,6 +56,9 @@ class CUDABasedRasterization
 		inline const float*						get_D_textureMap()							{ return input.d_textureMap; };
 		inline int								getTextureWidth()							{ return input.texWidth; };
 		inline int								getTextureHeight()							{ return input.texHeight; };
+
+		//getter for shading
+		inline const float*						get_D_shCoeff()								{ return input.d_shCoeff; };
 
 		//getter for misc
 		inline int4*							get_D_BBoxes()								{ return input.d_BBoxes; };
@@ -83,7 +87,7 @@ class CUDABasedRasterization
 		inline void							set_D_textureMap(const float* newTextureMap)					{ input.d_textureMap = newTextureMap; };
 		inline void							setTextureWidth(int newTextureWidth)							{ input.texWidth = newTextureWidth; };
 		inline void							setTextureHeight(int newTextureHeight)							{ input.texHeight = newTextureHeight; };
-
+		inline void							set_D_shCoeff(const float* newSHCoeff)							{ input.d_shCoeff = newSHCoeff; };
 
 		inline void							set_D_faceIDBuffer(int* newFaceBuffer)							{ input.d_faceIDBuffer = newFaceBuffer; };
 		inline void							set_D_depthBuffer(int* newDepthBuffer)							{ input.d_depthBuffer = newDepthBuffer; };

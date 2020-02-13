@@ -1,4 +1,5 @@
 import data.test_mesh_tensor as test_mesh_tensor
+import data.test_SH_tensor as test_SH_tensor
 import CudaRenderer
 import utils.CheckGPU as CheckGPU
 import cv2 as cv
@@ -11,6 +12,7 @@ freeGPU = CheckGPU.get_free_gpu()
 if freeGPU:
 
     testMesh3D = test_mesh_tensor.getGTMesh()
+    testSHCoeff = test_SH_tensor.getSHCoeff()
 
     objreader = OBJReader.OBJReader('data/magdalena.obj')
     cameraReader = CameraReader.CameraReader('data/cameras.calibration')
@@ -27,6 +29,7 @@ if freeGPU:
                                             vertexPos_input             = testMesh3D,
                                             vertexColor_input           = [objreader.vertexColors],
                                             texture_input               = [objreader.textureMap],
+                                            shCoeff_input=testSHCoeff,
 
                                             nodeName                    = 'test')
 

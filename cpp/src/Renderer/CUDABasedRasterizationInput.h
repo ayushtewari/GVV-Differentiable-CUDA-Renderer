@@ -49,7 +49,11 @@ struct CUDABasedRasterizationInput
 	//misc
 	int4*				d_BBoxes;								//bbox for each triangle											//INIT IN CONSTRUCTOR
 	float3*				d_projectedVertices;					//vertex position on image with depth after projection				//INIT IN CONSTRUCTOR
-
+	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
+	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
+	float3*				d_faceNormals;							//face normals														//INIT IN CONSTRUCTOR
+	float3*				d_vertexNormals;						//vertex normals													//INIT IN CONSTRUCTOR
+		
 	//////////////////////////
 	//INPUTS
 	//////////////////////////
@@ -61,6 +65,7 @@ struct CUDABasedRasterizationInput
 	int					texWidth;								//dimension of texture
 	int					texHeight;								//dimension of texture
 	const float*		d_textureMap;							//texture map
+	const float*		d_shCoeff;								//shading coefficients
 
 	//////////////////////////
 	//OUTPUT 
