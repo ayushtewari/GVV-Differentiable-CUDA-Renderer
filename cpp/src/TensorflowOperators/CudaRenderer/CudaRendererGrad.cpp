@@ -1,0 +1,226 @@
+#include "CudaRendererGrad.h"
+
+//==============================================================================================//
+
+REGISTER_OP("CudaRendererGradGpu")
+
+.Input("vertex_color_buffer_grad: float")
+.Input("vertex_pos: float")
+.Input("vertex_color: float")
+.Input("texture: float")
+.Input("sh_coeff: float")
+.Input("vertex_normal: float")
+.Input("barycentric_buffer: float")
+.Input("face_buffer: int32")
+.Input("vertex_color_buffer: float")
+
+.Output("vertex_pos_grad: float")
+.Output("vertex_color_grad: float")
+.Output("sh_coeff_grad: float")
+
+.Attr("faces: list(int)")
+.Attr("texture_coordinates: list(float)")
+.Attr("number_of_vertices: int")
+.Attr("extrinsics: list(float)")
+.Attr("intrinsics: list(float)")
+.Attr("render_resolution_u: int = 512")
+.Attr("render_resolution_v: int = 512");
+
+//==============================================================================================//
+
+CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
+	: 
+	OpKernel(context) 
+{
+	std::vector<int> faces;
+	OP_REQUIRES_OK(context, context->GetAttr("faces", &faces));
+
+	std::vector<float> textureCoordinates;
+	OP_REQUIRES_OK(context, context->GetAttr("texture_coordinates", &textureCoordinates));
+
+	OP_REQUIRES_OK(context, context->GetAttr("number_of_vertices", &numberOfPoints));
+	OP_REQUIRES(context, numberOfPoints > 0, errors::InvalidArgument("number_of_vertices not set!", numberOfPoints));
+
+	std::vector<float> extrinsics;
+	OP_REQUIRES_OK(context, context->GetAttr("extrinsics", &extrinsics));
+	if (extrinsics.size() % 12 == 0)
+		numberOfCameras = extrinsics.size() / 12;
+	else
+		std::cout << "Camera extrinsics have wrong dimensionality!" << std::endl;
+
+	std::vector<float> intrinsics;
+	OP_REQUIRES_OK(context, context->GetAttr("intrinsics", &intrinsics));
+
+	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_u", &renderResolutionU));
+	OP_REQUIRES(context, renderResolutionU > 0, errors::InvalidArgument("render_resolution_u not set!", renderResolutionU));
+
+	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_v", &renderResolutionV));
+	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
+
+	//---CONSOLE OUTPUT---
+
+	std::cout << std::endl;
+
+	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
+
+	std::cout << std::endl;
+
+	std::cout << "OPERATOR: CudaRendererGrad" << std::endl;
+
+	std::cout << std::endl;
+
+	std::cout << "Input(0) Points Global Space dimensions: " << 3 << std::endl;
+	std::cout << "	" << "Input(0) Points Global Space dimension " << 0 << " size: " << "batch size" << std::endl;
+	std::cout << "	" << "Input(0) Points Global Space dimension " << 1 << " size: " << std::to_string(numberOfPoints) << std::endl;
+	std::cout << "	" << "Input(0) Points Global Space dimension " << 2 << " size: " << 3 << std::endl;
+
+	std::cout << std::endl;
+
+	std::cout << "Output(0) Is Boundary dimensions: " << 3 << std::endl;
+	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 0 << " size: " << "batch size" << std::endl;
+	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 1 << " size: " << std::to_string(numberOfCameras) << std::endl;
+	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 2 << " size: " << std::to_string(numberOfPoints) << std::endl;
+
+	std::cout << std::endl;
+
+
+	std::cout << std::endl;
+
+	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
+
+	std::cout << std::endl;
+}
+
+//==============================================================================================//
+
+void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
+{
+
+	//---INPUT---
+
+	//[0]
+	//Grab the vertec color buffer gradients 
+	const Tensor& inputTensorVertexColorBufferGrad = context->input(0);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexColorBufferGradFlat = inputTensorVertexColorBufferGrad.flat_inner_dims<float, 1>();
+	d_inputVertexColorBufferGrad = inputTensorVertexColorBufferGradFlat.data();
+
+	//[1]
+	//Grab the 3D vertex position
+	const Tensor& inputTensorVertexPos = context->input(1);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexPosFlat = inputTensorVertexPos.flat_inner_dims<float, 1>();
+	d_inputVertexPos = inputTensorVertexPosFlat.data();
+
+	//[2]
+	//Grab the vertex color
+	const Tensor& inputTensorVertexColor = context->input(2);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexColorFlat = inputTensorVertexColor.flat_inner_dims<float, 1>();
+	d_inputVertexColor = inputTensorVertexColorFlat.data();
+
+	//[3]
+	//Grab the texture
+	const Tensor& inputTensorTexture = context->input(3);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorTextureFlat = inputTensorTexture.flat_inner_dims<float, 1>();
+	d_inputTexture = inputTensorTextureFlat.data();
+
+	//[4]
+	//Grab the sh coeffs 
+	const Tensor& inputTensorSHCoeff = context->input(4);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorSHCoeffFlat = inputTensorSHCoeff.flat_inner_dims<float, 1>();
+	d_inputSHCoeff = inputTensorSHCoeffFlat.data();
+
+	//[5]
+	//Grab the vertex normals 
+	const Tensor& inputTensorVertexNormal = context->input(5);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexNormalFlat = inputTensorVertexNormal.flat_inner_dims<float, 1>();
+	d_vertexNormal = inputTensorVertexNormalFlat.data();
+
+	//[6]
+	//Grab the barycentric co-ordinates 
+	const Tensor& inputTensorBaryCentricBuffer= context->input(6);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorBaryCentricBufferFlat = inputTensorBaryCentricBuffer.flat_inner_dims<float, 1>();
+	d_baryCentricBuffer = inputTensorBaryCentricBufferFlat.data();
+
+	//[7]
+	//Grab the face id buffer  
+	const Tensor& inputTensorFaceBuffer = context->input(7);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorFaceBufferFlat = inputTensorFaceBuffer.flat_inner_dims<float, 1>();
+	d_faceBuffer= inputTensorFaceBufferFlat.data();
+
+	//[8]
+	//Grab the vertex color buffer
+	const Tensor& inputTensorVertexColorBuffer = context->input(8);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexColorBufferFlat = inputTensorVertexColorBuffer.flat_inner_dims<float, 1>();
+	d_vertexColorBuffer = inputTensorVertexColorBufferFlat.data();
+
+	//---MISC---
+
+	numberOfBatches      = inputTensorVertexPos.dim_size(0); 
+	textureResolutionV   = inputTensorTexture.dim_size(1);
+	textureResolutionU   = inputTensorTexture.dim_size(2);
+
+	//---OUTPUT---
+
+	//determine the output dimensions
+	std::vector<tensorflow::int64> vertexDim;
+	vertexDim.push_back(numberOfBatches);
+	vertexDim.push_back(numberOfCameras);
+	vertexDim.push_back(numberOfPoints);
+	vertexDim.push_back(3);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexDimSize(vertexDim);
+
+	std::vector<tensorflow::int64> shDim;
+	vertexDim.push_back(numberOfBatches);
+	vertexDim.push_back(numberOfCameras);
+	vertexDim.push_back(27);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> shDimSize(shDim);
+
+	//[0]
+	//vertex position gradients
+	tensorflow::Tensor* outputTensorVertexPosGrad;
+	OP_REQUIRES_OK(context, context->allocate_output(0, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexPosGrad));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexPosGradFlat = outputTensorVertexPosGrad->flat<float>();
+	d_outputVertexPosGrad = outputTensorVertexPosGradFlat.data();
+
+	//[1]
+	//vertex color gradients
+	tensorflow::Tensor* outputTensorVertexColorGrad;
+	OP_REQUIRES_OK(context, context->allocate_output(1, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexColorGrad));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexColorGradFlat = outputTensorVertexColorGrad->flat<float>();
+	d_outputVertexColorGrad = outputTensorVertexColorGradFlat.data();
+
+	//[2]
+	//sh coeff gradients
+	tensorflow::Tensor* outputTensorSHCoeffGrad;
+	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(shDimSize), &outputTensorSHCoeffGrad));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorSHCoeffGradFlat= outputTensorSHCoeffGrad->flat<float>();
+	d_outputSHCoeffGrad = outputTensorSHCoeffGradFlat.data();
+
+}
+
+//==============================================================================================//
+
+void CudaRendererGrad::Compute(OpKernelContext* context)
+{
+	try
+	{
+		//setup the input and output pointers of the tensor because they change from compute to compute call
+		setupInputOutputTensorPointers(context);
+
+		for (int b = 0; b < numberOfBatches; b++)
+		{
+			//set input 
+
+			//set output
+
+			//get gradients
+		}
+	}
+	catch (std::exception e)
+	{
+		std::cerr << "Computed gradients error!" << std::endl;
+	}
+}
+
+//==============================================================================================//
+
+REGISTER_KERNEL_BUILDER(Name("CudaRendererGradGpu").Device(DEVICE_GPU), CudaRendererGrad);
