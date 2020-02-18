@@ -228,7 +228,7 @@ void CudaRenderer::Compute(OpKernelContext* context)
 			cudaBasedRasterization->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints * 3);
 			cudaBasedRasterization->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints * 3);
 			cudaBasedRasterization->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
-			cudaBasedRasterization->set_D_shCoeff(						d_inputSHCoeff							+ b * 27);
+			cudaBasedRasterization->set_D_shCoeff(						d_inputSHCoeff							+ b * numberOfCameras * 27);
 
 			//set output
 			cudaBasedRasterization->set_D_barycentricCoordinatesBuffer(	d_outputBarycentricCoordinatesBuffer	+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);

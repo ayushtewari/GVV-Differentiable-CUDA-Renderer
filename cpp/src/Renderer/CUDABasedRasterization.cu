@@ -134,7 +134,7 @@ __global__ void projectVerticesDevice(CUDABasedRasterizationInput input)
 /*
 Computes the face normals
 */
-__global__ void renderVertexNormaslDevice(CUDABasedRasterizationInput input)
+__global__ void renderVertexNormalDevice(CUDABasedRasterizationInput input)
 {
 	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -148,20 +148,18 @@ __global__ void renderVertexNormaslDevice(CUDABasedRasterizationInput input)
 		float3 vertNorm;
 		for (int i = verFaceId.x; i<verFaceId.x + verFaceId.y; i++)
 		{
-			int faceId = input.d_vertexFaces[idc * input.numberOfCameras + i];
+			int faceId = input.d_vertexFaces[i];
 
 			if (i == verFaceId.x)
-				vertNorm = input.d_faceNormals[faceId];
+				vertNorm = input.d_faceNormal[faceId];
 			else 
 			{
-				vertNorm.x = vertNorm.x + input.d_faceNormals[faceId].x;
-				vertNorm.y = vertNorm.y + input.d_faceNormals[faceId].y;
-				vertNorm.z = vertNorm.z + input.d_faceNormals[faceId].z;
+				vertNorm.x = vertNorm.x + input.d_faceNormal[faceId].x;
+				vertNorm.y = vertNorm.y + input.d_faceNormal[faceId].y;
+				vertNorm.z = vertNorm.z + input.d_faceNormal[faceId].z;
 			}
 		}
-		float norm = sqrtf(vertNorm.x*vertNorm.x + vertNorm.y*vertNorm.y + vertNorm.z*vertNorm.z);
-		vertNorm = vertNorm / norm;
-		input.d_vertexNormals[idx] = vertNorm;
+		input.d_vertexNormal[idx] = vertNorm;
 	}
 }
 
@@ -170,7 +168,7 @@ __global__ void renderVertexNormaslDevice(CUDABasedRasterizationInput input)
 /*
 Computes the face normals
 */
-__global__ void renderFaceNormaslDevice(CUDABasedRasterizationInput input)
+__global__ void renderFaceNormalDevice(CUDABasedRasterizationInput input)
 {
 	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -192,7 +190,7 @@ __global__ void renderFaceNormaslDevice(CUDABasedRasterizationInput input)
 		float3 c_v1 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v1);
 		float3 c_v2 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v2);
 
-		input.d_faceNormals[idx] = cross(c_v1 - c_v0, c_v2 - c_v0);
+		input.d_faceNormal[idx] = cross(c_v1 - c_v0, c_v2 - c_v0);
 	}
 }
 
@@ -345,13 +343,13 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 												input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
 
 					// shading
-					float3 v0_norm = input.d_vertexNormals[input.N*idc + indexv0];
-					float3 v1_norm = input.d_vertexNormals[input.N*idc + indexv1];
-					float3 v2_norm = input.d_vertexNormals[input.N*idc + indexv2];
+					float3 v0_norm = input.d_vertexNormal[input.N*idc + indexv0];
+					float3 v1_norm = input.d_vertexNormal[input.N*idc + indexv1];
+					float3 v2_norm = input.d_vertexNormal[input.N*idc + indexv2];
 					float3 pixNorm = v0_norm * abc.x + v1_norm * abc.y + v2_norm * abc.z;
 					float pixNormNorm = sqrtf(pixNorm.x*pixNorm.x + pixNorm.y*pixNorm.y + pixNorm.z*pixNorm.z);
 					pixNorm = pixNorm / pixNormNorm;
-					float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff);
+					float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc*27));
 					input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
 					input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
 					input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
@@ -381,9 +379,9 @@ extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input)
 
 	projectFacesDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderFaceNormaslDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	renderFaceNormalDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderVertexNormaslDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	renderVertexNormalDevice << <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
 	renderDepthBufferDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 

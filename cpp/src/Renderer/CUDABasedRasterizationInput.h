@@ -51,8 +51,7 @@ struct CUDABasedRasterizationInput
 	float3*				d_projectedVertices;					//vertex position on image with depth after projection				//INIT IN CONSTRUCTOR
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
-	float3*				d_faceNormals;							//face normals														//INIT IN CONSTRUCTOR
-	float3*				d_vertexNormals;						//vertex normals													//INIT IN CONSTRUCTOR
+	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
 		
 	//////////////////////////
 	//INPUTS
@@ -60,6 +59,7 @@ struct CUDABasedRasterizationInput
 
 	float3*				d_vertices;								//vertex positions
 	float3*				d_vertexColor;							//vertex color
+	float3*				d_vertexNormal;						//vertex normals													//INIT IN CONSTRUCTOR
 
 	//texture
 	int					texWidth;								//dimension of texture
@@ -82,5 +82,8 @@ struct CUDABasedRasterizationInput
 	bool*				d_visibilities;							//is visible flag (per vertex per view)
 	bool*				d_boundaries;							//is boundary flag (per vertex per view)
 
-	
+	//////////////////////////
+	//Gradients
+	//////////////////////////
+	float*				d_vertexColorBufferGrad;
 };
