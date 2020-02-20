@@ -17,7 +17,7 @@
 
 //==============================================================================================//
 
-__inline__ __device__ void getJCoAl(mat3x3 JCoAl, float3 pixLight)
+__inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
 {
 	JCoAl.setZero();
 	JCoAl(0,0) = pixLight.x;
@@ -25,7 +25,7 @@ __inline__ __device__ void getJCoAl(mat3x3 JCoAl, float3 pixLight)
 	JCoAl(2,2) = pixLight.z;
 }
 
-__inline__ __device__ void getJAlVc(mat3x9 JAlVc, float3 bcc)
+__inline__ __device__ void getJAlVc(mat3x9 &JAlVc, float3 bcc)
 {
 	JAlVc.setZero();
 	JAlVc(0,0) = bcc.x;
@@ -39,7 +39,7 @@ __inline__ __device__ void getJAlVc(mat3x9 JAlVc, float3 bcc)
 	JAlVc(2,8) = bcc.z;
 }
 
-__inline__ __device__ void getJCoLi(mat3x3 JCoLi, float3 pixAlb)
+__inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
 {
 	JCoLi.setZero();
 	JCoLi(0,0) = pixAlb.x;
@@ -84,7 +84,7 @@ __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 	return light;
 }
 
-__inline__ __device__ void getJLiGm(mat3x9 JLiGm, int rgb, float3 pixNorm)
+__inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 {
 	JLiGm.setZero();
 
@@ -99,7 +99,7 @@ __inline__ __device__ void getJLiGm(mat3x9 JLiGm, int rgb, float3 pixNorm)
 	JLiGm(rgb,8) = ( (pixNorm.x * pixNorm.x) - (pixNorm.y*pixNorm.y) );
 }
 
-__inline__ __device__ void getJLiNo(mat3x3 JLiNo, float3 dir, float* shCoeff)
+__inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, float* shCoeff)
 {
 	JLiNo.setZero();
 	for (int i = 0; i<3; i++) {
@@ -120,7 +120,7 @@ __inline__ __device__ void getJLiNo(mat3x3 JLiNo, float3 dir, float* shCoeff)
 	}
 }
 
-__inline__ __device__ void getJNoNu(mat3x3 JNoNu, float3 un_vec, float norm)
+__inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 {
 	float norm_p2 = norm * norm;
 	float norm_p3 = norm_p2 * norm;
@@ -139,7 +139,7 @@ __inline__ __device__ void getJNoNu(mat3x3 JNoNu, float3 un_vec, float norm)
 	JNoNu(2, 1) = JNoNu(1, 2);
 }
 
-__inline__ __device__ void getJ(mat3x3 J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
+__inline__ __device__ void getJ(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
 	mat3x1 Ix(make_float3(1, 0, 0)), Iy(make_float3(0, 1, 0)), Iz(make_float3(0, 0, 1));
