@@ -81,6 +81,8 @@ class CudaRenderer : public OpKernel
 
 		bool*	d_outputBoundary;
 		bool*	d_outputVisible;
+
+		float*	d_outputVertexNormal;
 };
 
 //==============================================================================================//

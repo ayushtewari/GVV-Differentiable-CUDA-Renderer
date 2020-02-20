@@ -18,6 +18,8 @@ REGISTER_OP("CudaRendererGpu")
 .Output("boundary: bool")
 .Output("visible: bool")
 
+.Output("vertex_normal: float")
+
 .Attr("faces: list(int)")
 .Attr("texture_coordinates: list(float)")
 .Attr("number_of_vertices: int")
@@ -161,6 +163,13 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	vertexDim.push_back(numberOfPoints);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexDimSize(vertexDim);
 
+	std::vector<tensorflow::int64> vertexNormalDim;
+	vertexNormalDim.push_back(numberOfBatches);
+	vertexNormalDim.push_back(numberOfCameras);
+	vertexNormalDim.push_back(numberOfPoints);
+	vertexNormalDim.push_back(3);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexNormalDimSize(vertexNormalDim);
+
 	//[0]
 	//barycentric
 	tensorflow::Tensor* outputTensorBarycentric;
@@ -209,6 +218,13 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(6, tensorflow::TensorShape(vertexDimSize), &outputTensorVisible));
 	Eigen::TensorMap<Eigen::Tensor<bool, 1, 1, Eigen::DenseIndex>, 16> outputTensorVisibleFlat = outputTensorVisible->flat<bool>();
 	d_outputVisible = outputTensorVisibleFlat.data();
+
+	//[7]
+	//vertex normal
+	tensorflow::Tensor* outputTensorVertexNormal;
+	OP_REQUIRES_OK(context, context->allocate_output(7, tensorflow::TensorShape(vertexNormalDimSize), &outputTensorVertexNormal));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexNormalFlat = outputTensorVertexNormal->flat<float>();
+	d_outputVertexNormal = outputTensorVertexNormalFlat.data();
 }
 
 //==============================================================================================//
@@ -239,6 +255,8 @@ void CudaRenderer::Compute(OpKernelContext* context)
 
 			cudaBasedRasterization->set_D_boundaries(					d_outputBoundary						+ b * numberOfCameras * numberOfPoints);
 			cudaBasedRasterization->set_D_visibilities(					d_outputVisible							+ b * numberOfCameras * numberOfPoints);
+
+			cudaBasedRasterization->set_D_vertexNormal(					d_outputVertexNormal						+ b * numberOfCameras * numberOfPoints * 3);
 
 			//render
 			cudaBasedRasterization->renderBuffers();

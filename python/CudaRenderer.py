@@ -49,8 +49,6 @@ class CudaRendererGpu:
         self.intrinsics_attr            = intrinsics_attr
         self.renderResolutionU_attr     = renderResolutionU_attr
         self.renderResolutionV_attr     = renderResolutionV_attr
-
- 
         self.vertexPos_input            = vertexPos_input
         self.vertexColor_input          = vertexColor_input
         self.texture_input              = texture_input
@@ -69,7 +67,7 @@ class CudaRendererGpu:
                                                                         vertex_pos              = self.vertexPos_input,
                                                                         vertex_color            = self.vertexColor_input,
                                                                         texture                 = self.texture_input,
-                                                                        sh_coeff               = self.shCoeff_input,
+                                                                        sh_coeff                = self.shCoeff_input,
 
                                                                         name                    = self.nodeName)
 
@@ -84,6 +82,8 @@ class CudaRendererGpu:
         return self.cudaRendererOperator[3]
     def getVertexColorBuffer(self):
         return self.cudaRendererOperator[4]
+    def getVertexNormal(self):
+        return self.cudaRendererOperator[7]
 
 ########################################################################################################################
 # Register gradients

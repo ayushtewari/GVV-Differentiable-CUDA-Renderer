@@ -98,6 +98,8 @@ class CUDABasedRasterization
 		inline void							set_D_boundaries(bool* d_inputBoundaries)						{ input.d_boundaries = d_inputBoundaries; };
 		inline void							set_D_visibilities(bool* d_inputvisibilities)					{ input.d_visibilities = d_inputvisibilities; };
 
+		inline void							set_D_vertexNormal(float* d_inputvertexNormal)					{ input.d_vertexNormal= (float3 *) d_inputvertexNormal; };
+
 
 	//variables
 

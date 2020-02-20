@@ -65,7 +65,6 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	cutilSafeCall(cudaMalloc(&input.d_BBoxes,				sizeof(int4)   *	input.F*input.numberOfCameras));
 	cutilSafeCall(cudaMalloc(&input.d_projectedVertices,	sizeof(float3) *	numberOfVertices * input.numberOfCameras));
 	cutilSafeCall(cudaMalloc(&input.d_faceNormal,			sizeof(float3) *	input.F * input.numberOfCameras));
-	cutilSafeCall(cudaMalloc(&input.d_vertexNormal,		sizeof(float3) *	input.N * input.numberOfCameras));
 }
 
 //==============================================================================================//
@@ -81,7 +80,6 @@ CUDABasedRasterization::~CUDABasedRasterization()
 	cutilSafeCall(cudaFree(input.d_vertexFaces));
 	cutilSafeCall(cudaFree(input.d_vertexFacesId));
 	cutilSafeCall(cudaFree(input.d_faceNormal));
-	cutilSafeCall(cudaFree(input.d_vertexNormal));
 }
 
 //==============================================================================================//
