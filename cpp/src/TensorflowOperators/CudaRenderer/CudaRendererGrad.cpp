@@ -1,4 +1,5 @@
 #include "CudaRendererGrad.h"
+#include <unistd.h>
 
 //==============================================================================================//
 
@@ -89,6 +90,8 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 
 	std::cout << std::endl;
+
+	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV);
 }
 
 //==============================================================================================//
@@ -163,15 +166,14 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	//determine the output dimensions
 	std::vector<tensorflow::int64> vertexDim;
 	vertexDim.push_back(numberOfBatches);
-	vertexDim.push_back(numberOfCameras);
 	vertexDim.push_back(numberOfPoints);
 	vertexDim.push_back(3);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexDimSize(vertexDim);
 
 	std::vector<tensorflow::int64> shDim;
-	vertexDim.push_back(numberOfBatches);
-	vertexDim.push_back(numberOfCameras);
-	vertexDim.push_back(27);
+	shDim.push_back(numberOfBatches);
+	shDim.push_back(numberOfCameras);
+	shDim.push_back(27);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> shDimSize(shDim);
 
 	//[0]
@@ -211,7 +213,7 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			//set input 
 			cudaBasedRasterizationGrad->setTextureWidth(textureResolutionU);
 			cudaBasedRasterizationGrad->setTextureHeight(textureResolutionV);
-			cudaBasedRasterizationGrad->set_D_vertexColorBufferGrad( (float3*) d_inputVertexColorBufferGrad);
+			cudaBasedRasterizationGrad->set_D_vertexColorBufferGrad( (float3*) d_inputVertexColorBufferGrad                                         + b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
 			cudaBasedRasterizationGrad->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
