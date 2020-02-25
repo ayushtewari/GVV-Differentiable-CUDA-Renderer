@@ -147,6 +147,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 pixLight          = getIllum(pixNorm, shCoeff);
 
 		//
+		TR = getRotationMatrix(&input.d_cameraExtrinsics[3*idc]);
+
+		//
 		GVCB(0,0) = input.d_vertexColorBufferGrad[idx].x; GVCB(0,1) = input.d_vertexColorBufferGrad[idx].y; GVCB(0,2) = input.d_vertexColorBufferGrad[idx].z;
 		 
 		// jacobians
