@@ -9,6 +9,7 @@ MESSAGE("++++ Required CMake Version: 3.9")
 
 SET (CUDA_PATH /usr/lib/cuda-10.0/bin/nvcc)
 SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf20/lib/python3.5/site-packages/tensorflow)
+SET (TFVERSION "2.0.0-beta0")
 
 #############################################################################################
 #Project with CUDA
@@ -92,7 +93,14 @@ ADD_DEFINITIONS(-DGOOGLE_CUDA -D_USE_MATH_DEFINES)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+
+IF (TFVERSION EQUAL  "2.0.0-beta0")
+	MESSAGE("TF VERSION IS 2.0.0-beta0 --> SET -D_GLIBCXX_USE_CXX11_ABI=0")
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+ELSE()
+	MESSAGE("TF VERSION IS DIFFERENT FROM 2.0.0-beta0 --> SET -D_GLIBCXX_USE_CXX11_ABI=1")
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+ENDIF()
 
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${cppFiles} ${cudaFiles})
 
