@@ -1,3 +1,4 @@
+
 //==============================================================================================//
 
 #include <cuda_runtime.h> 
@@ -35,161 +36,109 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 	if (idx < input.numberOfCameras * input.w * input.h)
 	{
-		int3 index = index1DTo3D(input.numberOfCameras, input.w, input.h, idx);
+		////////////////////////////////////////////////////////////////////////
+		//INDEXING
+		////////////////////////////////////////////////////////////////////////
+
+		int3 index = index1DTo3D(input.numberOfCameras, input.h, input.w, idx);
 		int idc = index.x;
-		int idw = index.y;
-		int idh = index.z;
+		int idh = index.y;
+		int idw = index.z;
 		int4 idf = input.d_faceIDBuffer[idx];
 
-		// return cases
 		if (idf.w == -1)
 			return;
-		//------------------------------------------------
 
-		// Co = Al * Li
-		// 	Al = Bc * Vc
-		// 		Bc = f(Vp)
-		// 	Li = Gm * No
-		// 		No = Noun / norm
-		//			Noun = f(Bc, Nv)
-		// 				Nv = f(Nf)
-		// 					Nf = f(Vp)
-		// 				Bc = f(Vp)
+		////////////////////////////////////////////////////////////////////////
+		//INIT
+		////////////////////////////////////////////////////////////////////////
 
-		//------------------------------------------------
+		float3 bcc				= input.d_barycentricCoordinatesBuffer[idx];
+		int3   faceVerticesIds  = input.d_facesVertex[idf.x];
+		const float* shCoeff	= input.d_shCoeff + idc * 27;
 
-		// JCoAl [3x3]                                       
-		// 	JAlVc [3x9]                                   
-		// 	JAlBc [3x3]
-		// 		JBcVp [3x9]
-		// JCoLi [3x3]
-		// 	JLiGm [3x27]
-		// 	JLiNo [3x3]
-		//		JNoNu [3x3]
-		//			JNuNv0 [3x3], JNuNv1 [3x3], JNuNv2 [3x3]
-		//				JNvVp [3x3 for each (Nvx, N(Nv))] 
-		//			JNuBc
-		//				JBcVp
+		float3 vertexPos0 = input.d_vertices[faceVerticesIds.x];
+		float3 vertexPos1 = input.d_vertices[faceVerticesIds.y];
+		float3 vertexPos2 = input.d_vertices[faceVerticesIds.z];
+		float3 vertexCol0 = input.d_vertexColor[faceVerticesIds.x];
+		float3 vertexCol1 = input.d_vertexColor[faceVerticesIds.y];
+		float3 vertexCol2 = input.d_vertexColor[faceVerticesIds.z];
+		float3 vertexNor0 = input.d_vertexNormal[idc*input.N + faceVerticesIds.x];
+		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + faceVerticesIds.y];
+		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + faceVerticesIds.z];
 
-
-
-		// 		JNoBc [3x3]
-		// 			JBcVp [3x9]
-		// 		JNoNv [3x9]
-		// 			JNvNf [9x3y]
-		// 				JNfVp [3yx3z]
-
-		//------------------------------------------------
-
-		//------------------------------------------------
-
-		// Co = Al * Li
-		// 	Al = Bc * Vc
-		// 		Bc = f(Vp)
-		// 	Li = Gm * No
-		// 		No = f(Bc, Nv)
-		// 			Nv = f(Nf)
-		// 				Nf = f(Vp)
-		// 			Bc = f(Vp)
-
-		//------------------------------------------------
-
-		// JCoAl [3x3]                                       
-		// 	JAlVc [3x9]                                   
-		// 	JAlBc [3x3]
-		// 		JBcVp [3x9]
-		// JCoLi [3x3]
-		// 	JLiGm [3x27]
-		// 	JLiNo [3x3]
-		// 		JNoBc [3x3]
-		// 			JBcVp [3x9]
-		// 		JNoNv [3x9]
-		// 			JNvNf [9x3y]
-		// 				JNfVp [3yx3z]
-
-		//------------------------------------------------
-
-		// gradVerPos = diag(Li) * (JCoAl * JAlBc * JBcVp) + diag(Al) * (JCoLi * JLiNo * JNoBc * JBcVp)
-		// gradVerCol = JCoAl * JAlVc 
-
-		//------------------------------------------------
-
-		// data initialization 1
-		float3 bcc = input.d_barycentricCoordinatesBuffer[idx];
-		int3   v_index = input.d_facesVertex[idf.x];
-		const float* shCoeff = input.d_shCoeff + idc * 27;
-
-		// data initialization 2
-		float3 vertexPos0 = input.d_vertices[v_index.x];
-		float3 vertexPos1 = input.d_vertices[v_index.y];
-		float3 vertexPos2 = input.d_vertices[v_index.z];
-		float3 vertexCol0 = input.d_vertexColor[v_index.x];
-		float3 vertexCol1 = input.d_vertexColor[v_index.y];
-		float3 vertexCol2 = input.d_vertexColor[v_index.z];
-		float3 vertexNor0 = input.d_vertexNormal[idc*input.N + v_index.x];
-		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + v_index.y];
-		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + v_index.z];
-
-		// data holders
-		mat1x3 GVCB;
-		mat3x3 JCoAl, JCoLi, JLiNo, JNoNu, JNuNv, JNuNvx, J, TR;
-		mat3x9 JAlVc, JBcVp;
-		mat3x9 JLiGmR, JLiGmG, JLiGmB;
-
-		// 
-		
-		
-
-		float3 pixAlb = bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
-		float3 pixNormUn = bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
-		float  pixNormVal = (sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z));
+		float3 pixAlb		= bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
+		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
+		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
 
-		// 
+
+		mat1x3 GVCB;
+		GVCB(0, 0) = input.d_vertexColorBufferGrad[idx].x; 
+		GVCB(0, 1) = input.d_vertexColorBufferGrad[idx].y; 
+		GVCB(0, 2) = input.d_vertexColorBufferGrad[idx].z;
+
+		////////////////////////////////////////////////////////////////////////
+		//VERTEX COLOR GRAD
+		////////////////////////////////////////////////////////////////////////
+
 		float3 pixLight = getIllum(pixNorm, shCoeff);
-		/*float3 pixCo = input.d_renderBuffer[idx];
-		float3 pixTCo;*/
-		
-		//pixTCo.x = pixCo.x / pixLight.x; 
-		//pixTCo.y = pixCo.y / pixLight.y; 
-		//pixTCo.z = pixCo.z / pixLight.z; //If texture is used.
-		//
-		TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
 
-		//
-		GVCB(0, 0) = input.d_vertexColorBufferGrad[idx].x; GVCB(0, 1) = input.d_vertexColorBufferGrad[idx].y; GVCB(0, 2) = input.d_vertexColorBufferGrad[idx].z;
-		//GVCB(0, 0) = input.d_vertexColorBufferGrad[idx].x; GVCB(0, 1) = input.d_vertexColorBufferGrad[idx].y; GVCB(0, 2) = input.d_vertexColorBufferGrad[idx].z;
-		// jacobians
+		mat3x3 JCoAl;
 		getJCoAl(JCoAl, pixLight);
-		getJAlVc(JAlVc, bcc);
-		getJCoLi(JCoLi, pixAlb);
-		//getJCoLi(JCoLi, pixTCo); // If texture is used.
-		getJLiGm(JLiGmR, 0, pixNorm);
-		getJLiGm(JLiGmG, 1, pixNorm);
-		getJLiGm(JLiGmB, 2, pixNorm);
-		getJLiNo(JLiNo, pixNorm, (float *)shCoeff);
-		getJNoNu(JNoNu, pixNormUn, pixNormVal);
 
-		// Gradients
+		mat3x9 JAlVc;
+		getJAlVc(JAlVc, bcc);
+
 		mat1x9 gradVerCol = GVCB * JCoAl * JAlVc;
+
+		addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
+
+		////////////////////////////////////////////////////////////////////////
+		//LIGHTING GRAD
+		////////////////////////////////////////////////////////////////////////
+
+		// jacobians
+		mat3x3 JCoLi;
+		getJCoLi(JCoLi, pixAlb);
+
+		mat3x9 JLiGmR;
+		getJLiGm(JLiGmR, 0, pixNorm);
+		mat3x9 JLiGmG;
+		getJLiGm(JLiGmG, 1, pixNorm);
+		mat3x9 JLiGmB;
+		getJLiGm(JLiGmB, 2, pixNorm);
+
 		mat1x9 gradSHCoeffR = GVCB * JCoLi * JLiGmR;
 		mat1x9 gradSHCoeffG = GVCB * JCoLi * JLiGmG;
 		mat1x9 gradSHCoeffB = GVCB * JCoLi * JLiGmB;
-		//mat1x9 gradVerPos   = GVCB * JCoAl * JAlBc * JBcVp;
-		addGradients9I(gradVerCol, input.d_vertexColorGrad, v_index);
+
 		addGradients9(gradSHCoeffR, &input.d_shCoeffGrad[idc * 27]);
 		addGradients9(gradSHCoeffG, &input.d_shCoeffGrad[idc * 27+9]);
 		addGradients9(gradSHCoeffB, &input.d_shCoeffGrad[idc * 27+18]);
 
-		//
+		////////////////////////////////////////////////////////////////////////
+		//VERTEX POS GRAD
+		////////////////////////////////////////////////////////////////////////
+
+		mat3x3 JNoNu;
+		getJNoNu(JNoNu, pixNormUn, pixNormVal);
+
+		mat3x3 JLiNo;
+		getJLiNo(JLiNo, pixNorm, (float *)shCoeff);
+
+		mat3x3 TR;
+		TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
+		mat3x3 J;
 		int idv;
+		mat3x3 JNuNvx;
 		JNuNvx.setIdentity();
 		for (int i = 0; i < 3; i++)
 		{
 			//
-			if (i == 0) { idv = v_index.x; JNuNvx = bcc.x * JNuNvx; }
-			else if (i == 1) { idv = v_index.y; JNuNvx = bcc.y * JNuNvx; }
-			else { idv = v_index.z; JNuNvx = bcc.z * JNuNvx; }
+			if (i == 0) { idv = faceVerticesIds.x; JNuNvx = bcc.x * JNuNvx; }
+			else if (i == 1) { idv = faceVerticesIds.y; JNuNvx = bcc.y * JNuNvx; }
+			else { idv = faceVerticesIds.z; JNuNvx = bcc.z * JNuNvx; }
 
 			//
 			int2 verFaceId = input.d_vertexFacesId[idv];
@@ -205,6 +154,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				vk = TR * (mat3x1)input.d_vertices[v_index_inner.z];
 
 				getJ(J, TR, vj, vi);
+
 				// gradients
 				mat1x3 gradVj = GVCB * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y].x);
@@ -219,7 +169,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x].x);
 			}
 		}
-
 	}
 }
 

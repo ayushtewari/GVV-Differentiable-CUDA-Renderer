@@ -27,3 +27,5 @@ class CameraReader:
                     if (i <= 12):
                         self.extrinsics.append(float(splittedLine[i]))
 
+        self.numberOfCameras = len(self.extrinsics) / 12
+

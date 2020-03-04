@@ -179,15 +179,15 @@ __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 
 __inline__ __device__ void addGradients9I(mat1x9 grad, float3* d_grad, int3 index)
 {
-	atomicAdd(&d_grad[index.x * 3].x, grad(0, 0));
-	atomicAdd(&d_grad[index.x * 3].y, grad(0, 1));
-	atomicAdd(&d_grad[index.x * 3].z, grad(0, 2));
-	atomicAdd(&d_grad[index.y * 3].x, grad(0, 3));
-	atomicAdd(&d_grad[index.y * 3].y, grad(0, 4));
-	atomicAdd(&d_grad[index.y * 3].z, grad(0, 5));
-	atomicAdd(&d_grad[index.z * 3].x, grad(0, 6));
-	atomicAdd(&d_grad[index.z * 3].y, grad(0, 7));
-	atomicAdd(&d_grad[index.z * 3].z, grad(0, 8));
+	atomicAdd(&d_grad[index.x].x, grad(0, 0));
+	atomicAdd(&d_grad[index.x].y, grad(0, 1));
+	atomicAdd(&d_grad[index.x].z, grad(0, 2));
+	atomicAdd(&d_grad[index.y].x, grad(0, 3));
+	atomicAdd(&d_grad[index.y].y, grad(0, 4));
+	atomicAdd(&d_grad[index.y].z, grad(0, 5));
+	atomicAdd(&d_grad[index.z].x, grad(0, 6));
+	atomicAdd(&d_grad[index.z].y, grad(0, 7));
+	atomicAdd(&d_grad[index.z].z, grad(0, 8));
 }
 
 __device__ inline mat3x3 getRotationMatrix(float4* d_T)

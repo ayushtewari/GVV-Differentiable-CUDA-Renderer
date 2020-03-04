@@ -351,6 +351,7 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					float3 pixNorm = v0_norm * abc.x + v1_norm * abc.y + v2_norm * abc.z;
 					float pixNormNorm = sqrtf(pixNorm.x*pixNorm.x + pixNorm.y*pixNorm.y + pixNorm.z*pixNorm.z);
 					pixNorm = pixNorm / pixNormNorm;
+
 					float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc*27));
 					input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
 					input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
@@ -361,7 +362,8 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					input.d_vertexColorBuffer[pixelId2 + 2] = color.z;*/
 
 					//vertex color buffer
-					color = make_float3(input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,
+					color = make_float3(
+						input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,
 						input.d_vertexColor[indexv0].y * abc.x + input.d_vertexColor[indexv1].y * abc.y + input.d_vertexColor[indexv2].y * abc.z,
 						input.d_vertexColor[indexv0].z * abc.x + input.d_vertexColor[indexv1].z * abc.y + input.d_vertexColor[indexv2].z * abc.z);
 					colorShaded = getShading(color, pixNorm, input.d_shCoeff);

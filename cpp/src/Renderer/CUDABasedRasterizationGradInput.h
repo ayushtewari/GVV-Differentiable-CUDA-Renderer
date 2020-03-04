@@ -47,12 +47,9 @@ struct CUDABasedRasterizationGradInput
 	//////////////////////////
 
 	//misc
-	int4*				d_BBoxes;								//bbox for each triangle											//INIT IN CONSTRUCTOR
-	float3*				d_projectedVertices;					//vertex position on image with depth after projection				//INIT IN CONSTRUCTOR
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
-	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
-	float3*				d_vertexNormal;						//vertex normals													//INIT IN CONSTRUCTOR
+
 		
 	//////////////////////////
 	//INPUTS
@@ -60,7 +57,7 @@ struct CUDABasedRasterizationGradInput
 
 	float3*				d_vertices;								//vertex positions
 	float3*				d_vertexColor;							//vertex color
-
+	float3*				d_vertexNormal;							//vertex normals												
 	//texture
 	int					texWidth;								//dimension of texture
 	int					texHeight;								//dimension of texture
@@ -73,18 +70,14 @@ struct CUDABasedRasterizationGradInput
 
 	//render buffers
 	int4*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
-	int*				d_depthBuffer;							//depth value per pixel per view
 	float3*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
-	float3*				d_renderBuffer;
 	float3*				d_vertexColorBuffer;
 
-	//visibility and boundary per vertex
-	bool*				d_visibilities;							//is visible flag (per vertex per view)
-	bool*				d_boundaries;							//is boundary flag (per vertex per view)
 
 	//////////////////////////
 	//Gradients
 	//////////////////////////
+
 	float3*				d_vertexColorBufferGrad;
 	float3*				d_vertexPosGrad;
 	float3*				d_vertexColorGrad;

@@ -6,6 +6,7 @@
 REGISTER_OP("CudaRendererGradGpu")
 
 .Input("vertex_color_buffer_grad: float")
+
 .Input("vertex_pos: float")
 .Input("vertex_color: float")
 .Input("texture: float")
@@ -58,39 +59,6 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_v", &renderResolutionV));
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
-	//---CONSOLE OUTPUT---
-
-	std::cout << std::endl;
-
-	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
-
-	std::cout << std::endl;
-
-	std::cout << "OPERATOR: CudaRendererGrad" << std::endl;
-
-	std::cout << std::endl;
-
-	std::cout << "Input(0) Points Global Space dimensions: " << 3 << std::endl;
-	std::cout << "	" << "Input(0) Points Global Space dimension " << 0 << " size: " << "batch size" << std::endl;
-	std::cout << "	" << "Input(0) Points Global Space dimension " << 1 << " size: " << std::to_string(numberOfPoints) << std::endl;
-	std::cout << "	" << "Input(0) Points Global Space dimension " << 2 << " size: " << 3 << std::endl;
-
-	std::cout << std::endl;
-
-	std::cout << "Output(0) Is Boundary dimensions: " << 3 << std::endl;
-	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 0 << " size: " << "batch size" << std::endl;
-	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 1 << " size: " << std::to_string(numberOfCameras) << std::endl;
-	std::cout << "	" << "Ouput(0) Is Boundary dimension " << 2 << " size: " << std::to_string(numberOfPoints) << std::endl;
-
-	std::cout << std::endl;
-
-
-	std::cout << std::endl;
-
-	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
-
-	std::cout << std::endl;
-
 	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV);
 }
 
@@ -98,7 +66,6 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 
 void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 {
-
 	//---INPUT---
 
 	//[0]
@@ -189,6 +156,7 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(1, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexColorGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexColorGradFlat = outputTensorVertexColorGrad->flat<float>();
 	d_outputVertexColorGrad = outputTensorVertexColorGradFlat.data();
+	cudaMemset(d_outputVertexColorGrad, 0.f, numberOfBatches*numberOfPoints * 3);
 
 	//[2]
 	//sh coeff gradients
@@ -213,20 +181,20 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			//set input 
 			cudaBasedRasterizationGrad->setTextureWidth(textureResolutionU);
 			cudaBasedRasterizationGrad->setTextureHeight(textureResolutionV);
-			cudaBasedRasterizationGrad->set_D_vertexColorBufferGrad( (float3*) d_inputVertexColorBufferGrad                                         + b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
-			cudaBasedRasterizationGrad->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints * 3);
-			cudaBasedRasterizationGrad->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints * 3);
-			cudaBasedRasterizationGrad->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
-			cudaBasedRasterizationGrad->set_D_shCoeff(						d_inputSHCoeff							+ b * numberOfCameras * 27);
-			cudaBasedRasterizationGrad->set_D_vertexNormal( (float3*)			d_inputVertexNormal + b * numberOfCameras * numberOfPoints * 3);
-			cudaBasedRasterizationGrad->set_D_barycentricCoordinatesBuffer( (float3 *)	d_inputBaryCentricBuffer + b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
-			cudaBasedRasterizationGrad->set_D_faceIDBuffer(	(int4*)				d_inputFaceBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU * 4);
-			cudaBasedRasterizationGrad->set_D_vertexColorBuffer((float3*)			d_inputVertexColorBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			cudaBasedRasterizationGrad->set_D_vertexColorBufferGrad(		(float3*)			d_inputVertexColorBufferGrad			+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			cudaBasedRasterizationGrad->set_D_vertices(						(float3*)			d_inputVertexPos						+ b * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_vertexColors(					(float3*)			d_inputVertexColor						+ b * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_textureMap(										d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
+			cudaBasedRasterizationGrad->set_D_shCoeff(											d_inputSHCoeff							+ b * numberOfCameras * 27);
+			cudaBasedRasterizationGrad->set_D_vertexNormal(					(float3*)			d_inputVertexNormal						+ b * numberOfCameras * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_barycentricCoordinatesBuffer( (float3 *)			d_inputBaryCentricBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			cudaBasedRasterizationGrad->set_D_faceIDBuffer(					(int4*)				d_inputFaceBuffer						+ b * numberOfCameras * renderResolutionV * renderResolutionU * 4);
+			cudaBasedRasterizationGrad->set_D_vertexColorBuffer(			(float3*)			d_inputVertexColorBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
 
 			//set output
-			cudaBasedRasterizationGrad->set_D_vertexPosGrad(			(float3*)   d_outputVertexPosGrad + b * numberOfPoints * 3);
-			cudaBasedRasterizationGrad->set_D_vertexColorGrad(			(float3*)   d_outputVertexColorGrad + b * numberOfPoints * 3);
-			cudaBasedRasterizationGrad->set_D_shCoeffGrad(			(float*)   d_outputSHCoeffGrad + b * numberOfCameras * 27);
+			cudaBasedRasterizationGrad->set_D_vertexPosGrad(				(float3*)			d_outputVertexPosGrad					+ b * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_vertexColorGrad(				(float3*)			d_outputVertexColorGrad					+ b * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_shCoeffGrad(					(float*)			d_outputSHCoeffGrad						+ b * numberOfCameras * 27);
 
 			//get gradients
 			cudaBasedRasterizationGrad->renderBuffersGrad();

@@ -58,7 +58,6 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 
 	//misc
 	input.N = numberOfVertices;
-	cutilSafeCall(cudaMalloc(&input.d_vertexNormal,		sizeof(float3) *	input.N * input.numberOfCameras));
 }
 
 //==============================================================================================//
@@ -104,15 +103,12 @@ CUDABasedRasterizationGrad::~CUDABasedRasterizationGrad()
 	cutilSafeCall(cudaFree(input.d_facesVertex));
 	cutilSafeCall(cudaFree(input.d_vertexFaces));
 	cutilSafeCall(cudaFree(input.d_vertexFacesId));
-	cutilSafeCall(cudaFree(input.d_faceNormal));
-	cutilSafeCall(cudaFree(input.d_vertexNormal));
 }
 
 //==============================================================================================//
 
 void CUDABasedRasterizationGrad::renderBuffersGrad()
 {
-
 	renderBuffersGradGPU(input);
 }
 

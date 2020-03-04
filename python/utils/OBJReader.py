@@ -63,6 +63,8 @@ class OBJReader:
             self.textureCoordinates.append(texCoord[0])
             self.textureCoordinates.append(texCoord[1])
 
+        self.numberOfVertices = len(self.vertexColors)
+
 
     def loadMtlTexture(self,mtlFileName,shortPath):
         mtlFile = open(mtlFileName)
