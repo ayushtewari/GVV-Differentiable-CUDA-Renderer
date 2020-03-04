@@ -306,6 +306,8 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 				bool isInsideTriangle = (abc.x >= -0.001f) && (abc.y >= -0.001f) && (abc.z >= -0.001f) && (abc.x <= 1.001f) && (abc.y <= 1.001f) && (abc.z <= 1.001f);
 
 				float z = 1.f / (abc.x / vertex0.z + abc.y / vertex1.z + abc.z / vertex2.z); //Perspective-Correct Interpolation
+				float3 ABC = make_float3(z*abc.x / vertex0.z, z*abc.y / vertex1.z, z*abc.z / vertex2.z);
+				abc = ABC;
 
 				int pixelId = idc* input.w* input.h + input.w * v + u;
 
@@ -353,6 +355,10 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
 					input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
 					input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+
+					/*input.d_vertexColorBuffer[pixelId2 + 0] = color.x;
+					input.d_vertexColorBuffer[pixelId2 + 1] = color.y;
+					input.d_vertexColorBuffer[pixelId2 + 2] = color.z;*/
 
 					//vertex color buffer
 					color = make_float3(input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,

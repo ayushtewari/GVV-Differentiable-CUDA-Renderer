@@ -20,31 +20,31 @@
 __inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
 {
 	JCoAl.setZero();
-	JCoAl(0,0) = pixLight.x;
-	JCoAl(1,1) = pixLight.y;
-	JCoAl(2,2) = pixLight.z;
+	JCoAl(0, 0) = pixLight.x;
+	JCoAl(1, 1) = pixLight.y;
+	JCoAl(2, 2) = pixLight.z;
 }
 
 __inline__ __device__ void getJAlVc(mat3x9 &JAlVc, float3 bcc)
 {
 	JAlVc.setZero();
-	JAlVc(0,0) = bcc.x;
-	JAlVc(0,3) = bcc.y;
-	JAlVc(0,6) = bcc.z;
-	JAlVc(1,1) = bcc.x;
-	JAlVc(1,4) = bcc.y;
-	JAlVc(1,7) = bcc.z;
-	JAlVc(2,2) = bcc.x;
-	JAlVc(2,5) = bcc.y;
-	JAlVc(2,8) = bcc.z;
+	JAlVc(0, 0) = bcc.x;
+	JAlVc(0, 3) = bcc.y;
+	JAlVc(0, 6) = bcc.z;
+	JAlVc(1, 1) = bcc.x;
+	JAlVc(1, 4) = bcc.y;
+	JAlVc(1, 7) = bcc.z;
+	JAlVc(2, 2) = bcc.x;
+	JAlVc(2, 5) = bcc.y;
+	JAlVc(2, 8) = bcc.z;
 }
 
 __inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
 {
 	JCoLi.setZero();
-	JCoLi(0,0) = pixAlb.x;
-	JCoLi(1,1) = pixAlb.y;
-	JCoLi(2,2) = pixAlb.z;
+	JCoLi(0, 0) = pixAlb.x;
+	JCoLi(1, 1) = pixAlb.y;
+	JCoLi(2, 2) = pixAlb.z;
 }
 
 __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
@@ -88,21 +88,21 @@ __inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 {
 	JLiGm.setZero();
 
-	JLiGm(rgb,0) = 1;
-	JLiGm(rgb,1) = pixNorm.y;
-	JLiGm(rgb,2) = pixNorm.z;
-	JLiGm(rgb,3) = pixNorm.x;
-	JLiGm(rgb,4) = pixNorm.x * pixNorm.y;
-	JLiGm(rgb,5) = pixNorm.z * pixNorm.y;
-	JLiGm(rgb,6) = 3*pixNorm.z*pixNorm.z - 1;
-	JLiGm(rgb,7) = pixNorm.x * pixNorm.z;
-	JLiGm(rgb,8) = ( (pixNorm.x * pixNorm.x) - (pixNorm.y*pixNorm.y) );
+	JLiGm(rgb, 0) = 1;
+	JLiGm(rgb, 1) = pixNorm.y;
+	JLiGm(rgb, 2) = pixNorm.z;
+	JLiGm(rgb, 3) = pixNorm.x;
+	JLiGm(rgb, 4) = pixNorm.x * pixNorm.y;
+	JLiGm(rgb, 5) = pixNorm.z * pixNorm.y;
+	JLiGm(rgb, 6) = 3 * pixNorm.z*pixNorm.z - 1;
+	JLiGm(rgb, 7) = pixNorm.x * pixNorm.z;
+	JLiGm(rgb, 8) = ((pixNorm.x * pixNorm.x) - (pixNorm.y*pixNorm.y));
 }
 
 __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, float* shCoeff)
 {
 	JLiNo.setZero();
-	for (int i = 0; i<3; i++) {
+	for (int i = 0; i < 3; i++) {
 		JLiNo(i, 0) = shCoeff[(i * 9) + 3] +
 			(shCoeff[(i * 9) + 4] * dir.y) +
 			(shCoeff[(i * 9) + 7] * dir.z) +
@@ -152,12 +152,12 @@ __inline__ __device__ void getJ(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 	J(0, 0) = -temp3.x;		//for adjacent vertex
 	J(1, 0) = -temp3.y;
 	J(2, 0) = -temp3.z;
-	
+
 	temp3 = cross(-Iy, diff);
 	J(0, 1) = -temp3.x;
 	J(1, 1) = -temp3.y;
 	J(2, 1) = -temp3.z;
-	
+
 	temp3 = cross(-Iz, diff);
 	J(0, 2) = -temp3.x;
 	J(1, 2) = -temp3.y;
@@ -166,41 +166,42 @@ __inline__ __device__ void getJ(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 
 __inline__ __device__ void addGradients(mat1x3 grad, float* d_grad)
 {
-	atomicAdd(&d_grad[0], grad(0,0));
-	atomicAdd(&d_grad[1], grad(0,1));
-	atomicAdd(&d_grad[2], grad(0,2));
+	atomicAdd(&d_grad[0], grad(0, 0));
+	atomicAdd(&d_grad[1], grad(0, 1));
+	atomicAdd(&d_grad[2], grad(0, 2));
 }
 
 __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 {
-	for(int ii=0; ii<9; ii++)
-		atomicAdd(&d_grad[ii], grad(0,ii));
+	for (int ii = 0; ii < 9; ii++)
+		atomicAdd(&d_grad[ii], grad(0, ii));
 }
 
 __inline__ __device__ void addGradients9I(mat1x9 grad, float3* d_grad, int3 index)
 {
-	atomicAdd(&d_grad[index.x*3].x, grad(0,0));
-	atomicAdd(&d_grad[index.x*3].y, grad(0,1));
-	atomicAdd(&d_grad[index.x*3].z, grad(0,2));
-	atomicAdd(&d_grad[index.y*3].x, grad(0,3));
-	atomicAdd(&d_grad[index.y*3].y, grad(0,4));
-	atomicAdd(&d_grad[index.y*3].z, grad(0,5));
-	atomicAdd(&d_grad[index.z*3].x, grad(0,6));
-	atomicAdd(&d_grad[index.z*3].y, grad(0,7));
-	atomicAdd(&d_grad[index.z*3].z, grad(0,8));
+	atomicAdd(&d_grad[index.x * 3].x, grad(0, 0));
+	atomicAdd(&d_grad[index.x * 3].y, grad(0, 1));
+	atomicAdd(&d_grad[index.x * 3].z, grad(0, 2));
+	atomicAdd(&d_grad[index.y * 3].x, grad(0, 3));
+	atomicAdd(&d_grad[index.y * 3].y, grad(0, 4));
+	atomicAdd(&d_grad[index.y * 3].z, grad(0, 5));
+	atomicAdd(&d_grad[index.z * 3].x, grad(0, 6));
+	atomicAdd(&d_grad[index.z * 3].y, grad(0, 7));
+	atomicAdd(&d_grad[index.z * 3].z, grad(0, 8));
 }
 
 __device__ inline mat3x3 getRotationMatrix(float4* d_T)
 {
 	mat3x3 TE;
-	TE(0,0) = d_T[0].x; 
-	TE(0,1) = d_T[0].y; 
-	TE(0,2) = d_T[0].z; 
-	TE(1,0) = d_T[1].x; 
-	TE(1,1) = d_T[1].y; 
-	TE(1,2) = d_T[1].z; 
-	TE(2,0) = d_T[2].x; 
-	TE(2,1) = d_T[2].y; 
-	TE(2,2) = d_T[2].z; 
+	TE(0, 0) = d_T[0].x;
+	TE(0, 1) = d_T[0].y;
+	TE(0, 2) = d_T[0].z;
+	TE(1, 0) = d_T[1].x;
+	TE(1, 1) = d_T[1].y;
+	TE(1, 2) = d_T[1].z;
+	TE(2, 0) = d_T[2].x;
+	TE(2, 1) = d_T[2].y;
+	TE(2, 2) = d_T[2].z;
 	return TE;
 }
+

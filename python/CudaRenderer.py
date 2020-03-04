@@ -88,14 +88,16 @@ class CudaRendererGpu:
 ########################################################################################################################
 # Register gradients
 ########################################################################################################################
+        
 
-@ops.RegisterGradient("CudaRendererGpu")
-def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender, gradVertexColor):
+#@ops.RegisterGradient("CudaRendererGpu")
+#def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender, gradVertexColor):
+#
+#    # determine the zero gradient stuff
+#    pointsGlobalSpaceZeroGrad = tf.zeros(tf.shape(op.inputs[1]), tf.float32)
+#    return pointsGlobalSpaceZeroGrad
 
-    # determine the zero gradient stuff
-    pointsGlobalSpaceZeroGrad = tf.zeros(tf.shape(op.inputs[1]), tf.float32)
-    
-    return pointsGlobalSpaceZeroGrad
+
 
 ########################################################################################################################
 #
