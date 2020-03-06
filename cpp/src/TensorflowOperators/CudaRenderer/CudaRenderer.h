@@ -64,6 +64,8 @@ class CudaRenderer : public OpKernel
 		int textureResolutionU;
 		int textureResolutionV;
 
+		std::string renderMode;
+
 		CUDABasedRasterization* cudaBasedRasterization;
 
 		//GPU input
@@ -77,10 +79,6 @@ class CudaRenderer : public OpKernel
 		int*	d_outputFaceIDBuffer;
 		int*	d_outputDepthBuffer;
 		float*	d_outputRenderBuffer;
-		float*	d_outputVertexColorBuffer;
-
-		bool*	d_outputBoundary;
-		bool*	d_outputVisible;
 
 		float*	d_outputVertexNormal;
 };

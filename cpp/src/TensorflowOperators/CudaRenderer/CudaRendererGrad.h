@@ -73,8 +73,7 @@ class CudaRendererGrad : public OpKernel
 		const float* d_inputSHCoeff;
 		const float* d_inputVertexNormal;
 		const float* d_inputBaryCentricBuffer;
-		const int* d_inputFaceBuffer;
-		const float* d_inputVertexColorBuffer;
+		const int*   d_inputFaceBuffer;
 
 		//GPU output
 		float*	d_outputVertexPosGrad;

@@ -14,7 +14,6 @@ REGISTER_OP("CudaRendererGradGpu")
 .Input("vertex_normal: float")
 .Input("barycentric_buffer: float")
 .Input("face_buffer: int32")
-.Input("vertex_color_buffer: float")
 
 .Output("vertex_pos_grad: float")
 .Output("vertex_color_grad: float")
@@ -116,12 +115,6 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	Eigen::TensorMap<Eigen::Tensor< const int, 1, 1, Eigen::DenseIndex>, 16> inputTensorFaceBufferFlat = inputTensorFaceBuffer.flat_inner_dims<int, 1>();
 	d_inputFaceBuffer= inputTensorFaceBufferFlat.data();
 
-	//[8]
-	//Grab the vertex color buffer
-	const Tensor& inputTensorVertexColorBuffer = context->input(8);
-	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexColorBufferFlat = inputTensorVertexColorBuffer.flat_inner_dims<float, 1>();
-	d_inputVertexColorBuffer = inputTensorVertexColorBufferFlat.data();
-
 	//---MISC---
 
 	numberOfBatches      = inputTensorVertexPos.dim_size(0); 
@@ -149,6 +142,7 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(0, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexPosGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexPosGradFlat = outputTensorVertexPosGrad->flat<float>();
 	d_outputVertexPosGrad = outputTensorVertexPosGradFlat.data();
+	cudaMemset(d_outputVertexPosGrad, 0.f, numberOfBatches*numberOfPoints * 3);
 
 	//[1]
 	//vertex color gradients
@@ -164,7 +158,7 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(shDimSize), &outputTensorSHCoeffGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorSHCoeffGradFlat= outputTensorSHCoeffGrad->flat<float>();
 	d_outputSHCoeffGrad = outputTensorSHCoeffGradFlat.data();
-
+	cudaMemset(d_outputSHCoeffGrad, 0.f, numberOfBatches*numberOfCameras * 27);
 }
 
 //==============================================================================================//
@@ -182,15 +176,17 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			cudaBasedRasterizationGrad->setTextureWidth(textureResolutionU);
 			cudaBasedRasterizationGrad->setTextureHeight(textureResolutionV);
 			cudaBasedRasterizationGrad->set_D_vertexColorBufferGrad(		(float3*)			d_inputVertexColorBufferGrad			+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			
 			cudaBasedRasterizationGrad->set_D_vertices(						(float3*)			d_inputVertexPos						+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_vertexColors(					(float3*)			d_inputVertexColor						+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_textureMap(										d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
+	
 			cudaBasedRasterizationGrad->set_D_shCoeff(											d_inputSHCoeff							+ b * numberOfCameras * 27);
 			cudaBasedRasterizationGrad->set_D_vertexNormal(					(float3*)			d_inputVertexNormal						+ b * numberOfCameras * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_barycentricCoordinatesBuffer( (float3 *)			d_inputBaryCentricBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			
 			cudaBasedRasterizationGrad->set_D_faceIDBuffer(					(int4*)				d_inputFaceBuffer						+ b * numberOfCameras * renderResolutionV * renderResolutionU * 4);
-			cudaBasedRasterizationGrad->set_D_vertexColorBuffer(			(float3*)			d_inputVertexColorBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
-
+			
 			//set output
 			cudaBasedRasterizationGrad->set_D_vertexPosGrad(				(float3*)			d_outputVertexPosGrad					+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_vertexColorGrad(				(float3*)			d_outputVertexColorGrad					+ b * numberOfPoints * 3);
@@ -198,7 +194,6 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 
 			//get gradients
 			cudaBasedRasterizationGrad->renderBuffersGrad();
-
 		}
 	}
 	catch (std::exception e)

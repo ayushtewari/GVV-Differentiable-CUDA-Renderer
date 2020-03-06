@@ -8,7 +8,7 @@
 
 //==============================================================================================//
 
-CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV)
+CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode)
 {
 	//faces
 	if(faces.size() % 3 == 0)
@@ -59,6 +59,16 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 
 	input.w = frameResolutionU;
 	input.h = frameResolutionV;
+
+	//render mode
+	if (renderMode == "vertexColor")
+	{
+		input.renderMode = RenderMode::VertexColor;
+	}
+	else if (renderMode == "textured")
+	{
+		input.renderMode = RenderMode::Textured;
+	}
 
 	//misc
 	input.N = numberOfVertices;
@@ -120,11 +130,4 @@ void CUDABasedRasterization::getVertexFaces(int numberOfVertices, std::vector<in
 void CUDABasedRasterization::renderBuffers()
 {
 	renderBuffersGPU(input);
-}
-
-//==============================================================================================//
-
-void CUDABasedRasterization::checkVisibility(bool checkBoundary)
-{
-	checkVisibilityGPU(input, checkBoundary);
 }

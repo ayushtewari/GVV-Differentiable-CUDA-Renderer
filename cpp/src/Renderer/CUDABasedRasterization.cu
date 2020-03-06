@@ -92,16 +92,6 @@ __global__ void initializeDevice(CUDABasedRasterizationInput input)
 		input.d_renderBuffer[3 * idx + 0] = 0.f;
 		input.d_renderBuffer[3 * idx + 1] = 0.f;
 		input.d_renderBuffer[3 * idx + 2] = 0.f;
-
-		input.d_vertexColorBuffer[3 * idx + 0] = 0.f;
-		input.d_vertexColorBuffer[3 * idx + 1] = 0.f;
-		input.d_vertexColorBuffer[3 * idx + 2] = 0.f;
-	}
-
-	if (idx < input.N*input.numberOfCameras)
-	{
-		input.d_visibilities[idx] = false;
-		input.d_boundaries[idx] = false;
 	}
 }
 
@@ -134,40 +124,6 @@ __global__ void projectVerticesDevice(CUDABasedRasterizationInput input)
 /*
 Computes the face normals
 */
-__global__ void renderVertexNormalDevice(CUDABasedRasterizationInput input)
-{
-	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-	if (idx < input.numberOfCameras * input.N)
-	{
-		int2 index = index1DTo2D(input.numberOfCameras, input.N, idx);
-		int idc = index.x;
-		int idv = index.y;
-
-		int2 verFaceId = input.d_vertexFacesId[idv];
-		float3 vertNorm;
-		for (int i = verFaceId.x; i<verFaceId.x + verFaceId.y; i++)
-		{
-			int faceId = input.d_vertexFaces[i];
-
-			if (i == verFaceId.x)
-				vertNorm = input.d_faceNormal[faceId];
-			else 
-			{
-				vertNorm.x = vertNorm.x + input.d_faceNormal[faceId].x;
-				vertNorm.y = vertNorm.y + input.d_faceNormal[faceId].y;
-				vertNorm.z = vertNorm.z + input.d_faceNormal[faceId].z;
-			}
-		}
-		input.d_vertexNormal[idx] = vertNorm;
-	}
-}
-
-//==============================================================================================//
-
-/*
-Computes the face normals
-*/
 __global__ void renderFaceNormalDevice(CUDABasedRasterizationInput input)
 {
 	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -191,6 +147,34 @@ __global__ void renderFaceNormalDevice(CUDABasedRasterizationInput input)
 		float3 c_v2 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v2);
 
 		input.d_faceNormal[idx] = cross(c_v1 - c_v0, c_v2 - c_v0);
+	}
+}
+
+//==============================================================================================//
+
+/*
+Computes the vertex normals
+*/
+__global__ void renderVertexNormalDevice(CUDABasedRasterizationInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < input.numberOfCameras * input.N)
+	{
+		int2 index = index1DTo2D(input.numberOfCameras, input.N, idx);
+		int idc = index.x;
+		int idv = index.y;
+
+		int2 verFaceId = input.d_vertexFacesId[idv];
+		float3 vertNorm= make_float3(0.f,0.f,0.f);
+		float faceCounter = 0.f;
+		for (int i = verFaceId.x; i<verFaceId.x + verFaceId.y; i++)
+		{
+			int faceId = input.d_vertexFaces[i];
+			vertNorm = vertNorm + input.d_faceNormal[faceId];
+			faceCounter++;
+		}
+		input.d_vertexNormal[idx] = vertNorm/faceCounter;
 	}
 }
 
@@ -327,24 +311,8 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					input.d_barycentricCoordinatesBuffer[pixelId2 + 1] = abc.y;
 					input.d_barycentricCoordinatesBuffer[pixelId2 + 2] = abc.z;
 
-					//render buffer
-					float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
-					float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
-					float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
-					float2 finalTexCoord = texCoord0* abc.x + texCoord1* abc.y + texCoord2* abc.z;
-					finalTexCoord.x = finalTexCoord.x * input.texWidth;
-					finalTexCoord.y = (1.f - finalTexCoord.y) * input.texHeight;
 
-					finalTexCoord.x = fmaxf(finalTexCoord.x, 0);
-					finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth-1);
-					finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
-					finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
-
-					float3 color = make_float3(	input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
-												input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 1],
-												input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
-
-					// shading
+					//shading
 					float3 v0_norm = input.d_vertexNormal[input.N*idc + indexv0];
 					float3 v1_norm = input.d_vertexNormal[input.N*idc + indexv1];
 					float3 v2_norm = input.d_vertexNormal[input.N*idc + indexv2];
@@ -352,25 +320,59 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					float pixNormNorm = sqrtf(pixNorm.x*pixNorm.x + pixNorm.y*pixNorm.y + pixNorm.z*pixNorm.z);
 					pixNorm = pixNorm / pixNormNorm;
 
-					float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc*27));
-					input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
-					input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
-					input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+					//render buffer
+					if (input.renderMode == RenderMode::Textured)
+					{
+						float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
+						float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
+						float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
+						float2 finalTexCoord = texCoord0* abc.x + texCoord1* abc.y + texCoord2* abc.z;
+						finalTexCoord.x = finalTexCoord.x * input.texWidth;
+						finalTexCoord.y = (1.f - finalTexCoord.y) * input.texHeight;
 
-					/*input.d_vertexColorBuffer[pixelId2 + 0] = color.x;
-					input.d_vertexColorBuffer[pixelId2 + 1] = color.y;
-					input.d_vertexColorBuffer[pixelId2 + 2] = color.z;*/
+						finalTexCoord.x = fmaxf(finalTexCoord.x, 0);
+						finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth - 1);
+						finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
+						finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
 
-					//vertex color buffer
-					color = make_float3(
-						input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,
-						input.d_vertexColor[indexv0].y * abc.x + input.d_vertexColor[indexv1].y * abc.y + input.d_vertexColor[indexv2].y * abc.z,
-						input.d_vertexColor[indexv0].z * abc.x + input.d_vertexColor[indexv1].z * abc.y + input.d_vertexColor[indexv2].z * abc.z);
-					colorShaded = getShading(color, pixNorm, input.d_shCoeff);
+						float3 color = make_float3(input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
+							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 1],
+							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
 
-					input.d_vertexColorBuffer[pixelId2 + 0] = colorShaded.x;
-					input.d_vertexColorBuffer[pixelId2 + 1] = colorShaded.y;
-					input.d_vertexColorBuffer[pixelId2 + 2] = colorShaded.z;
+						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
+						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
+						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
+						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+					}
+					else if (input.renderMode == RenderMode::VertexColor)
+					{
+						//vertex color buffer
+						float3 color = make_float3(
+							input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,
+							input.d_vertexColor[indexv0].y * abc.x + input.d_vertexColor[indexv1].y * abc.y + input.d_vertexColor[indexv2].y * abc.z,
+							input.d_vertexColor[indexv0].z * abc.x + input.d_vertexColor[indexv1].z * abc.y + input.d_vertexColor[indexv2].z * abc.z);
+
+						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
+						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
+						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
+						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+					}
+
+					if (u == 387 && v == 350 && idc == 0)
+					{
+						printf("	face Id : %d", idf);
+						printf("	Vertex Id 0: %d \n", indexv0);
+						printf("	Vertex Id 1: %d \n", indexv1);
+						printf("	Vertex Id 2: %d \n", indexv2);
+							
+						printf("	bary  0: %f \n", abc.x);
+						printf("	bary  1: %f \n", abc.y);
+						printf("	bary  2: %f \n", abc.z);
+
+						printf("	render  0: %f \n", input.d_renderBuffer[pixelId2 + 0]);
+						printf("	render  1: %f \n", input.d_renderBuffer[pixelId2 + 1]);
+						printf("	render  2: %f \n", input.d_renderBuffer[pixelId2 + 2]);
+					}
 				}
 			}
 		}
@@ -381,103 +383,17 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 
 extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input)
 {
-	initializeDevice << <(input.w*input.h*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	initializeDevice			<< <(input.w*input.h*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
 
-	projectVerticesDevice << <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	projectVerticesDevice		<< <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	projectFacesDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	projectFacesDevice			<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderFaceNormalDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	renderFaceNormalDevice		<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderVertexNormalDevice << <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	renderVertexNormalDevice	<< <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderDepthBufferDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+	renderDepthBufferDevice		<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
-	renderBuffersDevice << <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
-}
-
-//==============================================================================================//
-//Checkvisibility
-//==============================================================================================//
-
-/*
-Compute the per vertex visibility by simple depth map lookup
-*/
-__global__ void checkVisibilityDevice(CUDABasedRasterizationInput input)
-{
-	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
-	if (idx < input.N*input.numberOfCameras)
-	{
-		int2 index = index1DTo2D(input.numberOfCameras, input.N, idx);
-		int idc = index.x;
-		int idv = index.y;
-		float3 currentVertex = input.d_projectedVertices[idx];
-
-		for (int i = -1; i <= 1; i++)
-		{
-			for (int j = -1; j <= 1; j++)
-			{
-				int2 uv = make_int2(currentVertex.x + i, currentVertex.y + j);
-				if (uv.x >= 0 && uv.x < input.w  && uv.y >= 0 && uv.y < input.h)
-				{
-					int v0 = input.d_faceIDBuffer[idc*input.w*input.h * 4 + input.w * uv.y * 4 + uv.x * 4 + 1];
-					int v1 = input.d_faceIDBuffer[idc*input.w*input.h * 4 + input.w * uv.y * 4 + uv.x * 4 + 2];
-					int v2 = input.d_faceIDBuffer[idc*input.w*input.h * 4 + input.w * uv.y * 4 + uv.x * 4 + 3];
-
-					if (v0 == idv || v1 == idv || v2 == idv)
-					{
-						input.d_visibilities[idx] = true;
-					}
-				}
-			}
-		}
-	}
-}
-
-//==============================================================================================//
-
-__global__ void checkBoundaryDevice(CUDABasedRasterizationInput input, bool useGapDetectionForBoundary)
-{
-	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
-	if (idx < input.N*input.numberOfCameras)
-	{
-		int2 index = index1DTo2D(input.numberOfCameras, input.N, idx);
-		int idc = index.x;
-		int idv = index.y;
-
-		float3 currentVertex = input.d_projectedVertices[idx];
-		int u = currentVertex.x;
-		int v = currentVertex.y;
-
-		int searchWindow = 1;
-
-		if ((u - searchWindow) >= 0 && (u + searchWindow) < input.w && (v - searchWindow) >= 0 && (v + searchWindow) < input.h)
-		{
-			//check boundary
-			for (int c = u - searchWindow; c <= u + searchWindow; c++)
-			{
-				for (int r = v - searchWindow; r <= v + searchWindow; r++)
-				{
-					float depthSample = input.d_depthBuffer[idc*input.w*input.h + r*input.w + c];
-
-					if (depthSample == INT_MAX)
-					{
-						input.d_boundaries[idc * input.N + idv] = true;
-					}
-				}
-			}
-		}
-	}
-}
-
-//==============================================================================================//
-
-extern "C" void checkVisibilityGPU(CUDABasedRasterizationInput& input, bool checkBoundary, bool useGapDetectionForBoundary)
-{
-	checkVisibilityDevice << < (input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
-
-	if (checkBoundary)
-	{
-		checkBoundaryDevice << < (input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input, useGapDetectionForBoundary);
-	}
+	renderBuffersDevice			<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 }

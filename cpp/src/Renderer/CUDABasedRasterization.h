@@ -17,7 +17,6 @@
 //==============================================================================================//
 
 extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input);
-extern "C" void checkVisibilityGPU(CUDABasedRasterizationInput& input, bool checkBoundary);
 
 //==============================================================================================//
 
@@ -30,12 +29,11 @@ class CUDABasedRasterization
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV);
+		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode);
 		~CUDABasedRasterization();
 
 		void getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId);
 		void renderBuffers();
-		void checkVisibility(bool checkBoundary);
 
 		//=================================================//
 		//=================================================//
@@ -47,8 +45,6 @@ class CUDABasedRasterization
 		inline int								getNumberOfVertices()						{ return input.N; };
 		inline int3*							get_D_facesVertex()							{ return input.d_facesVertex; };
 		inline float3*							get_D_vertices()							{ return input.d_vertices; };
-		inline bool*							get_D_visibilities()						{ return input.d_visibilities; };
-		inline bool*							get_D_boundaries()							{ return input.d_boundaries; };
 		inline float3*							get_D_vertexColor()							{ return input.d_vertexColor; };
 
 		//getter for texture
@@ -76,7 +72,6 @@ class CUDABasedRasterization
 		inline int*								get_D_depthBuffer()							{ return input.d_depthBuffer; };
 		inline float*							get_D_barycentricCoordinatesBuffer()		{ return input.d_barycentricCoordinatesBuffer; };
 		inline float*							get_D_renderBuffer()						{ return input.d_renderBuffer; };
-		inline float*							get_D_vertexColorBuffer()					{ return input.d_vertexColorBuffer; };
 
 		//=================================================//
 		//=================================================//
@@ -93,12 +88,8 @@ class CUDABasedRasterization
 		inline void							set_D_depthBuffer(int* newDepthBuffer)							{ input.d_depthBuffer = newDepthBuffer; };
 		inline void							set_D_barycentricCoordinatesBuffer(float* newBarycentricBuffer) { input.d_barycentricCoordinatesBuffer = newBarycentricBuffer; };
 		inline void							set_D_renderBuffer(float* newRenderBuffer)						{ input.d_renderBuffer = newRenderBuffer; };
-		inline void							set_D_vertexColorBuffer(float* newVertexColorbuffer)			{ input.d_vertexColorBuffer = newVertexColorbuffer; };
 
-		inline void							set_D_boundaries(bool* d_inputBoundaries)						{ input.d_boundaries = d_inputBoundaries; };
-		inline void							set_D_visibilities(bool* d_inputvisibilities)					{ input.d_visibilities = d_inputvisibilities; };
-
-		inline void							set_D_vertexNormal(float* d_inputvertexNormal)					{ input.d_vertexNormal= (float3 *) d_inputvertexNormal; };
+		inline void							set_D_vertexNormal(float3* d_inputvertexNormal)					{ input.d_vertexNormal= d_inputvertexNormal; };
 
 
 	//variables

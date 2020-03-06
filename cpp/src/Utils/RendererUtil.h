@@ -25,18 +25,20 @@ __inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
 	JCoAl(2, 2) = pixLight.z;
 }
 
-__inline__ __device__ void getJAlVc(mat3x9 &JAlVc, float3 bcc)
+__inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
 {
 	JAlVc.setZero();
 	JAlVc(0, 0) = bcc.x;
-	JAlVc(0, 3) = bcc.y;
-	JAlVc(0, 6) = bcc.z;
 	JAlVc(1, 1) = bcc.x;
-	JAlVc(1, 4) = bcc.y;
-	JAlVc(1, 7) = bcc.z;
 	JAlVc(2, 2) = bcc.x;
-	JAlVc(2, 5) = bcc.y;
-	JAlVc(2, 8) = bcc.z;
+
+	JAlVc(3, 0) = bcc.y;
+	JAlVc(4, 1) = bcc.y;
+	JAlVc(5, 2) = bcc.y;
+
+	JAlVc(6, 0) = bcc.z;
+	JAlVc(7, 1) = bcc.z;
+	JAlVc(8, 2) = bcc.z;
 }
 
 __inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
@@ -177,17 +179,17 @@ __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 		atomicAdd(&d_grad[ii], grad(0, ii));
 }
 
-__inline__ __device__ void addGradients9I(mat1x9 grad, float3* d_grad, int3 index)
+__inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
 	atomicAdd(&d_grad[index.x].x, grad(0, 0));
-	atomicAdd(&d_grad[index.x].y, grad(0, 1));
-	atomicAdd(&d_grad[index.x].z, grad(0, 2));
-	atomicAdd(&d_grad[index.y].x, grad(0, 3));
-	atomicAdd(&d_grad[index.y].y, grad(0, 4));
-	atomicAdd(&d_grad[index.y].z, grad(0, 5));
-	atomicAdd(&d_grad[index.z].x, grad(0, 6));
-	atomicAdd(&d_grad[index.z].y, grad(0, 7));
-	atomicAdd(&d_grad[index.z].z, grad(0, 8));
+	atomicAdd(&d_grad[index.x].y, grad(1, 0));
+	atomicAdd(&d_grad[index.x].z, grad(2, 0));
+	atomicAdd(&d_grad[index.y].x, grad(3, 0));
+	atomicAdd(&d_grad[index.y].y, grad(4, 0));
+	atomicAdd(&d_grad[index.y].z, grad(5, 0));
+	atomicAdd(&d_grad[index.z].x, grad(6, 0));
+	atomicAdd(&d_grad[index.z].y, grad(7, 0));
+	atomicAdd(&d_grad[index.z].z, grad(8, 0));
 }
 
 __device__ inline mat3x3 getRotationMatrix(float4* d_T)

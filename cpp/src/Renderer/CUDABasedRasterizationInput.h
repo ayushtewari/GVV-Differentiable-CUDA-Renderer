@@ -20,7 +20,10 @@
 #define THREADS_PER_BLOCK_CUDABASEDRASTERIZER 256
 
 //==============================================================================================//
-
+enum RenderMode
+{
+	VertexColor, Textured
+};
 struct CUDABasedRasterizationInput
 {
 	//////////////////////////
@@ -52,15 +55,15 @@ struct CUDABasedRasterizationInput
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
-		
+	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
+
 	//////////////////////////
 	//INPUTS
 	//////////////////////////
 
 	float3*				d_vertices;								//vertex positions
 	float3*				d_vertexColor;							//vertex color
-	float3*				d_vertexNormal;						//vertex normals													//INIT IN CONSTRUCTOR
-
+									
 	//texture
 	int					texWidth;								//dimension of texture
 	int					texHeight;								//dimension of texture
@@ -76,14 +79,6 @@ struct CUDABasedRasterizationInput
 	int*				d_depthBuffer;							//depth value per pixel per view
 	float*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
 	float*				d_renderBuffer;
-	float*				d_vertexColorBuffer;
 
-	//visibility and boundary per vertex
-	bool*				d_visibilities;							//is visible flag (per vertex per view)
-	bool*				d_boundaries;							//is boundary flag (per vertex per view)
-
-	//////////////////////////
-	//Gradients
-	//////////////////////////
-	float*				d_vertexColorBufferGrad;
+	float3*				d_vertexNormal;							//vertex normals				
 };

@@ -30,17 +30,17 @@ struct CUDABasedRasterizationGradInput
 	//camera and frame
 	int					numberOfCameras;						//number of cameras													//INIT IN CONSTRUCTOR
 	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
-	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR
+	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR			////
 	int					w;										//frame width														//INIT IN CONSTRUCTOR
 	int					h;										//frame height														//INIT IN CONSTRUCTOR
 
 	//geometry
-	int					F;										//number of faces													//INIT IN CONSTRUCTOR
+	int					F;										//number of faces													//INIT IN CONSTRUCTOR			////
 	int					N;										//number of vertices												//INIT IN CONSTRUCTOR
 	int3*				d_facesVertex;							//part of face data structure										//INIT IN CONSTRUCTOR
 
-	//texture 
-	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR
+	//texture	
+	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR			////
 
 	//////////////////////////
 	//STATES 
@@ -54,14 +54,16 @@ struct CUDABasedRasterizationGradInput
 	//////////////////////////
 	//INPUTS
 	//////////////////////////
+	
+	float3*				d_vertexColorBufferGrad;
 
 	float3*				d_vertices;								//vertex positions
 	float3*				d_vertexColor;							//vertex color
 	float3*				d_vertexNormal;							//vertex normals												
 	//texture
-	int					texWidth;								//dimension of texture
-	int					texHeight;								//dimension of texture
-	const float*		d_textureMap;							//texture map
+	int					texWidth;								//dimension of texture																				///
+	int					texHeight;								//dimension of texture																				///
+	const float*		d_textureMap;							//texture map																						///
 	const float*		d_shCoeff;								//shading coefficients
 
 	//////////////////////////
@@ -71,14 +73,12 @@ struct CUDABasedRasterizationGradInput
 	//render buffers
 	int4*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
 	float3*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
-	float3*				d_vertexColorBuffer;
 
 
 	//////////////////////////
 	//Gradients
 	//////////////////////////
 
-	float3*				d_vertexColorBufferGrad;
 	float3*				d_vertexPosGrad;
 	float3*				d_vertexColorGrad;
 	float*				d_shCoeffGrad;

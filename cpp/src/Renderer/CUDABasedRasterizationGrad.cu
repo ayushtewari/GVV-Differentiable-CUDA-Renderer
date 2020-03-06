@@ -23,9 +23,7 @@
 // Vp - vertex position 
 // Gm - sh coefficients
 
-
-// vertex_color_grad = ( Cg * JCgAl * JAlVc )
-
+//==============================================================================================//
 
 /*
 Get gradients for vertex color buffer
@@ -67,30 +65,42 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + faceVerticesIds.y];
 		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + faceVerticesIds.z];
 
-		float3 pixAlb		= bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
 		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
 
+		if (idw == 387 && idh == 350 && idc ==0)
+		{
+			printf("	grad face Id : %d \n", idf.x);
+			printf("	grad Vertex Id 0: %d \n", faceVerticesIds.x);
+			printf("	grad Vertex Id 1: %d \n", faceVerticesIds.y);
+			printf("	grad Vertex Id 2: %d \n", faceVerticesIds.z);
 
-		mat1x3 GVCB;
-		GVCB(0, 0) = input.d_vertexColorBufferGrad[idx].x; 
-		GVCB(0, 1) = input.d_vertexColorBufferGrad[idx].y; 
-		GVCB(0, 2) = input.d_vertexColorBufferGrad[idx].z;
+			printf("	grad bary  0: %f \n", bcc.x);
+			printf("	grad bary  1: %f \n", bcc.y);
+			printf("	grad bary  2: %f \n", bcc.z);
 
+			printf("	grad render  0: %f \n", input.d_vertexColorBufferGrad[idx].x);
+			printf("	grad render  1: %f \n", input.d_vertexColorBufferGrad[idx].y);
+			printf("	grad render  2: %f \n", input.d_vertexColorBufferGrad[idx].z);
+		}
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX COLOR GRAD
 		////////////////////////////////////////////////////////////////////////
 
-		float3 pixLight = getIllum(pixNorm, shCoeff);
+		mat9x3 JAlVc;
+		getJAlVc(JAlVc, bcc);
 
+		float3 pixLight = getIllum(pixNorm, shCoeff);
 		mat3x3 JCoAl;
 		getJCoAl(JCoAl, pixLight);
 
-		mat3x9 JAlVc;
-		getJAlVc(JAlVc, bcc);
+		mat3x1 GVCBVertexColor;
+		GVCBVertexColor(0, 0) = input.d_vertexColorBufferGrad[idx].x;
+		GVCBVertexColor(1, 0) = input.d_vertexColorBufferGrad[idx].y;
+		GVCBVertexColor(2, 0) = input.d_vertexColorBufferGrad[idx].z;
 
-		mat1x9 gradVerCol = GVCB * JCoAl * JAlVc;
+		mat9x1 gradVerCol = JAlVc * JCoAl * GVCBVertexColor;
 
 		addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
 
@@ -98,8 +108,14 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		//LIGHTING GRAD
 		////////////////////////////////////////////////////////////////////////
 
+		mat1x3 GVCBLight;
+		GVCBLight(0, 0) = input.d_vertexColorBufferGrad[idx].x;
+		GVCBLight(0, 1) = input.d_vertexColorBufferGrad[idx].y;
+		GVCBLight(0, 2) = input.d_vertexColorBufferGrad[idx].z;
+
 		// jacobians
 		mat3x3 JCoLi;
+		float3 pixAlb = bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
 		getJCoLi(JCoLi, pixAlb);
 
 		mat3x9 JLiGmR;
@@ -109,9 +125,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x9 JLiGmB;
 		getJLiGm(JLiGmB, 2, pixNorm);
 
-		mat1x9 gradSHCoeffR = GVCB * JCoLi * JLiGmR;
-		mat1x9 gradSHCoeffG = GVCB * JCoLi * JLiGmG;
-		mat1x9 gradSHCoeffB = GVCB * JCoLi * JLiGmB;
+		mat1x9 gradSHCoeffR = GVCBLight * JCoLi * JLiGmR;
+		mat1x9 gradSHCoeffG = GVCBLight * JCoLi * JLiGmG;
+		mat1x9 gradSHCoeffB = GVCBLight * JCoLi * JLiGmB;
 
 		addGradients9(gradSHCoeffR, &input.d_shCoeffGrad[idc * 27]);
 		addGradients9(gradSHCoeffG, &input.d_shCoeffGrad[idc * 27+9]);
@@ -120,6 +136,11 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX POS GRAD
 		////////////////////////////////////////////////////////////////////////
+
+		mat1x3 GVCBPosition;
+		GVCBPosition(0, 0) = input.d_vertexColorBufferGrad[idx].x;
+		GVCBPosition(0, 1) = input.d_vertexColorBufferGrad[idx].y;
+		GVCBPosition(0, 2) = input.d_vertexColorBufferGrad[idx].z;
 
 		mat3x3 JNoNu;
 		getJNoNu(JNoNu, pixNormUn, pixNormVal);
@@ -156,16 +177,16 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				getJ(J, TR, vj, vi);
 
 				// gradients
-				mat1x3 gradVj = GVCB * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y].x);
-				mat1x3 gradVi = -GVCB * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				mat1x3 gradVi = -GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x].x);
 
 				getJ(J, TR, vk, vi);
 				// gradients
-				mat1x3 gradVk = GVCB * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z].x);
-				gradVi = -GVCB * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x].x);
 			}
 		}
