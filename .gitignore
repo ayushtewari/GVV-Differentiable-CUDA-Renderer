@@ -6,3 +6,4 @@
 /python/result/
 /python/utils/__pycache__/
 /python/data/__pycache__/
+/python/test_gradients/*
