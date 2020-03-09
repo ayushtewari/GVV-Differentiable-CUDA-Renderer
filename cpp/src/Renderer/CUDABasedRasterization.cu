@@ -357,22 +357,6 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
 						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
 					}
-
-					if (u == 387 && v == 350 && idc == 0)
-					{
-						printf("	face Id : %d", idf);
-						printf("	Vertex Id 0: %d \n", indexv0);
-						printf("	Vertex Id 1: %d \n", indexv1);
-						printf("	Vertex Id 2: %d \n", indexv2);
-							
-						printf("	bary  0: %f \n", abc.x);
-						printf("	bary  1: %f \n", abc.y);
-						printf("	bary  2: %f \n", abc.z);
-
-						printf("	render  0: %f \n", input.d_renderBuffer[pixelId2 + 0]);
-						printf("	render  1: %f \n", input.d_renderBuffer[pixelId2 + 1]);
-						printf("	render  2: %f \n", input.d_renderBuffer[pixelId2 + 2]);
-					}
 				}
 			}
 		}

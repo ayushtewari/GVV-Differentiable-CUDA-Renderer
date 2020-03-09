@@ -52,7 +52,7 @@ def test_color_gradient():
                                         intrinsics_attr              = cameraReader.intrinsics,
                                         renderResolutionU_attr       = 1024,
                                         renderResolutionV_attr       = 1024,
-                                        renderMode_attr              = 'vertexColor',
+                                        renderMode_attr              = 'textured',
 
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
@@ -60,14 +60,14 @@ def test_color_gradient():
                                         shCoeff_input                = SHCConst
                                         ).getRenderBuffer()
 
-    VertexColor_rnd = tf.Variable(tf.zeros(VertexColorConst.shape))
+    VertexTextureRand = tf.Variable(tf.zeros(VertexTextureConst.shape))
 
-    opt = tf.keras.optimizers.SGD(learning_rate=10.0)
+    opt = tf.keras.optimizers.SGD(learning_rate=100.0)
 
     for i in range(3000):
 
         with tf.GradientTape() as tape:
-            tape.watch(VertexColor_rnd)
+            tape.watch(VertexTextureRand)
             renderer = CudaRenderer.CudaRendererGpu(
                 faces_attr=objreader.facesVertexId,
                 texCoords_attr=objreader.textureCoordinates,
@@ -76,11 +76,11 @@ def test_color_gradient():
                 intrinsics_attr=cameraReader.intrinsics,
                 renderResolutionU_attr=1024,
                 renderResolutionV_attr=1024,
-                renderMode_attr='vertexColor',
+                renderMode_attr='textured',
 
                 vertexPos_input=VertexPosConst,
-                vertexColor_input=VertexColor_rnd,
-                texture_input=VertexTextureConst,
+                vertexColor_input=VertexColorConst,
+                texture_input=VertexTextureRand,
                 shCoeff_input=SHCConst
             )
 
@@ -90,17 +90,17 @@ def test_color_gradient():
             Loss = tf.reduce_sum(Loss1) / (float(cameraReader.numberOfCameras) * float(objreader.numberOfVertices))
 
         #apply gradient
-        Color_Grad = tape.gradient(Loss,VertexColor_rnd)
-        opt.apply_gradients(zip([Color_Grad],[VertexColor_rnd]))
+        Color_Grad = tape.gradient(Loss,VertexTextureRand)
+        opt.apply_gradients(zip([Color_Grad],[VertexTextureRand]))
 
         # print loss
         print(i, Loss.numpy())
 
         #output images
-        cv.imwrite('test_gradients/target.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
+        cv.imwrite('test_gradients/textureTarget.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
         vertexColorBuffer = output[0][0].numpy() * 255.0
         vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
-        cv.imwrite('test_gradients/Color {}.png'.format(i),vertexColorBuffer)
+        cv.imwrite('test_gradients/Texture {}.png'.format(i),vertexColorBuffer)
 
 ########################################################################################################################
 # main

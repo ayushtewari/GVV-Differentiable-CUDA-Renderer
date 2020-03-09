@@ -14,6 +14,7 @@
 //==============================================================================================//
 
 #include <cuda_runtime.h> 
+#include "CUDABasedRasterizationInput.h"
 
 //==============================================================================================//
 
@@ -49,7 +50,7 @@ struct CUDABasedRasterizationGradInput
 	//misc
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
-
+	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
 		
 	//////////////////////////
 	//INPUTS
@@ -81,5 +82,6 @@ struct CUDABasedRasterizationGradInput
 
 	float3*				d_vertexPosGrad;
 	float3*				d_vertexColorGrad;
+	float3*				d_textureGrad;
 	float*				d_shCoeffGrad;
 };

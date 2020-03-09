@@ -28,9 +28,9 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 ########################################################################################################################
 
 testMesh3D = test_mesh_tensor.getGTMesh()
-testSHCoeff = test_SH_tensor.getSHCoeff()
+testSHCoeff = test_SH_tensor.getSHCoeff(14)
 objreader = OBJReader.OBJReader('data/magdalena.obj')
-cameraReader = CameraReader.CameraReader('data/test.calibration')
+cameraReader = CameraReader.CameraReader('data/cameras.calibration')
 
 ########################################################################################################################
 # test spherical harmonics lighting
@@ -51,14 +51,15 @@ def test_SHC_gradient():
                                             intrinsics_attr=cameraReader.intrinsics,
                                             renderResolutionU_attr=1024,
                                             renderResolutionV_attr=1024,
+                                            renderMode_attr='textured',
 
                                             vertexPos_input=VertexPosConst,
                                             vertexColor_input=VertexColorConst,
                                             texture_input=VertexTextureConst,
                                             shCoeff_input=SHCConst
-                                        ).getVertexColorBuffer()
+                                        ).getRenderBuffer()
 
-    SHC_rnd = tf.Variable(SHCConst+tf.random.uniform([batch_size,1, 27],0, 0.5) )
+    SHC_rnd = tf.Variable(SHCConst+tf.random.uniform([1,1, 27],0, 0.5) )
 
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
 
@@ -73,12 +74,12 @@ def test_SHC_gradient():
                                             intrinsics_attr=cameraReader.intrinsics,
                                             renderResolutionU_attr=1024,
                                             renderResolutionV_attr=1024,
-
+                                            renderMode_attr='textured',
                                             vertexPos_input=VertexPosConst,
                                             vertexColor_input=VertexColorConst,
                                             texture_input=VertexTextureConst,
                                             shCoeff_input=SHC_rnd
-                                        ).getVertexColorBuffer()
+                                        ).getRenderBuffer()
 
             Loss=tf.nn.l2_loss(target-output)
         
@@ -88,7 +89,7 @@ def test_SHC_gradient():
         opt.apply_gradients(zip([SHC_Grad],[SHC_rnd]))
 
         if(i==0):
-            cv.imwrite('test_gradients/target.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
+            cv.imwrite('test_gradients/targetLighting.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
         if((i+1)%5==0):    
             vertexColorBuffer = output[0][0].numpy() * 255.0
             vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)

@@ -1,5 +1,5 @@
-#include "CudaRendererGrad.h"
 
+#include "CudaRendererGrad.h"
 
 //==============================================================================================//
 
@@ -17,6 +17,7 @@ REGISTER_OP("CudaRendererGradGpu")
 
 .Output("vertex_pos_grad: float")
 .Output("vertex_color_grad: float")
+.Output("texture_grad: float")
 .Output("sh_coeff_grad: float")
 
 .Attr("faces: list(int)")
@@ -25,7 +26,8 @@ REGISTER_OP("CudaRendererGradGpu")
 .Attr("extrinsics: list(float)")
 .Attr("intrinsics: list(float)")
 .Attr("render_resolution_u: int = 512")
-.Attr("render_resolution_v: int = 512");
+.Attr("render_resolution_v: int = 512")
+.Attr("render_mode: string");
 
 //==============================================================================================//
 
@@ -58,7 +60,14 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_v", &renderResolutionV));
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
-	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV);
+	OP_REQUIRES_OK(context, context->GetAttr("render_mode", &renderMode));
+	if (renderMode != "vertexColor" && renderMode != "textured")
+	{
+		std::cout << "INVALID RENDER MODE" << std::endl;
+		return;
+	}
+
+	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, renderMode);
 }
 
 //==============================================================================================//
@@ -130,6 +139,13 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	vertexDim.push_back(3);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexDimSize(vertexDim);
 
+	std::vector<tensorflow::int64> texDim;
+	texDim.push_back(numberOfBatches);
+	texDim.push_back(textureResolutionV);
+	texDim.push_back(textureResolutionU);
+	texDim.push_back(3);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> texDimSize(texDim);
+
 	std::vector<tensorflow::int64> shDim;
 	shDim.push_back(numberOfBatches);
 	shDim.push_back(numberOfCameras);
@@ -142,7 +158,6 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(0, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexPosGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexPosGradFlat = outputTensorVertexPosGrad->flat<float>();
 	d_outputVertexPosGrad = outputTensorVertexPosGradFlat.data();
-	cudaMemset(d_outputVertexPosGrad, 0.f, numberOfBatches*numberOfPoints * 3);
 
 	//[1]
 	//vertex color gradients
@@ -150,15 +165,20 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(1, tensorflow::TensorShape(vertexDimSize), &outputTensorVertexColorGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexColorGradFlat = outputTensorVertexColorGrad->flat<float>();
 	d_outputVertexColorGrad = outputTensorVertexColorGradFlat.data();
-	cudaMemset(d_outputVertexColorGrad, 0.f, numberOfBatches*numberOfPoints * 3);
 
 	//[2]
+	//texture gradients
+	tensorflow::Tensor* outputTensorTextureGrad;
+	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(texDimSize), &outputTensorTextureGrad));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorTextureGradFlat = outputTensorTextureGrad->flat<float>();
+	d_outputTextureGrad = outputTensorTextureGradFlat.data();
+
+	//[3]
 	//sh coeff gradients
 	tensorflow::Tensor* outputTensorSHCoeffGrad;
-	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(shDimSize), &outputTensorSHCoeffGrad));
+	OP_REQUIRES_OK(context, context->allocate_output(3, tensorflow::TensorShape(shDimSize), &outputTensorSHCoeffGrad));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorSHCoeffGradFlat= outputTensorSHCoeffGrad->flat<float>();
 	d_outputSHCoeffGrad = outputTensorSHCoeffGradFlat.data();
-	cudaMemset(d_outputSHCoeffGrad, 0.f, numberOfBatches*numberOfCameras * 27);
 }
 
 //==============================================================================================//
@@ -190,6 +210,7 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			//set output
 			cudaBasedRasterizationGrad->set_D_vertexPosGrad(				(float3*)			d_outputVertexPosGrad					+ b * numberOfPoints * 3);
 			cudaBasedRasterizationGrad->set_D_vertexColorGrad(				(float3*)			d_outputVertexColorGrad					+ b * numberOfPoints * 3);
+			cudaBasedRasterizationGrad->set_D_textureGrad(					(float3*)			d_outputTextureGrad						+ b * textureResolutionU * textureResolutionV * 3);
 			cudaBasedRasterizationGrad->set_D_shCoeffGrad(					(float*)			d_outputSHCoeffGrad						+ b * numberOfCameras * 27);
 
 			//get gradients

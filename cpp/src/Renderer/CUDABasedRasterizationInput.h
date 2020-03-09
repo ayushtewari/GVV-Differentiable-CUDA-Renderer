@@ -24,6 +24,9 @@ enum RenderMode
 {
 	VertexColor, Textured
 };
+
+//==============================================================================================//
+
 struct CUDABasedRasterizationInput
 {
 	//////////////////////////

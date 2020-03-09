@@ -7,8 +7,8 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED 
 
-SET (CUDADIR C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/bin/nvcc)
-SET(TENSORFLOW_PATH D:/Anaconda3/Lib/site-packages/tensorflow)
+SET (CUDADIR C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2)
+SET (TENSORFLOW_PATH D:/Anaconda3/Lib/site-packages/tensorflow)
 
 #############################################################################################
 #CUDA 

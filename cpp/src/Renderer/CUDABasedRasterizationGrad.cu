@@ -26,6 +26,52 @@
 //==============================================================================================//
 
 /*
+Initialize gradients for lighting 
+*/
+__global__ void initBuffersGradDevice2(CUDABasedRasterizationGradInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < input.numberOfCameras * 27)
+	{
+		input.d_shCoeffGrad[idx] = 0.f;
+	}
+}
+
+//==============================================================================================//
+
+/*
+Initialize gradients for texture
+*/
+__global__ void initBuffersGradDevice1(CUDABasedRasterizationGradInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < input.texHeight * input.texWidth)
+	{
+		input.d_textureGrad[idx] = make_float3(0.f,0.f,0.f);
+	}
+}
+
+//==============================================================================================//
+
+/*
+Initialize gradients for mesh pos and color
+*/
+__global__ void initBuffersGradDevice0(CUDABasedRasterizationGradInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < input.N)
+	{
+		input.d_vertexPosGrad[idx]	 = make_float3(0.f, 0.f, 0.f);
+		input.d_vertexColorGrad[idx] = make_float3(0.f, 0.f, 0.f);
+	}
+}
+
+//==============================================================================================//
+
+/*
 Get gradients for vertex color buffer
 */
 __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
@@ -69,27 +115,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
 
-		if (idw == 387 && idh == 350 && idc ==0)
-		{
-			printf("	grad face Id : %d \n", idf.x);
-			printf("	grad Vertex Id 0: %d \n", faceVerticesIds.x);
-			printf("	grad Vertex Id 1: %d \n", faceVerticesIds.y);
-			printf("	grad Vertex Id 2: %d \n", faceVerticesIds.z);
-
-			printf("	grad bary  0: %f \n", bcc.x);
-			printf("	grad bary  1: %f \n", bcc.y);
-			printf("	grad bary  2: %f \n", bcc.z);
-
-			printf("	grad render  0: %f \n", input.d_vertexColorBufferGrad[idx].x);
-			printf("	grad render  1: %f \n", input.d_vertexColorBufferGrad[idx].y);
-			printf("	grad render  2: %f \n", input.d_vertexColorBufferGrad[idx].z);
-		}
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX COLOR GRAD
 		////////////////////////////////////////////////////////////////////////
-
-		mat9x3 JAlVc;
-		getJAlVc(JAlVc, bcc);
 
 		float3 pixLight = getIllum(pixNorm, shCoeff);
 		mat3x3 JCoAl;
@@ -100,9 +128,39 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		GVCBVertexColor(1, 0) = input.d_vertexColorBufferGrad[idx].y;
 		GVCBVertexColor(2, 0) = input.d_vertexColorBufferGrad[idx].z;
 
-		mat9x1 gradVerCol = JAlVc * JCoAl * GVCBVertexColor;
+		if (input.renderMode == RenderMode::VertexColor)
+		{
+			mat9x3 JAlVc;
+			getJAlVc(JAlVc, bcc);
 
-		addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
+			mat9x1 gradVerCol = JAlVc * JCoAl * GVCBVertexColor;
+
+			addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
+		}
+
+		////////////////////////////////////////////////////////////////////////
+		//TEXTURE GRAD
+		////////////////////////////////////////////////////////////////////////
+
+		if (input.renderMode == RenderMode::Textured)
+		{
+			mat3x1 gradTexColor = JCoAl * GVCBVertexColor;
+
+			float2 texCoord0 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 1]);
+			float2 texCoord1 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 1]);
+			float2 texCoord2 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 1]);
+			float2 finalTexCoord = texCoord0* bcc.x + texCoord1* bcc.y + texCoord2* bcc.z;
+			finalTexCoord.x = finalTexCoord.x * input.texWidth;
+			finalTexCoord.y = (1.f - finalTexCoord.y) * input.texHeight;
+			finalTexCoord.x = fmaxf(finalTexCoord.x, 0);
+			finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth - 1);
+			finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
+			finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
+
+			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].x, gradTexColor(0, 0));
+			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].y, gradTexColor(1, 0));
+			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].z, gradTexColor(2, 0));
+		}
 
 		////////////////////////////////////////////////////////////////////////
 		//LIGHTING GRAD
@@ -197,7 +255,13 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input)
 {
-	renderBuffersGradDevice << <(input.numberOfCameras*input.w*input.h + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	initBuffersGradDevice2    << <(input.numberOfCameras * 27 + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+
+	initBuffersGradDevice1 << <(input.texHeight * input.texWidth + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+
+	initBuffersGradDevice0   << <(input.N + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+
+	renderBuffersGradDevice  << <(input.numberOfCameras*input.w*input.h + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
 }
 
 //==============================================================================================//

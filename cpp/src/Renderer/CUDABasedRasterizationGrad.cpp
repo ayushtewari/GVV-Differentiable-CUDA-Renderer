@@ -4,7 +4,7 @@
 
 //==============================================================================================//
 
-CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV)
+CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode)
 {
 	//faces
 	if(faces.size() % 3 == 0)
@@ -51,6 +51,16 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 		std::cout << "Camera extrinsics or intrinsics coordinates have wrong dimensionality!" << std::endl;
 		std::cout << "Extrinsics have dimension " << extrinsics.size() << std::endl;
 		std::cout << "Intrinsics have dimension " << intrinsics.size() << std::endl;
+	}
+
+	//render mode
+	if (renderMode == "vertexColor")
+	{
+		input.renderMode = RenderMode::VertexColor;
+	}
+	else if (renderMode == "textured")
+	{
+		input.renderMode = RenderMode::Textured;
 	}
 
 	input.w = frameResolutionU;

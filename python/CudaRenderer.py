@@ -93,7 +93,7 @@ class CudaRendererGpu:
 
 @ops.RegisterGradient("CudaRendererGpu")
 def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender, gradNorm):
-    TextureZeroGrad = tf.zeros(tf.shape(op.inputs[2]), tf.float32)
+
     gradients = customOperators.cuda_renderer_grad_gpu(
         # grads
         vertex_color_buffer_grad    = gradRender,
@@ -114,8 +114,9 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender,
         intrinsics                  = op.get_attr('intrinsics'),
         render_resolution_u         = op.get_attr('render_resolution_u'),
         render_resolution_v         = op.get_attr('render_resolution_v'),
+        render_mode                 = op.get_attr('render_mode'),
     )
-    return gradients[0], gradients[1], TextureZeroGrad, gradients[2]
+    return gradients[0], gradients[1], gradients[2], gradients[3]
 
 ########################################################################################################################
 #

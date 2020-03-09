@@ -62,6 +62,7 @@ class CudaRendererGrad : public OpKernel
 		int renderResolutionV;
 		int textureResolutionU;
 		int textureResolutionV;
+		std::string renderMode;
 
 		CUDABasedRasterizationGrad* cudaBasedRasterizationGrad;
 
@@ -78,6 +79,7 @@ class CudaRendererGrad : public OpKernel
 		//GPU output
 		float*	d_outputVertexPosGrad;
 		float*	d_outputVertexColorGrad;
+		float*  d_outputTextureGrad;
 		float*	d_outputSHCoeffGrad;
 
 };

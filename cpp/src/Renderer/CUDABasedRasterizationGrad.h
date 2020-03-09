@@ -29,7 +29,7 @@ class CUDABasedRasterizationGrad
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV);
+		CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode);
 		~CUDABasedRasterizationGrad();
 
 		void getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId);
@@ -87,6 +87,7 @@ class CUDABasedRasterizationGrad
 
 		inline void							set_D_vertexPosGrad(float3* d_outputVertexPosGrad)						{ input.d_vertexPosGrad					= d_outputVertexPosGrad; };
 		inline void							set_D_vertexColorGrad(float3* d_outputVertexColorGrad)					{ input.d_vertexColorGrad				= d_outputVertexColorGrad; };
+		inline void							set_D_textureGrad(float3* d_outputTexGrad)								{ input.d_textureGrad					= d_outputTexGrad; };
 		inline void							set_D_shCoeffGrad(float* d_outputSHCoeffGrad)							{ input.d_shCoeffGrad					= d_outputSHCoeffGrad; };
 
 		
