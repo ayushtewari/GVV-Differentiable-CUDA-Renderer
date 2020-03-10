@@ -30,7 +30,7 @@ inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoe
 	float3 dirSq = dir * dir;
 	float3 shadedColor;
 
-	shadedColor.x = shCoeffs[0];
+	shadedColor.x =  shCoeffs[0];
 	shadedColor.x += shCoeffs[1] * dir.y;
 	shadedColor.x += shCoeffs[2] * dir.z;
 	shadedColor.x += shCoeffs[3] * dir.x;
@@ -41,7 +41,7 @@ inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoe
 	shadedColor.x += shCoeffs[8] * (dirSq.x - dirSq.y);
 	shadedColor.x = shadedColor.x * color.x;
 
-	shadedColor.y = shCoeffs[9 + 0];
+	shadedColor.y =  shCoeffs[9 + 0];
 	shadedColor.y += shCoeffs[9 + 1] * dir.y;
 	shadedColor.y += shCoeffs[9 + 2] * dir.z;
 	shadedColor.y += shCoeffs[9 + 3] * dir.x;
@@ -52,7 +52,7 @@ inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoe
 	shadedColor.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
 	shadedColor.y = shadedColor.y * color.y;
 
-	shadedColor.z = shCoeffs[18 + 0];
+	shadedColor.z =  shCoeffs[18 + 0];
 	shadedColor.z += shCoeffs[18 + 1] * dir.y;
 	shadedColor.z += shCoeffs[18 + 2] * dir.z;
 	shadedColor.z += shCoeffs[18 + 3] * dir.x;
@@ -166,17 +166,24 @@ __global__ void renderVertexNormalDevice(CUDABasedRasterizationInput input)
 		int idv = index.y;
 
 		int2 verFaceId = input.d_vertexFacesId[idv];
-		float3 vertNorm= make_float3(0.f,0.f,0.f);
-		float faceCounter = 0.f;
+		float3 vertNorm;
 		for (int i = verFaceId.x; i<verFaceId.x + verFaceId.y; i++)
 		{
 			int faceId = input.d_vertexFaces[i];
-			vertNorm = vertNorm + input.d_faceNormal[faceId];
-			faceCounter++;
+
+			if (i == verFaceId.x)
+				vertNorm = input.d_faceNormal[faceId];
+			else
+			{
+				vertNorm.x = vertNorm.x + input.d_faceNormal[faceId].x;
+				vertNorm.y = vertNorm.y + input.d_faceNormal[faceId].y;
+				vertNorm.z = vertNorm.z + input.d_faceNormal[faceId].z;
+			}
 		}
-		input.d_vertexNormal[idx] = vertNorm/faceCounter;
+		input.d_vertexNormal[idx] = vertNorm;
 	}
 }
+
 
 //==============================================================================================//
 

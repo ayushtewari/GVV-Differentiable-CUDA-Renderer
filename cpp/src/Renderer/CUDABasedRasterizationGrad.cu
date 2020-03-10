@@ -116,7 +116,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 pixNorm = pixNormUn / pixNormVal;
 
 		////////////////////////////////////////////////////////////////////////
-		//VERTEX COLOR GRAD
+		//VERTEX COLOR AND TEXTURE GRAD
 		////////////////////////////////////////////////////////////////////////
 
 		float3 pixLight = getIllum(pixNorm, shCoeff);
@@ -137,10 +137,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 			addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
 		}
-
-		////////////////////////////////////////////////////////////////////////
-		//TEXTURE GRAD
-		////////////////////////////////////////////////////////////////////////
 
 		if (input.renderMode == RenderMode::Textured)
 		{
@@ -204,48 +200,62 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		getJNoNu(JNoNu, pixNormUn, pixNormVal);
 
 		mat3x3 JLiNo;
-		getJLiNo(JLiNo, pixNorm, (float *)shCoeff);
+		getJLiNo(JLiNo, pixNorm, shCoeff);
 
-		mat3x3 TR;
-		TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
-		mat3x3 J;
-		int idv;
-		mat3x3 JNuNvx;
-		JNuNvx.setIdentity();
+		mat3x3 TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
+	
 		for (int i = 0; i < 3; i++)
 		{
+			mat3x3 JNuNvx;
+			JNuNvx.setIdentity();
+			int idv = -1;
+
 			//
-			if (i == 0) { idv = faceVerticesIds.x; JNuNvx = bcc.x * JNuNvx; }
-			else if (i == 1) { idv = faceVerticesIds.y; JNuNvx = bcc.y * JNuNvx; }
-			else { idv = faceVerticesIds.z; JNuNvx = bcc.z * JNuNvx; }
+			if (i == 0) 
+			{ 
+				idv = faceVerticesIds.x; 
+				JNuNvx = bcc.x * JNuNvx; 
+			}
+			else if (i == 1) 
+			{ 
+				idv = faceVerticesIds.y; 
+				JNuNvx = bcc.y * JNuNvx; 
+			}
+			else 
+			{ 
+				idv = faceVerticesIds.z; 
+				JNuNvx = bcc.z * JNuNvx; 
+			}
 
 			//
 			int2 verFaceId = input.d_vertexFacesId[idv];
 
 			//
-			mat3x1 vi, vj, vk;
 			for (int j = verFaceId.x; j < verFaceId.x + verFaceId.y; j++)
 			{
 				int faceId = input.d_vertexFaces[j];
+			
 				int3 v_index_inner = input.d_facesVertex[faceId];
-				vi = TR * (mat3x1)input.d_vertices[v_index_inner.x];
-				vj = TR * (mat3x1)input.d_vertices[v_index_inner.y];
-				vk = TR * (mat3x1)input.d_vertices[v_index_inner.z];
+				mat3x1 vi = TR * (mat3x1)input.d_vertices[v_index_inner.x];
+				mat3x1 vj = TR * (mat3x1)input.d_vertices[v_index_inner.y];
+				mat3x1 vk = TR * (mat3x1)input.d_vertices[v_index_inner.z];
 
-				getJ(J, TR, vj, vi);
+				mat3x3 J;
 
-				// gradients
+				// gradients vi
+				getJ_vi(J, TR, vk, vj, vi);
+				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+
+				// gradients vj
+				getJ_vj(J, TR, vj, vi);
 				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y].x);
-				mat1x3 gradVi = -GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x].x);
+				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
-				getJ(J, TR, vk, vi);
-				// gradients
+				// gradients vk
+				getJ_vk(J, TR, vk, vi);
 				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z].x);
-				gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x].x);
+				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
 			}
 		}
 	}
@@ -255,13 +265,13 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input)
 {
-	initBuffersGradDevice2    << <(input.numberOfCameras * 27 + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	initBuffersGradDevice2    << < (input.numberOfCameras * 27 + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >				(input);
 
-	initBuffersGradDevice1 << <(input.texHeight * input.texWidth + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	initBuffersGradDevice1    << < (input.texHeight * input.texWidth + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >		(input);
 
-	initBuffersGradDevice0   << <(input.N + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	initBuffersGradDevice0    << < (input.N + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >								(input);
 
-	renderBuffersGradDevice  << <(input.numberOfCameras*input.w*input.h + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
+	renderBuffersGradDevice   << < (input.numberOfCameras*input.w*input.h + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >	(input);
 }
 
 //==============================================================================================//

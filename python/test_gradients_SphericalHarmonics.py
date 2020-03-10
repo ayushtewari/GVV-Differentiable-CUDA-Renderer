@@ -63,7 +63,7 @@ def test_SHC_gradient():
 
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
 
-    for i in range(100):  
+    for i in range(2000):
         with tf.GradientTape() as g:
             g.watch(SHC_rnd)
             output = CudaRenderer.CudaRendererGpu(

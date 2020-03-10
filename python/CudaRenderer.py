@@ -116,6 +116,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender,
         render_resolution_v         = op.get_attr('render_resolution_v'),
         render_mode                 = op.get_attr('render_mode'),
     )
+
     return gradients[0], gradients[1], gradients[2], gradients[3]
 
 ########################################################################################################################
