@@ -270,15 +270,24 @@ __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 
 __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
-	atomicAdd(&d_grad[index.x].x, grad(0, 0));
-	atomicAdd(&d_grad[index.x].y, grad(1, 0));
-	atomicAdd(&d_grad[index.x].z, grad(2, 0));
-	atomicAdd(&d_grad[index.y].x, grad(3, 0));
-	atomicAdd(&d_grad[index.y].y, grad(4, 0));
-	atomicAdd(&d_grad[index.y].z, grad(5, 0));
-	atomicAdd(&d_grad[index.z].x, grad(6, 0));
-	atomicAdd(&d_grad[index.z].y, grad(7, 0));
-	atomicAdd(&d_grad[index.z].z, grad(8, 0));
+	if (index.x == 0)
+	{
+		atomicAdd(&d_grad[index.x].x, grad(0, 0));
+		atomicAdd(&d_grad[index.x].y, grad(1, 0));
+		atomicAdd(&d_grad[index.x].z, grad(2, 0));
+	}
+	if (index.y == 0)
+	{
+		atomicAdd(&d_grad[index.y].x, grad(3, 0));
+		atomicAdd(&d_grad[index.y].y, grad(4, 0));
+		atomicAdd(&d_grad[index.y].z, grad(5, 0));
+	}
+	if (index.z == 0)
+	{
+		atomicAdd(&d_grad[index.z].x, grad(6, 0));
+		atomicAdd(&d_grad[index.z].y, grad(7, 0));
+		atomicAdd(&d_grad[index.z].z, grad(8, 0));
+	}
 }
 
 __device__ inline mat3x3 getRotationMatrix(float4* d_T)
@@ -296,3 +305,69 @@ __device__ inline mat3x3 getRotationMatrix(float4* d_T)
 	return TE;
 }
 
+
+__inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 vertexCol1, float3 vertexCol2)
+{
+	JAlBc.setZero();
+
+	JAlBc(0, 0) = vertexCol0.x;
+	JAlBc(0, 1) = vertexCol1.x;
+	JAlBc(0, 2) = vertexCol2.x;
+	JAlBc(1, 0) = vertexCol0.y;
+	JAlBc(1, 1) = vertexCol1.y;
+	JAlBc(1, 2) = vertexCol2.y;
+	JAlBc(2, 0) = vertexCol0.z;
+	JAlBc(2, 1) = vertexCol1.z;
+	JAlBc(2, 2) = vertexCol2.z;
+}
+
+__inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 N2)
+{
+	JNoBc(0, 0) = N0.x;
+	JNoBc(0, 1) = N1.x;
+	JNoBc(0, 2) = N2.x;
+
+	JNoBc(1, 0) = N0.y;
+	JNoBc(1, 1) = N1.y;
+	JNoBc(1, 2) = N2.y;
+
+
+	JNoBc(2, 0) = N0.z;
+	JNoBc(2, 1) = N1.z;
+	JNoBc(2, 2) = N2.z;
+}
+__inline__ __device__ void getJBcVp(mat3x9 &JBcVp, float3 v0, float3 v1, float3 v2, float3 bcc)
+{
+	JBcVp.setZero();
+	mat3x1 BCC = (mat3x1)bcc;
+	mat3x1 Pixel = (mat3x1) (bcc.x * v0 + bcc.y * v1 + bcc.z * v2 );
+	mat3x3 VP;
+	VP(0, 0) = v0.x;
+	VP(1, 0) = v0.y;
+	VP(2, 0) = v0.z;
+	VP(0, 1) = v1.x;
+	VP(1, 1) = v1.y;
+	VP(2, 1) = v1.z;
+	VP(0, 2) = v2.x;
+	VP(1, 2) = v2.y;
+	VP(2, 2) = v2.z;
+	float D = VP.det();
+	mat3x3 Adj = VP.getInverse()*D;
+
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				for (int m = 0; m < 3; m++)
+				{
+					if (i != j && m != k)
+						JBcVp(i, k * 3 + j) += (1 - 2 * ((i + m) % 2))*(1 - 2 * (k < 3 - k - m))*(1 - 2 * (j < 3 - i - j))*VP(3 - i - j, 3 - m - k)*Pixel(m, 0) / D;
+				}
+				JBcVp(i, k * 3 + j) += -BCC(i, 0)*Adj(j, k) / D;
+			}
+		}
+	}
+}

@@ -28,10 +28,10 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-cameraReader = CameraReader.CameraReader('data/cameras.calibration')
+cameraReader = CameraReader.CameraReader('data/monocular.calibration')
 testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
-objreader = OBJReader.OBJReader('data/cone.obj')
-objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
+objreader = OBJReader.OBJReader('data/triangle.obj')
+objreaderMod = OBJReader.OBJReader('data/triangleMod.obj')
 ########################################################################################################################
 # Test color function
 ########################################################################################################################
@@ -61,7 +61,7 @@ def test_color_gradient():
 
     VertexPosition_rnd = tf.Variable([objreaderMod.vertexCoordinates])
 
-    opt = tf.keras.optimizers.SGD(learning_rate=1.0)
+    opt = tf.keras.optimizers.SGD(learning_rate=10.0)
 
     for i in range(3000):
 

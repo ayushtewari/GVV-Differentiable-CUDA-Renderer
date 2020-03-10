@@ -204,6 +204,27 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		mat3x3 TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
 	
+
+		/////////////////////
+
+
+		//mat1x9 gradVerPos   = GVCB * JCoAl * JAlBc * JBcVp;
+		// gradVerPos = diag(Li) * (JCoAl * JAlBc * JBcVp) + diag(Al) * (JCoLi * JLiNo * JNoBc * JBcVp)
+
+		mat3x3 JAlBc;
+		getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
+
+		mat3x3 JNoBc;
+		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
+		
+		mat3x9 JBcVp;
+		getJBcVp(JBcVp, vertexPos0, vertexPos1, vertexPos2, bcc);
+
+		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp + GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
+		//TTOOOOOOOOOOOOOODOOOOOOOOOOOOOOOOO REMNOVE THAT AGAIN
+		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
+
+		////////////////////
 		for (int i = 0; i < 3; i++)
 		{
 			mat3x3 JNuNvx;
@@ -241,21 +262,24 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				mat3x1 vk = TR * (mat3x1)input.d_vertices[v_index_inner.z];
 
 				mat3x3 J;
-
+				
 				// gradients vi
-				getJ_vi(J, TR, vk, vj, vi);
-				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+				//getJ_vi(J, TR, vk, vj, vi);
+				//mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				//if(v_index_inner.x == 0)
+				//	addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
-				// gradients vj
-				getJ_vj(J, TR, vj, vi);
-				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+				//// gradients vj
+				//getJ_vj(J, TR, vj, vi);
+				//mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				//if (v_index_inner.y == 0)
+				//	addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
-				// gradients vk
-				getJ_vk(J, TR, vk, vi);
-				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
+				//// gradients vk
+				//getJ_vk(J, TR, vk, vi);
+				//mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+				//if (v_index_inner.z == 0)
+				//	addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
 			}
 		}
 	}
