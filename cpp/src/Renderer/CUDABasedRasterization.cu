@@ -6,6 +6,7 @@
 #include "CUDABasedRasterizationInput.h"
 #include "../Utils/CameraUtil.h"
 #include "../Utils/IndexHelper.h"
+#include "../Utils/cuda_SimpleMatrixUtil.h"
 
 #ifndef FLT_MAX
 #define FLT_MAX  1000000
@@ -15,12 +16,105 @@
 //Helpers
 //==============================================================================================//
 
-inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, float3 v2)
+inline __device__  bool rayTriangleIntersect( float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
 {
-	float e2 = ((v0.y - v1.y)*u + (v1.x - v0.x)*v + v0.x*v1.y - v1.x*v0.y) / ((v0.y - v1.y)*v2.x + (v1.x - v0.x)*v2.y + v0.x*v1.y - v1.x*v0.y);
-	float e1 = ((v0.y - v2.y)*u + (v2.x - v0.x)*v + v0.x*v2.y - v2.x*v0.y) / ((v0.y - v2.y)*v1.x + (v2.x - v0.x)*v1.y + v0.x*v2.y - v2.x*v0.y);
-	float e0 = 1.f - e2 - e1;
-	return make_float3(e0, e1, e2);
+	//just to make it numerically more stable
+	v0 = v0 / 1000.f;
+	v1 = v1 / 1000.f;
+	v2 = v2 / 1000.f;
+	orig = orig / 1000.f;
+
+	// compute plane's normal
+	float3  v0v1 = v1 - v0;
+	float3  v0v2 = v2 - v0;
+
+	// no need to normalize
+	float3  N = cross(v0v1, v0v2); // N 
+	float denom = dot(N,N);
+
+	/////////////////////////////
+	// Step 1: finding P
+	/////////////////////////////
+
+	// check if ray and plane are parallel ?
+	float NdotRayDirection = dot(dir,N);
+	if (fabs(NdotRayDirection) < 0.0000001f) // almost 0 
+	{
+		return false; // they are parallel so they don't intersect ! 
+	}
+	// compute d parameter using equation 2
+	float d = dot(N,v0);
+
+	// compute t (equation 3)
+	t = (dot(v0, N) - dot(orig, N)) / NdotRayDirection;
+	// check if the triangle is in behind the ray
+	if (t < 0)
+	{
+		return false; // the triangle is behind 
+	}
+	// compute the intersection point using equation 1
+	float3 P = orig + t * dir;
+
+	/////////////////////////////
+	// Step 2: inside-outside test
+	/////////////////////////////
+
+	float3 C; // vector perpendicular to triangle's plane 
+
+	// edge 0
+	float3 edge0 = v1 - v0;
+	float3 vp0 = P - v0;
+	C = cross(edge0,vp0);
+	if (dot(N, C) < 0)
+	{
+		return false; 
+	}
+	// edge 1
+	float3 edge1 = v2 - v1;
+	float3 vp1 = P - v1;
+	C = cross(edge1,vp1);
+	if ((a = dot(N, C)) < 0)
+	{
+		return false; 
+	}
+	// edge 2
+	float3 edge2 = v0 - v2;
+	float3 vp2 = P - v2;
+	C = cross(edge2,vp2);
+
+	if ((b = dot(N, C)) < 0)
+	{
+		return false;
+	}
+
+	a /= denom;
+	b /= denom;
+
+	return true; // this ray hits the triangle 
+}
+
+//==============================================================================================//
+
+inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, float3 v2, float4* invExtrinsics, float4* invProjection)
+{
+	float3 o = make_float3(0.f, 0.f, 0.f);
+	float3 d = make_float3(0.f, 0.f, 0.f);
+
+	float2 pixelPos = make_float2(u, v);
+
+	getRayCuda2(pixelPos, o, d, invExtrinsics, invProjection);
+	
+	float t, a, b, c;
+
+	bool intersect;
+	intersect = rayTriangleIntersect(o, d, v0, v1, v2, t, a, b);
+	
+	if (!intersect)
+		a = b = c = -1.f;
+	else
+		c = 1.f - a - b;
+
+	return make_float3(a, b, c);
 }
 
 //==============================================================================================//
@@ -162,7 +256,6 @@ __global__ void renderVertexNormalDevice(CUDABasedRasterizationInput input)
 	if (idx < input.numberOfCameras * input.N)
 	{
 		int2 index = index1DTo2D(input.numberOfCameras, input.N, idx);
-		int idc = index.x;
 		int idv = index.y;
 
 		int2 verFaceId = input.d_vertexFacesId[idv];
@@ -246,9 +339,11 @@ __global__ void renderDepthBufferDevice(CUDABasedRasterizationInput input)
 			for (int v = input.d_BBoxes[idx].y; v <= input.d_BBoxes[idx].w; v++)
 			{
 				float2 pixelCenter1 = make_float2(u + 0.5f, v + 0.5f);
-
-				float3 abc = uv2barycentric(pixelCenter1.x, pixelCenter1.y, vertex0, vertex1, vertex2);
+				
+				float3 abc = uv2barycentric(pixelCenter1.x, pixelCenter1.y, input.d_vertices[indexv0], input.d_vertices[indexv1], input.d_vertices[indexv2], input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
+				
 				float z = FLT_MAX;
+				
 				bool isInsideTriangle = (abc.x >= -0.001f) && (abc.y >= -0.001f) && (abc.z >= -0.001f) && (abc.x <= 1.001f) && (abc.y <= 1.001f) && (abc.z <= 1.001f);
 
 				if (isInsideTriangle)
@@ -292,13 +387,11 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 			{
 				float2 pixelCenter1 = make_float2(u + 0.5f, v + 0.5f);
 
-				float3 abc = uv2barycentric(pixelCenter1.x, pixelCenter1.y, vertex0, vertex1, vertex2);
+				float3 abc = uv2barycentric(pixelCenter1.x, pixelCenter1.y, input.d_vertices[indexv0], input.d_vertices[indexv1], input.d_vertices[indexv2], input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
 
 				bool isInsideTriangle = (abc.x >= -0.001f) && (abc.y >= -0.001f) && (abc.z >= -0.001f) && (abc.x <= 1.001f) && (abc.y <= 1.001f) && (abc.z <= 1.001f);
-
+	
 				float z = 1.f / (abc.x / vertex0.z + abc.y / vertex1.z + abc.z / vertex2.z); //Perspective-Correct Interpolation
-				float3 ABC = make_float3(z*abc.x / vertex0.z, z*abc.y / vertex1.z, z*abc.z / vertex2.z);
-				abc = ABC;
 
 				int pixelId = idc* input.w* input.h + input.w * v + u;
 
@@ -317,7 +410,6 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					input.d_barycentricCoordinatesBuffer[pixelId2 + 0] = abc.x;
 					input.d_barycentricCoordinatesBuffer[pixelId2 + 1] = abc.y;
 					input.d_barycentricCoordinatesBuffer[pixelId2 + 2] = abc.z;
-
 
 					//shading
 					float3 v0_norm = input.d_vertexNormal[input.N*idc + indexv0];

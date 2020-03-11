@@ -216,6 +216,21 @@ __inline__ __device__ float3 backprojectPixelCuda(float3 p, int cameraId, float4
 	return make_float3(temp.x, temp.y, temp.z);
 }
 
+__inline__ __device__ float3 backprojectPixelCuda(float3 p, float4* invCamProj)
+{
+	const float3 tp = make_float3(p.x * p.z, p.y * p.z, p.z);
+	float4 tpHomo = make_float4(tp.x, tp.y, tp.z, 1.f);
+
+	float4 temp = make_float4(
+		dot(invCamProj[0], tpHomo),
+		dot(invCamProj[1], tpHomo),
+		dot(invCamProj[2], tpHomo),
+		dot(invCamProj[3], tpHomo)
+	);
+
+	return make_float3(temp.x, temp.y, temp.z);
+}
+
 //==============================================================================================//
 
 __inline__ __device__ void getRayCuda(float2& p, float3& ro, float3& rd, int cameraId, float4* invCamExtrinsics, float4* invCamProj)
@@ -225,4 +240,15 @@ __inline__ __device__ void getRayCuda(float2& p, float3& ro, float3& rd, int cam
 	ro = make_float3(o.x, o.y, o.z);
 
 	rd = normalize(backprojectPixelCuda(make_float3(p.x, p.y, 1000.f), cameraId, invCamProj) - ro);
+}
+
+//==============================================================================================//
+
+__inline__ __device__ void getRayCuda2(float2& p, float3& ro, float3& rd, float4* invCamExtrinsics, float4* invCamProj)
+{
+	float4 o = make_float4(invCamExtrinsics[0].w, invCamExtrinsics[1].w, invCamExtrinsics[2].w, invCamExtrinsics[3].w);
+	o /= o.w;
+	ro = make_float3(o.x, o.y, o.z);
+
+	rd = normalize(backprojectPixelCuda(make_float3(p.x, p.y, 1000.f), invCamProj) - ro);
 }

@@ -207,10 +207,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		/////////////////////
 
-
-		//mat1x9 gradVerPos   = GVCB * JCoAl * JAlBc * JBcVp;
-		// gradVerPos = diag(Li) * (JCoAl * JAlBc * JBcVp) + diag(Al) * (JCoLi * JLiNo * JNoBc * JBcVp)
-
 		mat3x3 JAlBc;
 		getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
 

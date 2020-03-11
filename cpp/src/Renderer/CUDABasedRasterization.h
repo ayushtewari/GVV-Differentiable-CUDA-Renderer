@@ -13,6 +13,7 @@
 #include "cutil.h"
 #include "cutil_inline_runtime.h"
 #include "cutil_math.h"
+#include "../Utils/cuda_SimpleMatrixUtil.h"
 
 //==============================================================================================//
 
