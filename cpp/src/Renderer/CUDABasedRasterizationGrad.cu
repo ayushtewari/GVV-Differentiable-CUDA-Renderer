@@ -216,7 +216,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x9 JBcVp;
 		getJBcVp(JBcVp, vertexPos0, vertexPos1, vertexPos2, bcc);
 
-		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp + GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
+		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp;// +GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
 		//TTOOOOOOOOOOOOOODOOOOOOOOOOOOOOOOO REMNOVE THAT AGAIN
 		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 

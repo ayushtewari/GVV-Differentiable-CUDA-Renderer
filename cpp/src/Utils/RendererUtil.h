@@ -272,21 +272,21 @@ __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 inde
 {
 	if (index.x == 0)
 	{
-		atomicAdd(&d_grad[index.x].x, grad(0, 0));
+		//atomicAdd(&d_grad[index.x].x, grad(0, 0));
 		atomicAdd(&d_grad[index.x].y, grad(1, 0));
-		atomicAdd(&d_grad[index.x].z, grad(2, 0));
+		//atomicAdd(&d_grad[index.x].z, grad(2, 0));
 	}
 	if (index.y == 0)
 	{
-		atomicAdd(&d_grad[index.y].x, grad(3, 0));
+		//atomicAdd(&d_grad[index.y].x, grad(3, 0));
 		atomicAdd(&d_grad[index.y].y, grad(4, 0));
-		atomicAdd(&d_grad[index.y].z, grad(5, 0));
+		//atomicAdd(&d_grad[index.y].z, grad(5, 0));
 	}
 	if (index.z == 0)
 	{
-		atomicAdd(&d_grad[index.z].x, grad(6, 0));
+		//atomicAdd(&d_grad[index.z].x, grad(6, 0));
 		atomicAdd(&d_grad[index.z].y, grad(7, 0));
-		atomicAdd(&d_grad[index.z].z, grad(8, 0));
+		//atomicAdd(&d_grad[index.z].z, grad(8, 0));
 	}
 }
 
@@ -339,8 +339,24 @@ __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 
 __inline__ __device__ void getJBcVp(mat3x9 &JBcVp, float3 v0, float3 v1, float3 v2, float3 bcc)
 {
 	JBcVp.setZero();
-	mat3x1 BCC = (mat3x1)bcc;
-	mat3x1 Pixel = (mat3x1) (bcc.x * v0 + bcc.y * v1 + bcc.z * v2 );
+	mat3x1 XYZ = (mat3x1)(bcc.x * v0 + bcc.y * v1 + bcc.z * v2);
+
+	mat3x9 J_g;
+	J_g.setZero();
+	
+	J_g(0, 0) = XYZ(0, 0);
+	J_g(0, 1) = XYZ(1, 0);
+	J_g(0, 2) = XYZ(2, 0);
+
+	J_g(1, 3) = XYZ(0, 0);
+	J_g(1, 4) = XYZ(1, 0);
+	J_g(1, 5) = XYZ(2, 0);
+
+	J_g(2, 6) = XYZ(0, 0);
+	J_g(2, 7) = XYZ(1, 0);
+	J_g(2, 8) = XYZ(2, 0);
+
+
 	mat3x3 VP;
 	VP(0, 0) = v0.x;
 	VP(1, 0) = v0.y;
@@ -351,23 +367,24 @@ __inline__ __device__ void getJBcVp(mat3x9 &JBcVp, float3 v0, float3 v1, float3 
 	VP(0, 2) = v2.x;
 	VP(1, 2) = v2.y;
 	VP(2, 2) = v2.z;
-	float D = VP.det();
-	mat3x3 Adj = VP.getInverse()*D;
+	mat3x3 VPInv = VP.getInverse();
 
+	mat9x9 J_f;
+	J_f.setZero();
 
-	for (int i = 0; i < 3; i++)
+	for (int k = 0; k < 3; k++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int l = 0; l < 3; l++)
 		{
-			for (int k = 0; k < 3; k++)
+			for (int i = 0; i < 3; i++)
 			{
-				for (int m = 0; m < 3; m++)
+				for (int j = 0; j < 3; j++)
 				{
-					if (i != j && m != k)
-						JBcVp(i, k * 3 + j) += (1 - 2 * ((i + m) % 2))*(1 - 2 * (k < 3 - k - m))*(1 - 2 * (j < 3 - i - j))*VP(3 - i - j, 3 - m - k)*Pixel(m, 0) / D;
+					J_f(k * 3 + l, j * 3 + i) = -VPInv(k, i) * VPInv(j, l);
 				}
-				JBcVp(i, k * 3 + j) += -BCC(i, 0)*Adj(j, k) / D;
 			}
 		}
 	}
+
+	JBcVp = J_g * J_f;
 }

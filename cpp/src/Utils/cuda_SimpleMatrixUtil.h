@@ -635,7 +635,7 @@ inline __device__ __host__ matNxM<4, 1>::operator float4()
 
 typedef matNxM<9, 3> mat9x3;
 typedef matNxM<3, 9> mat3x9;
-
+typedef matNxM<9, 9> mat9x9;
 typedef matNxM<9, 1> mat9x1;
 typedef matNxM<1, 9> mat1x9;
 
