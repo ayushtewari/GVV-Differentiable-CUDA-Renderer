@@ -29,10 +29,10 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-cameraReader = CameraReader.CameraReader('data/monocular.calibration')
+cameraReader = CameraReader.CameraReader('data/cameras.calibration')
 testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
-objreader = OBJReader.OBJReader('data/triangle.obj')
-objreaderMod = OBJReader.OBJReader('data/triangleMod.obj')
+objreader = OBJReader.OBJReader('data/cone.obj')
+objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
 ########################################################################################################################
 # Test color function
 ########################################################################################################################
@@ -63,7 +63,7 @@ def test_color_gradient():
 
     VertexPosition_rnd = tf.Variable([objreaderMod.vertexCoordinates])
 
-    opt = tf.keras.optimizers.SGD(learning_rate=10.0)
+    opt = tf.keras.optimizers.SGD(learning_rate=100.0)
 
     for i in range(3000):
 
@@ -95,7 +95,7 @@ def test_color_gradient():
         opt.apply_gradients(zip([Color_Grad],[VertexPosition_rnd]))
 
         # print loss
-        print(i, Loss.numpy(),Color_Grad[0][0],VertexPosition_rnd[0][0])
+        print(i, Loss.numpy())
 
         #output images
         outputCV = renderer.getRenderBufferOpenCV(0,0)

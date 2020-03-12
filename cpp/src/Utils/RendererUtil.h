@@ -17,6 +17,48 @@
 #include "CameraUtil.h"
 
 //==============================================================================================//
+
+inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoeffs)
+{
+	float3 dirSq = dir * dir;
+	float3 shadedColor;
+
+	shadedColor.x = shCoeffs[0];
+	shadedColor.x += shCoeffs[1] * dir.y;
+	shadedColor.x += shCoeffs[2] * dir.z;
+	shadedColor.x += shCoeffs[3] * dir.x;
+	shadedColor.x += shCoeffs[4] * (dir.x * dir.y);
+	shadedColor.x += shCoeffs[5] * (dir.z * dir.y);
+	shadedColor.x += shCoeffs[6] * (3 * dirSq.z - 1);
+	shadedColor.x += shCoeffs[7] * (dir.x * dir.z);
+	shadedColor.x += shCoeffs[8] * (dirSq.x - dirSq.y);
+	shadedColor.x = shadedColor.x * color.x;
+
+	shadedColor.y = shCoeffs[9 + 0];
+	shadedColor.y += shCoeffs[9 + 1] * dir.y;
+	shadedColor.y += shCoeffs[9 + 2] * dir.z;
+	shadedColor.y += shCoeffs[9 + 3] * dir.x;
+	shadedColor.y += shCoeffs[9 + 4] * (dir.x * dir.y);
+	shadedColor.y += shCoeffs[9 + 5] * (dir.z * dir.y);
+	shadedColor.y += shCoeffs[9 + 6] * (3 * dirSq.z - 1);
+	shadedColor.y += shCoeffs[9 + 7] * (dir.x * dir.z);
+	shadedColor.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
+	shadedColor.y = shadedColor.y * color.y;
+
+	shadedColor.z = shCoeffs[18 + 0];
+	shadedColor.z += shCoeffs[18 + 1] * dir.y;
+	shadedColor.z += shCoeffs[18 + 2] * dir.z;
+	shadedColor.z += shCoeffs[18 + 3] * dir.x;
+	shadedColor.z += shCoeffs[18 + 4] * (dir.x * dir.y);
+	shadedColor.z += shCoeffs[18 + 5] * (dir.z * dir.y);
+	shadedColor.z += shCoeffs[18 + 6] * (3 * dirSq.z - 1);
+	shadedColor.z += shCoeffs[18 + 7] * (dir.x * dir.z);
+	shadedColor.z += shCoeffs[18 + 8] * (dirSq.x - dirSq.y);
+	shadedColor.z = shadedColor.z * color.z;
+	return shadedColor;
+}
+
+//==============================================================================================//
 inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
 {
 	//just to make it numerically more stable
@@ -397,23 +439,23 @@ __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 
 __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
-	if (index.x == 0)
+	//if (index.x == 1)
 	{
 		atomicAdd(&d_grad[index.x].x, grad(0, 0));
 		atomicAdd(&d_grad[index.x].y, grad(1, 0));
 		atomicAdd(&d_grad[index.x].z, grad(2, 0));
 	}
-	if (index.y == 0)
+	//if (index.y == 1)
 	{
-		//atomicAdd(&d_grad[index.y].x, grad(3, 0));
-		//atomicAdd(&d_grad[index.y].y, grad(4, 0));
-		//atomicAdd(&d_grad[index.y].z, grad(5, 0));
+		atomicAdd(&d_grad[index.y].x, grad(3, 0));
+		atomicAdd(&d_grad[index.y].y, grad(4, 0));
+		atomicAdd(&d_grad[index.y].z, grad(5, 0));
 	}
-	if (index.z == 0)
+	//if (index.z == 1)
 	{
-	//	atomicAdd(&d_grad[index.z].x, grad(6, 0));
-	//	atomicAdd(&d_grad[index.z].y, grad(7, 0));
-	//	atomicAdd(&d_grad[index.z].z, grad(8, 0));
+		atomicAdd(&d_grad[index.z].x, grad(6, 0));
+		atomicAdd(&d_grad[index.z].y, grad(7, 0));
+		atomicAdd(&d_grad[index.z].z, grad(8, 0));
 	}
 }
 

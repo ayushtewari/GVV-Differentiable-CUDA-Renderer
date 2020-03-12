@@ -13,47 +13,6 @@
 #define FLT_MAX  1000000
 #endif
 
-//==============================================================================================//
-
-inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoeffs)
-{
-	float3 dirSq = dir * dir;
-	float3 shadedColor;
-
-	shadedColor.x =  shCoeffs[0];
-	shadedColor.x += shCoeffs[1] * dir.y;
-	shadedColor.x += shCoeffs[2] * dir.z;
-	shadedColor.x += shCoeffs[3] * dir.x;
-	shadedColor.x += shCoeffs[4] * (dir.x * dir.y);
-	shadedColor.x += shCoeffs[5] * (dir.z * dir.y);
-	shadedColor.x += shCoeffs[6] * (3 * dirSq.z - 1);
-	shadedColor.x += shCoeffs[7] * (dir.x * dir.z);
-	shadedColor.x += shCoeffs[8] * (dirSq.x - dirSq.y);
-	shadedColor.x = shadedColor.x * color.x;
-
-	shadedColor.y =  shCoeffs[9 + 0];
-	shadedColor.y += shCoeffs[9 + 1] * dir.y;
-	shadedColor.y += shCoeffs[9 + 2] * dir.z;
-	shadedColor.y += shCoeffs[9 + 3] * dir.x;
-	shadedColor.y += shCoeffs[9 + 4] * (dir.x * dir.y);
-	shadedColor.y += shCoeffs[9 + 5] * (dir.z * dir.y);
-	shadedColor.y += shCoeffs[9 + 6] * (3 * dirSq.z - 1);
-	shadedColor.y += shCoeffs[9 + 7] * (dir.x * dir.z);
-	shadedColor.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
-	shadedColor.y = shadedColor.y * color.y;
-
-	shadedColor.z =  shCoeffs[18 + 0];
-	shadedColor.z += shCoeffs[18 + 1] * dir.y;
-	shadedColor.z += shCoeffs[18 + 2] * dir.z;
-	shadedColor.z += shCoeffs[18 + 3] * dir.x;
-	shadedColor.z += shCoeffs[18 + 4] * (dir.x * dir.y);
-	shadedColor.z += shCoeffs[18 + 5] * (dir.z * dir.y);
-	shadedColor.z += shCoeffs[18 + 6] * (3 * dirSq.z - 1);
-	shadedColor.z += shCoeffs[18 + 7] * (dir.x * dir.z);
-	shadedColor.z += shCoeffs[18 + 8] * (dirSq.x - dirSq.y);
-	shadedColor.z = shadedColor.z * color.z;
-	return shadedColor;
-}
 
 //==============================================================================================//
 //Render buffers
@@ -348,9 +307,9 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 							input.d_vertexColor[indexv0].z * abc.x + input.d_vertexColor[indexv1].z * abc.y + input.d_vertexColor[indexv2].z * abc.z);
 
 						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
-						input.d_renderBuffer[pixelId2 + 0] = color.x; //TODOOOOOOO
-						input.d_renderBuffer[pixelId2 + 1] = color.y; //TODOOOOOOO
-						input.d_renderBuffer[pixelId2 + 2] = color.z; //TODOOOOOOO
+						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x; 
+						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y; 
+						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
 					}
 				}
 			}
