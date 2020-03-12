@@ -7,115 +7,11 @@
 #include "../Utils/CameraUtil.h"
 #include "../Utils/IndexHelper.h"
 #include "../Utils/cuda_SimpleMatrixUtil.h"
+#include "../Utils/RendererUtil.h"
 
 #ifndef FLT_MAX
 #define FLT_MAX  1000000
 #endif
-
-//==============================================================================================//
-//Helpers
-//==============================================================================================//
-
-inline __device__  bool rayTriangleIntersect( float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
-{
-	//just to make it numerically more stable
-	v0 = v0 / 1000.f;
-	v1 = v1 / 1000.f;
-	v2 = v2 / 1000.f;
-	orig = orig / 1000.f;
-
-	// compute plane's normal
-	float3  v0v1 = v1 - v0;
-	float3  v0v2 = v2 - v0;
-
-	// no need to normalize
-	float3  N = cross(v0v1, v0v2); // N 
-	float denom = dot(N,N);
-
-	/////////////////////////////
-	// Step 1: finding P
-	/////////////////////////////
-
-	// check if ray and plane are parallel ?
-	float NdotRayDirection = dot(dir,N);
-	if (fabs(NdotRayDirection) < 0.0000001f) // almost 0 
-	{
-		return false; // they are parallel so they don't intersect ! 
-	}
-	// compute d parameter using equation 2
-	float d = dot(N,v0);
-
-	// compute t (equation 3)
-	t = (dot(v0, N) - dot(orig, N)) / NdotRayDirection;
-	// check if the triangle is in behind the ray
-	if (t < 0)
-	{
-		return false; // the triangle is behind 
-	}
-	// compute the intersection point using equation 1
-	float3 P = orig + t * dir;
-
-	/////////////////////////////
-	// Step 2: inside-outside test
-	/////////////////////////////
-
-	float3 C; // vector perpendicular to triangle's plane 
-
-	// edge 0
-	float3 edge0 = v1 - v0;
-	float3 vp0 = P - v0;
-	C = cross(edge0,vp0);
-	if (dot(N, C) < 0)
-	{
-		return false; 
-	}
-	// edge 1
-	float3 edge1 = v2 - v1;
-	float3 vp1 = P - v1;
-	C = cross(edge1,vp1);
-	if ((a = dot(N, C)) < 0)
-	{
-		return false; 
-	}
-	// edge 2
-	float3 edge2 = v0 - v2;
-	float3 vp2 = P - v2;
-	C = cross(edge2,vp2);
-
-	if ((b = dot(N, C)) < 0)
-	{
-		return false;
-	}
-
-	a /= denom;
-	b /= denom;
-
-	return true; // this ray hits the triangle 
-}
-
-//==============================================================================================//
-
-inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, float3 v2, float4* invExtrinsics, float4* invProjection)
-{
-	float3 o = make_float3(0.f, 0.f, 0.f);
-	float3 d = make_float3(0.f, 0.f, 0.f);
-
-	float2 pixelPos = make_float2(u, v);
-
-	getRayCuda2(pixelPos, o, d, invExtrinsics, invProjection);
-	
-	float t, a, b, c;
-
-	bool intersect;
-	intersect = rayTriangleIntersect(o, d, v0, v1, v2, t, a, b);
-	
-	if (!intersect)
-		a = b = c = -1.f;
-	else
-		c = 1.f - a - b;
-
-	return make_float3(a, b, c);
-}
 
 //==============================================================================================//
 

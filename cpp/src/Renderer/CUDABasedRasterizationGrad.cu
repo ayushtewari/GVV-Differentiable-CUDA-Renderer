@@ -121,7 +121,8 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		float3 pixLight = getIllum(pixNorm, shCoeff);
 		mat3x3 JCoAl;
-		getJCoAl(JCoAl, pixLight);
+		JCoAl.setIdentity();
+		//getJCoAl(JCoAl, pixLight); //TODOOOOOOOOOOOOOOOOOOOOOOOO
 
 		mat3x1 GVCBVertexColor;
 		GVCBVertexColor(0, 0) = input.d_vertexColorBufferGrad[idx].x;
@@ -203,7 +204,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		getJLiNo(JLiNo, pixNorm, shCoeff);
 
 		mat3x3 TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
-	
 
 		/////////////////////
 
@@ -214,10 +214,16 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
 		
 		mat3x9 JBcVp;
-		getJBcVp(JBcVp, vertexPos0, vertexPos1, vertexPos2, bcc);
+		float3 o = make_float3(0.f, 0.f, 0.f);
+		float3 d = make_float3(0.f, 0.f, 0.f);
+		float2 pixelPos = make_float2(idw, idh);
+		getRayCuda2(pixelPos, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
+		
+		dJBCDVerpos(JBcVp,o,d,vertexPos0, vertexPos1, vertexPos2);
 
 		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp;// +GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
-		//TTOOOOOOOOOOOOOODOOOOOOOOOOOOOOOOO REMNOVE THAT AGAIN
+
+		//TTOOOOOOOOOOOOOODOOOOOOOOOOOOOOOOO REMOVE THAT AGAIN
 		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
 		////////////////////
@@ -266,13 +272,13 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				//	addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
 				//// gradients vj
-				//getJ_vj(J, TR, vj, vi);
+				//getJ_vj(J, TR, vk, vi);
 				//mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				//if (v_index_inner.y == 0)
 				//	addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
 				//// gradients vk
-				//getJ_vk(J, TR, vk, vi);
+				//getJ_vk(J, TR, vj, vi);
 				//mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				//if (v_index_inner.z == 0)
 				//	addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	

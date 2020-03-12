@@ -6,6 +6,8 @@
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from sys import platform
+import cv2 as cv
+import numpy as np
 
 ########################################################################################################################
 # Load custom operators
@@ -75,17 +77,24 @@ class CudaRendererGpu:
 
                                                                         name                    = self.nodeName)
 
-
-    def getBaryCentricBuffer(self):
+    def getBaryCentricBufferTF(self):
         return self.cudaRendererOperator[0]
-    def getFaceBuffer(self):
+    def getFaceBufferTF(self):
         return self.cudaRendererOperator[1]
-    def getDepthBuffer(self):
-        return self.cudaRendererOperator[2]
-    def getRenderBuffer(self):
+
+    def getRenderBufferTF(self):
         return self.cudaRendererOperator[3]
-    def getVertexNormal(self):
-        return self.cudaRendererOperator[4]
+
+    def getBaryCentricBufferOpenCV(self, batchId, camId):
+        return cv.cvtColor(self.cudaRendererOperator[0][batchId][camId].numpy(), cv.COLOR_BGR2RGB)
+
+    def getFaceBufferOpenCV(self, batchId, camId):
+        faceImg = self.cudaRendererOperator[1][batchId][camId].numpy().astype(np.float32)    #convert to float
+        faceImg = faceImg[:,:,0]   + 1.0                                                     #only select the face channel
+        return cv.cvtColor(faceImg, cv.COLOR_GRAY2RGB)                                       #convert grey to rgb for visualization
+
+    def getRenderBufferOpenCV(self, batchId, camId):
+        return  cv.cvtColor(self.cudaRendererOperator[3][batchId][camId].numpy(), cv.COLOR_BGR2RGB)
 
 ########################################################################################################################
 # Register gradients

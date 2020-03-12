@@ -51,6 +51,8 @@ struct CUDABasedRasterizationGradInput
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
+	float4*				d_inverseExtrinsics;					// inverse camera extrinsics										//INIT IN CONSTRUCTOR
+	float4*				d_inverseProjection;					// inverse camera projection										//INIT IN CONSTRUCTOR
 		
 	//////////////////////////
 	//INPUTS

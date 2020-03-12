@@ -60,7 +60,7 @@ struct CUDABasedRasterizationInput
 	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
 	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
 	float4*				d_inverseExtrinsics;					// inverse camera extrinsics										//INIT IN CONSTRUCTOR
-	float4*				d_inverseProjection;						// inverse camera projection										//INIT IN CONSTRUCTOR
+	float4*				d_inverseProjection;					// inverse camera projection										//INIT IN CONSTRUCTOR
 
 	//////////////////////////
 	//INPUTS

@@ -14,6 +14,111 @@
 
 #include <cutil_inline.h>
 #include <cutil_math.h>
+#include "CameraUtil.h"
+
+//==============================================================================================//
+inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
+{
+	//just to make it numerically more stable
+	v0 = v0 / 1000.f;
+	v1 = v1 / 1000.f;
+	v2 = v2 / 1000.f;
+	orig = orig / 1000.f;
+
+	// compute plane's normal
+	float3  v0v1 = v1 - v0;
+	float3  v0v2 = v2 - v0;
+
+	// no need to normalize
+	float3  N = cross(v0v1, v0v2); // N 
+
+
+	/////////////////////////////
+	// Step 1: finding P
+	/////////////////////////////
+
+	// check if ray and plane are parallel ?
+	float NdotRayDirection = dot(dir, N);
+	if (fabs(NdotRayDirection) < 0.0000001f) // almost 0 
+	{
+		return false; // they are parallel so they don't intersect ! 
+	}
+	// compute d parameter using equation 2
+	float d = dot(N, v0);
+
+	// compute t (equation 3)
+	t = (dot(v0, N) - dot(orig, N)) / NdotRayDirection;
+	// check if the triangle is in behind the ray
+	if (t < 0)
+	{
+		return false; // the triangle is behind 
+	}
+	// compute the intersection point using equation 1
+	float3 P = orig + t * dir;
+
+	/////////////////////////////
+	// Step 2: inside-outside test
+	/////////////////////////////
+
+	float3 C; // vector perpendicular to triangle's plane 
+
+			  // edge 0
+	float3 edge0 = v1 - v0;
+	float3 vp0 = P - v0;
+	C = cross(edge0, vp0);
+	if (dot(N, C) < 0)
+	{
+		return false;
+	}
+	// edge 1
+	float3 edge1 = v2 - v1;
+	float3 vp1 = P - v1;
+	C = cross(edge1, vp1);
+	if ((a = dot(N, C)) < 0)
+	{
+		return false;
+	}
+	// edge 2
+	float3 edge2 = v0 - v2;
+	float3 vp2 = P - v2;
+	C = cross(edge2, vp2);
+
+	if ((b = dot(N, C)) < 0)
+	{
+		return false;
+	}
+
+	float denom = dot(N, N);
+	a /= denom;
+	b /= denom;
+
+	return true; // this ray hits the triangle 
+}
+
+
+//==============================================================================================//
+
+inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, float3 v2, float4* invExtrinsics, float4* invProjection)
+{
+	float3 o = make_float3(0.f, 0.f, 0.f);
+	float3 d = make_float3(0.f, 0.f, 0.f);
+
+	float2 pixelPos = make_float2(u, v);
+
+	getRayCuda2(pixelPos, o, d, invExtrinsics, invProjection);
+
+	float t, a, b, c;
+
+	bool intersect;
+	intersect = rayTriangleIntersect(o, d, v0, v1, v2, t, a, b);
+
+	if (!intersect)
+		a = b = c = -1.f;
+	else
+		c = 1.f - a - b;
+
+	return make_float3(a, b, c);
+}
 
 //==============================================================================================//
 
@@ -24,6 +129,8 @@ __inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
 	JCoAl(1, 1) = pixLight.y;
 	JCoAl(2, 2) = pixLight.z;
 }
+
+//==============================================================================================//
 
 __inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
 {
@@ -41,6 +148,8 @@ __inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
 	JAlVc(8, 2) = bcc.z;
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
 {
 	JCoLi.setZero();
@@ -48,6 +157,8 @@ __inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
 	JCoLi(1, 1) = pixAlb.y;
 	JCoLi(2, 2) = pixAlb.z;
 }
+
+//==============================================================================================//
 
 __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 {
@@ -86,6 +197,8 @@ __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 	return light;
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 {
 	JLiGm.setZero();
@@ -100,6 +213,8 @@ __inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 	JLiGm(rgb, 7) = pixNorm.x * pixNorm.z;
 	JLiGm(rgb, 8) = ((pixNorm.x * pixNorm.x) - (pixNorm.y*pixNorm.y));
 }
+
+//==============================================================================================//
 
 __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, const float* shCoeff)
 {
@@ -122,6 +237,8 @@ __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, const float* shCo
 	}
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 {
 	float norm_p2 = norm * norm;
@@ -140,7 +257,10 @@ __inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 	JNoNu(1, 2) = -(un_vec.y*un_vec.z) / norm_p3;
 	JNoNu(2, 1) = JNoNu(1, 2);
 }
-__inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
+
+//==============================================================================================//
+
+__inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
 
@@ -150,27 +270,29 @@ __inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 	
 	//J2
 	mat3x3 J2;
-	mat3x1 diff2 = vk - vi;
+	mat3x1 diff2 = vj - vi;
 
-	temp3 = cross(Ix, diff2);
-	J2(0, 0) = -temp3.x;
-	J2(1, 0) = -temp3.y;
-	J2(2, 0) = -temp3.z;
+	temp3 = cross(diff2, Ix);
+	J2(0, 0) = temp3.x;
+	J2(1, 0) = temp3.y;
+	J2(2, 0) = temp3.z;
 
-	temp3 = cross(Iy, diff2);
-	J2(0, 1) = -temp3.x;
-	J2(1, 1) = -temp3.y;
-	J2(2, 1) = -temp3.z;
+	temp3 = cross(diff2, Iy);
+	J2(0, 1) = temp3.x;
+	J2(1, 1) = temp3.y;
+	J2(2, 1) = temp3.z;
 
-	temp3 = cross(Iz, diff2);
-	J2(0, 2) = -temp3.x;
-	J2(1, 2) = -temp3.y;
-	J2(2, 2) = -temp3.z;
+	temp3 = cross(diff2, Iz);
+	J2(0, 2) = temp3.x;
+	J2(1, 2) = temp3.y;
+	J2(2, 2) = temp3.z;
 
 	J = J2 * TR;
 }
 
-__inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
+//==============================================================================================//
+
+__inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 {
 	float3 temp3;
 
@@ -180,7 +302,7 @@ __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 
 	//J1
 	mat3x3 J1;
-	mat3x1 diff1 = vj - vi;
+	mat3x1 diff1 = vk - vi;
 
 	temp3 = cross(Ix, diff1);
 	J1(0, 0) = temp3.x;
@@ -200,32 +322,31 @@ __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 	J = J1  * TR;
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
-	mat3x3 identity;
-	identity.setIdentity();
-	mat3x3 negIdentity = identity * -1.f;
 
-	mat3x1 Ix(make_float3(1.f, 0.f, 0.f));
-	mat3x1 Iy(make_float3(0.f, 1.f, 0.f));
-	mat3x1 Iz(make_float3(0.f, 0.f, 1.f));
+	mat3x1 IxNeg(make_float3(-1.f, 0.f, 0.f));
+	mat3x1 IyNeg(make_float3(0.f, -1.f, 0.f));
+	mat3x1 IzNeg(make_float3(0.f, 0.f, -1.f));
 
 	//J1
 	mat3x3 J1;
 	mat3x1 diff1 = vj - vi;
 
-	temp3 = cross(Ix, diff1);
+	temp3 = cross(diff1, IxNeg);
 	J1(0, 0) = temp3.x;		
 	J1(1, 0) = temp3.y;
 	J1(2, 0) = temp3.z;
 
-	temp3 = cross(Iy, diff1);
+	temp3 = cross(diff1, IyNeg);
 	J1(0, 1) = temp3.x;
 	J1(1, 1) = temp3.y;
 	J1(2, 1) = temp3.z;
 
-	temp3 = cross(Iz, diff1);
+	temp3 = cross(diff1, IzNeg);
 	J1(0, 2) = temp3.x;
 	J1(1, 2) = temp3.y;
 	J1(2, 2) = temp3.z;
@@ -234,23 +355,25 @@ __inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, ma
 	mat3x3 J2;
 	mat3x1 diff2 = vk - vi;
 
-	temp3 = cross(Ix, diff2);
-	J2(0, 0) = -temp3.x;
-	J2(1, 0) = -temp3.y;
-	J2(2, 0) = -temp3.z;
+	temp3 = cross(IxNeg, diff2);
+	J2(0, 0) = temp3.x;
+	J2(1, 0) = temp3.y;
+	J2(2, 0) = temp3.z;
 
-	temp3 = cross(Iy, diff2);
-	J2(0, 1) = -temp3.x;
-	J2(1, 1) = -temp3.y;
-	J2(2, 1) = -temp3.z;
+	temp3 = cross(IyNeg, diff2);
+	J2(0, 1) = temp3.x;
+	J2(1, 1) = temp3.y;
+	J2(2, 1) = temp3.z;
 
-	temp3 = cross(Iz, diff2);
-	J2(0, 2) = -temp3.x;
-	J2(1, 2) = -temp3.y;
-	J2(2, 2) = -temp3.z;
+	temp3 = cross(IzNeg, diff2);
+	J2(0, 2) = temp3.x;
+	J2(1, 2) = temp3.y;
+	J2(2, 2) = temp3.z;
 
-	J = J1 * negIdentity * TR + J2 *negIdentity * TR;
+	J = (J1 + J2 ) * TR;
 }
+
+//==============================================================================================//
 
 __inline__ __device__ void addGradients(mat1x3 grad, float3* d_grad)
 {
@@ -262,11 +385,15 @@ __inline__ __device__ void addGradients(mat1x3 grad, float3* d_grad)
 	atomicAdd(d_gradFloat2, grad(0, 2));
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
 {
 	for (int ii = 0; ii < 9; ii++)
 		atomicAdd(&d_grad[ii], grad(0, ii));
 }
+
+//==============================================================================================//
 
 __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
@@ -278,17 +405,19 @@ __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 inde
 	}
 	if (index.y == 0)
 	{
-		atomicAdd(&d_grad[index.y].x, grad(3, 0));
-		atomicAdd(&d_grad[index.y].y, grad(4, 0));
-		atomicAdd(&d_grad[index.y].z, grad(5, 0));
+		//atomicAdd(&d_grad[index.y].x, grad(3, 0));
+		//atomicAdd(&d_grad[index.y].y, grad(4, 0));
+		//atomicAdd(&d_grad[index.y].z, grad(5, 0));
 	}
 	if (index.z == 0)
 	{
-		atomicAdd(&d_grad[index.z].x, grad(6, 0));
-		atomicAdd(&d_grad[index.z].y, grad(7, 0));
-		atomicAdd(&d_grad[index.z].z, grad(8, 0));
+	//	atomicAdd(&d_grad[index.z].x, grad(6, 0));
+	//	atomicAdd(&d_grad[index.z].y, grad(7, 0));
+	//	atomicAdd(&d_grad[index.z].z, grad(8, 0));
 	}
 }
+
+//==============================================================================================//
 
 __device__ inline mat3x3 getRotationMatrix(float4* d_T)
 {
@@ -305,6 +434,7 @@ __device__ inline mat3x3 getRotationMatrix(float4* d_T)
 	return TE;
 }
 
+//==============================================================================================//
 
 __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 vertexCol1, float3 vertexCol2)
 {
@@ -321,6 +451,8 @@ __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 ver
 	JAlBc(2, 2) = vertexCol2.z;
 }
 
+//==============================================================================================//
+
 __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 N2)
 {
 	JNoBc(0, 0) = N0.x;
@@ -336,55 +468,194 @@ __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 
 	JNoBc(2, 1) = N1.z;
 	JNoBc(2, 2) = N2.z;
 }
-__inline__ __device__ void getJBcVp(mat3x9 &JBcVp, float3 v0, float3 v1, float3 v2, float3 bcc)
+
+//==============================================================================================//
+
+//==============================================================================================//
+
+inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float3 v0, float3 v1, float3 v2)
 {
-	JBcVp.setZero();
-	mat3x1 XYZ = (mat3x1)(bcc.x * v0 + bcc.y * v1 + bcc.z * v2);
+	dJBC.setZero();
 
-	mat3x9 J_g;
-	J_g.setZero();
+	float3  v0v1 = v1 - v0;
+	float3  v0v2 = v2 - v0;
+
+	float3  N = cross(v0v1, v0v2); // N 
+	float denom = dot(N, N);
+	float NdotRayDirection = dot(dir, N);
+
+	float d = dot(N, v0);
+
+	float t = (dot(v0, N) - dot(orig, N)) / NdotRayDirection;
+
+	float3 P = orig + t * dir;
+
+	float3 edge1 = v2 - v1;
+	float3 vp1 = P - v1;
+	float3 C1= cross(edge1, vp1);
+
+	float3 edge2 = v0 - v2;
+	float3 vp2 = P - v2;
+	float3 C2 = cross(edge2, vp2);
+
+	mat3x3 identity;
+	identity.setIdentity();
+
+	//
+	float3 dN[9];
+
+	mat3x3 dN_v0;
+	mat3x3 dN_v1;
+	mat3x3 dN_v2;
+
+	mat3x1 v0Mat;
+	v0Mat(0, 0) = v0.x;
+	v0Mat(1, 0) = v0.y;
+	v0Mat(2, 0) = v0.z;
+
+	mat3x1 v1Mat;
+	v1Mat(0, 0) = v1.x;
+	v1Mat(1, 0) = v1.y;
+	v1Mat(2, 0) = v1.z;
+
+	mat3x1 v2Mat;
+	v2Mat(0, 0) = v2.x;
+	v2Mat(1, 0) = v2.y;
+	v2Mat(2, 0) = v2.z;
+
+	getJ_vi(dN_v0, identity, v2Mat, v1Mat, v0Mat);
+	getJ_vj(dN_v1, identity, v2Mat, v0Mat);
+	getJ_vk(dN_v2, identity, v1Mat, v0Mat);
+
+	dN[0].x = dN_v0(0, 0);
+	dN[0].y = dN_v0(1, 0);
+	dN[0].z = dN_v0(2, 0);
+
+	dN[1].x = dN_v0(0, 1);
+	dN[1].y = dN_v0(1, 1);
+	dN[1].z = dN_v0(2, 1);
+
+	dN[2].x = dN_v0(0, 2);
+	dN[2].y = dN_v0(1, 2);
+	dN[2].z = dN_v0(2, 2);
 	
-	J_g(0, 0) = XYZ(0, 0);
-	J_g(0, 1) = XYZ(1, 0);
-	J_g(0, 2) = XYZ(2, 0);
+	dN[3].x = dN_v1(0, 0);
+	dN[3].y = dN_v1(1, 0);
+	dN[3].z = dN_v1(2, 0);
 
-	J_g(1, 3) = XYZ(0, 0);
-	J_g(1, 4) = XYZ(1, 0);
-	J_g(1, 5) = XYZ(2, 0);
+	dN[4].x = dN_v1(0, 1);
+	dN[4].y = dN_v1(1, 1);
+	dN[4].z = dN_v1(2, 1);
 
-	J_g(2, 6) = XYZ(0, 0);
-	J_g(2, 7) = XYZ(1, 0);
-	J_g(2, 8) = XYZ(2, 0);
+	dN[5].x = dN_v1(0, 2);
+	dN[5].y = dN_v1(1, 2);
+	dN[5].z = dN_v1(2, 2);
 
+	dN[6].x = dN_v2(0, 0);
+	dN[6].y = dN_v2(1, 0);
+	dN[6].z = dN_v2(2, 0);
 
-	mat3x3 VP;
-	VP(0, 0) = v0.x;
-	VP(1, 0) = v0.y;
-	VP(2, 0) = v0.z;
-	VP(0, 1) = v1.x;
-	VP(1, 1) = v1.y;
-	VP(2, 1) = v1.z;
-	VP(0, 2) = v2.x;
-	VP(1, 2) = v2.y;
-	VP(2, 2) = v2.z;
-	mat3x3 VPInv = VP.getInverse();
+	dN[7].x = dN_v2(0, 1);
+	dN[7].y = dN_v2(1, 1);
+	dN[7].z = dN_v2(2, 1);
 
-	mat9x9 J_f;
-	J_f.setZero();
+	dN[8].x = dN_v2(0, 2);
+	dN[8].y = dN_v2(1, 2);
+	dN[8].z = dN_v2(2, 2);
 
-	for (int k = 0; k < 3; k++)
+	//
+	float3 C[2];
+	C[0] = C1;
+	C[1] = C2;
+
+	//
+	float3 dE[2][9];
+	dE[0][0] = make_float3(0.f, 0.f, 0.f);
+	dE[0][1] = make_float3(0.f, 0.f, 0.f);
+	dE[0][2] = make_float3(0.f, 0.f, 0.f);
+	dE[0][3] = make_float3(-1.f, 0.f, 0.f);
+	dE[0][4] = make_float3(0.f, -1.f, 0.f);
+	dE[0][5] = make_float3(0.f, 0.f, -1.f);
+	dE[0][6] = make_float3(1.f, 0.f, 0.f);
+	dE[0][7] = make_float3(0.f, 1.f, 0.f);
+	dE[0][8] = make_float3(0.f, 0.f, 1.f);
+
+	dE[1][0] = make_float3(1.f, 0.f, 0.f);
+	dE[1][1] = make_float3(0.f, 1.f, 0.f);
+	dE[1][2] = make_float3(0.f, 0.f, 1.f);
+	dE[1][3] = make_float3(0.f, 0.f, 0.f);
+	dE[1][4] = make_float3(0.f, 0.f, 0.f);
+	dE[1][5] = make_float3(0.f, 0.f, 0.f);
+	dE[1][6] = make_float3(-1.f, 0.f, 0.f);
+	dE[1][7] = make_float3(0.f, -1.f, 0.f);
+	dE[1][8] = make_float3(0.f, 0.f, -1.f);
+
+	//
+	float3 vp[2];
+	vp[0] = vp1;
+	vp[1] = vp2;
+	
+	//
+	float3 E[2]; 
+	E[0] = edge1; //v2 - v1
+	E[1] = edge2; //v0 - v2
+	
+	//
+	float3 dV[3][9];
+
+	dV[0][0] = make_float3(1.f, 0.f, 0.f);
+	dV[0][1] = make_float3(0.f, 1.f, 0.f);
+	dV[0][2] = make_float3(0.f, 0.f, 1.f);
+	dV[0][3] = make_float3(0.f, 0.f, 0.f);
+	dV[0][4] = make_float3(0.f, 0.f, 0.f);
+	dV[0][5] = make_float3(0.f, 0.f, 0.f);
+	dV[0][6] = make_float3(0.f, 0.f, 0.f);
+	dV[0][7] = make_float3(0.f, 0.f, 0.f);
+	dV[0][8] = make_float3(0.f, 0.f, 0.f);
+
+	dV[1][0] = make_float3(0.f, 0.f, 0.f);
+	dV[1][1] = make_float3(0.f, 0.f, 0.f);
+	dV[1][2] = make_float3(0.f, 0.f, 0.f);
+	dV[1][3] = make_float3(1.f, 0.f, 0.f);
+	dV[1][4] = make_float3(0.f, 1.f, 0.f);
+	dV[1][5] = make_float3(0.f, 0.f, 1.f);
+	dV[1][6] = make_float3(0.f, 0.f, 0.f);
+	dV[1][7] = make_float3(0.f, 0.f, 0.f);
+	dV[1][8] = make_float3(0.f, 0.f, 0.f);
+
+	dV[2][0] = make_float3(0.f, 0.f, 0.f);
+	dV[2][1] = make_float3(0.f, 0.f, 0.f);
+	dV[2][2] = make_float3(0.f, 0.f, 0.f);
+	dV[2][3] = make_float3(0.f, 0.f, 0.f);
+	dV[2][4] = make_float3(0.f, 0.f, 0.f);
+	dV[2][5] = make_float3(0.f, 0.f, 0.f);
+	dV[2][6] = make_float3(1.f, 0.f, 0.f);
+	dV[2][7] = make_float3(0.f, 1.f, 0.f);
+	dV[2][8] = make_float3(0.f, 0.f, 1.f);
+	
+	//
+	float dt[9];
+	for (int var = 0; var < 9; var++)
 	{
-		for (int l = 0; l < 3; l++)
+		dt[var] = (-1.f /(dot(N,dir)*dot(N, dir))) * dot(dN[var],dir) * dot((v0-orig),N) +  (1.f /(dot(N,dir))) * (dot(dV[0][var],N)+ dot((v0-orig),dN[var]));
+	}
+
+	//
+	for (int abc = 0; abc < 2; abc++)
+	{
+		for (int var = 0; var < 9; var++)
 		{
-			for (int i = 0; i < 3; i++)
-			{
-				for (int j = 0; j < 3; j++)
-				{
-					J_f(k * 3 + l, j * 3 + i) = -VPInv(k, i) * VPInv(j, l);
-				}
-			}
+			float tmp = dot(N, C[abc]);
+			
+			float dtmp = (dot(dN[var], C[abc]) + dot(N, (cross(dE[abc][var], vp[abc]) + cross(E[abc], (dt[var] * dir - dV[abc + 1][var])))));
+
+			dJBC(abc, var) = dtmp / denom + tmp *(-1.f/(denom*denom))* (2.f * dot(N,dN[var]));
 		}
 	}
 
-	JBcVp = J_g * J_f;
+	//
+	for (int var = 0; var < 9; var++)
+	{
+		dJBC(2, var) = -dJBC(0, var) - dJBC(1, var);
+	}
 }

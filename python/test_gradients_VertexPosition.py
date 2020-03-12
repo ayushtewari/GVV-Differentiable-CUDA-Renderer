@@ -12,6 +12,7 @@ import utils.CheckGPU as CheckGPU
 import cv2 as cv
 import utils.OBJReader as OBJReader
 import utils.CameraReader as CameraReader
+import numpy as np
 
 ########################################################################################################################
 # Load custom operators
@@ -43,7 +44,7 @@ def test_color_gradient():
     VertexTextureConst=tf.constant([objreader.textureMap],dtype=tf.float32)
     SHCConst = tf.constant(testSHCoeff,dtype=tf.float32)
 
-    target = CudaRenderer.CudaRendererGpu(
+    rendererTarget = CudaRenderer.CudaRendererGpu(
                                         faces_attr                   = objreader.facesVertexId,
                                         texCoords_attr               = objreader.textureCoordinates,
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
@@ -57,7 +58,8 @@ def test_color_gradient():
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
                                         shCoeff_input                = SHCConst
-                                        ).getRenderBuffer()
+                                        )
+    target = rendererTarget.getRenderBufferTF()
 
     VertexPosition_rnd = tf.Variable([objreaderMod.vertexCoordinates])
 
@@ -83,7 +85,7 @@ def test_color_gradient():
                 shCoeff_input=SHCConst
             )
 
-            output = renderer.getRenderBuffer()
+            output = renderer.getRenderBufferTF()
 
             Loss1 = (output-target) * (output-target)
             Loss = tf.reduce_sum(Loss1) / (float(cameraReader.numberOfCameras) * float(objreader.numberOfVertices))
@@ -93,14 +95,16 @@ def test_color_gradient():
         opt.apply_gradients(zip([Color_Grad],[VertexPosition_rnd]))
 
         # print loss
-        print(i, Loss.numpy())
+        print(i, Loss.numpy(),Color_Grad[0][0],VertexPosition_rnd[0][0])
 
         #output images
-        if(i ==0):
-            cv.imwrite('test_gradients/posTarget.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
-        vertexColorBuffer = output[0][0].numpy() * 255.0
-        vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
-        cv.imwrite('test_gradients/Pos {}.png'.format(i),vertexColorBuffer)
+        outputCV = renderer.getRenderBufferOpenCV(0,0)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0,0)
+
+        combined = targetCV
+        cv.addWeighted(outputCV,0.8,targetCV,0.2,0.0,combined)
+        cv.imshow('combined',combined)
+        cv.waitKey(1)
 
 ########################################################################################################################
 # main
