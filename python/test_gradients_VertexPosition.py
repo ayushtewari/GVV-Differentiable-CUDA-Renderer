@@ -33,6 +33,7 @@ cameraReader = CameraReader.CameraReader('data/cameras.calibration')
 testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
 objreader = OBJReader.OBJReader('data/cone.obj')
 objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
+
 ########################################################################################################################
 # Test color function
 ########################################################################################################################
@@ -61,6 +62,15 @@ def test_color_gradient():
                                         )
     target = rendererTarget.getRenderBufferTF()
 
+    ####
+    constThreshold = tf.constant(0.0, tf.float32, [1024, 1024])
+    summedUp = tf.reduce_sum(target, 4)  # check G B are black
+    maskInverse = tf.greater(summedUp, constThreshold)
+    maskFloat = tf.cast(maskInverse, tf.float32)
+    maskFloat = tf.reshape(maskFloat, [1, 14, 1024, 1024, 1])
+    maskFloat = tf.tile(maskFloat, [1, 1, 1, 1, 3])
+
+    ####
     VertexPosition_rnd = tf.Variable([objreaderMod.vertexCoordinates])
 
     opt = tf.keras.optimizers.SGD(learning_rate=100.0)
@@ -87,7 +97,7 @@ def test_color_gradient():
 
             output = renderer.getRenderBufferTF()
 
-            Loss1 = (output-target) * (output-target)
+            Loss1 = (output-target) * (output-target) * maskFloat
             Loss = tf.reduce_sum(Loss1) / (float(cameraReader.numberOfCameras) * float(objreader.numberOfVertices))
 
         #apply gradient

@@ -43,7 +43,7 @@ def test_SHC_gradient():
     VertexTextureConst=tf.constant([objreader.textureMap],dtype=tf.float32)
     SHCConst=tf.constant(testSHCoeff,dtype=tf.float32)
 
-    target = CudaRenderer.CudaRendererGpu(
+    rendererTarget = CudaRenderer.CudaRendererGpu(
                                             faces_attr=objreader.facesVertexId,
                                             texCoords_attr=objreader.textureCoordinates,
                                             numberOfVertices_attr=len(objreader.vertexCoordinates),
@@ -57,7 +57,9 @@ def test_SHC_gradient():
                                             vertexColor_input=VertexColorConst,
                                             texture_input=VertexTextureConst,
                                             shCoeff_input=SHCConst
-                                        ).getRenderBuffer()
+                                        )
+
+    target = rendererTarget.getRenderBufferTF()
 
     SHC_rnd = tf.Variable(SHCConst+tf.random.uniform([1,1, 27],0, 0.5) )
 
@@ -66,7 +68,7 @@ def test_SHC_gradient():
     for i in range(2000):
         with tf.GradientTape() as g:
             g.watch(SHC_rnd)
-            output = CudaRenderer.CudaRendererGpu(
+            renderer = CudaRenderer.CudaRendererGpu(
                                             faces_attr=objreader.facesVertexId,
                                             texCoords_attr=objreader.textureCoordinates,
                                             numberOfVertices_attr=len(objreader.vertexCoordinates),
@@ -79,22 +81,26 @@ def test_SHC_gradient():
                                             vertexColor_input=VertexColorConst,
                                             texture_input=VertexTextureConst,
                                             shCoeff_input=SHC_rnd
-                                        ).getRenderBuffer()
+                                        )
+            output = renderer.getRenderBufferTF()
 
             Loss=tf.nn.l2_loss(target-output)
-        
+
+        # apply gradient
         SHC_Grad=g.gradient(Loss,SHC_rnd)
+        opt.apply_gradients(zip([SHC_Grad], [SHC_rnd]))
+
+        # print loss
         print(Loss.numpy())
 
-        opt.apply_gradients(zip([SHC_Grad],[SHC_rnd]))
+        # output images
+        outputCV = renderer.getRenderBufferOpenCV(0, 0)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0, 0)
 
-        if(i==0):
-            cv.imwrite('test_gradients/targetLighting.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
-        if((i+1)%5==0):    
-            vertexColorBuffer = output[0][0].numpy() * 255.0
-            vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
-
-            cv.imwrite('test_gradients/SHC {}.png'.format(i),vertexColorBuffer)
+        combined = targetCV
+        cv.addWeighted(outputCV, 0.8, targetCV, 0.2, 0.0, combined)
+        cv.imshow('combined', combined)
+        cv.waitKey(1)
 
 ########################################################################################################################
 # main

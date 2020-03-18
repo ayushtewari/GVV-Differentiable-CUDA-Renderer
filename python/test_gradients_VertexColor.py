@@ -44,7 +44,7 @@ def test_color_gradient():
     VertexTextureConst=tf.constant([objreader.textureMap],dtype=tf.float32)
     SHCConst = tf.constant(testSHCoeff,dtype=tf.float32)
 
-    target = CudaRenderer.CudaRendererGpu(
+    rendererTarget = CudaRenderer.CudaRendererGpu(
                                         faces_attr                   = objreader.facesVertexId,
                                         texCoords_attr               = objreader.textureCoordinates,
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
@@ -58,7 +58,9 @@ def test_color_gradient():
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
                                         shCoeff_input                = SHCConst
-                                        ).getRenderBuffer()
+                                        )
+
+    target = rendererTarget.getRenderBufferTF()
 
     VertexColor_rnd = tf.Variable(tf.zeros(VertexColorConst.shape))
 
@@ -84,7 +86,7 @@ def test_color_gradient():
                 shCoeff_input=SHCConst
             )
 
-            output = renderer.getRenderBuffer()
+            output = renderer.getRenderBufferTF()
 
             Loss1 = (output-target) * (output-target)
             Loss = tf.reduce_sum(Loss1) / (float(cameraReader.numberOfCameras) * float(objreader.numberOfVertices))
@@ -96,11 +98,14 @@ def test_color_gradient():
         # print loss
         print(i, Loss.numpy())
 
-        #output images
-        cv.imwrite('test_gradients/target.png',cv.cvtColor(target[0][0].numpy() * 255.0, cv.COLOR_BGR2RGB))
-        vertexColorBuffer = output[0][0].numpy() * 255.0
-        vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
-        cv.imwrite('test_gradients/Color {}.png'.format(i),vertexColorBuffer)
+        # output images
+        outputCV = renderer.getRenderBufferOpenCV(0, 0)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0, 0)
+
+        combined = targetCV
+        cv.addWeighted(outputCV, 0.8, targetCV, 0.2, 0.0, combined)
+        cv.imshow('combined', combined)
+        cv.waitKey(1)
 
 ########################################################################################################################
 # main

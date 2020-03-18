@@ -11,20 +11,6 @@
 
 //==============================================================================================//
 
-// Cg - vertex color grad buffer
-// Co - vertex color buffer 
-// Al - albedo color buffer 
-// Li - light component buffer
-// Vc - vertex color (vertex space)
-// Bc - bary centric co-ordinates
-// No - normal buffer
-// Nv - vertex normal 
-// Nf - face normal 
-// Vp - vertex position 
-// Gm - sh coefficients
-
-//==============================================================================================//
-
 /*
 Initialize gradients for lighting 
 */
@@ -121,8 +107,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		float3 pixLight = getIllum(pixNorm, shCoeff);
 		mat3x3 JCoAl;
-		JCoAl.setIdentity();
-		//getJCoAl(JCoAl, pixLight); //TODOOOOOOOOOOOOOOOOOOOOOOOO
+		getJCoAl(JCoAl, pixLight); 
 
 		mat3x1 GVCBVertexColor;
 		GVCBVertexColor(0, 0) = input.d_vertexColorBufferGrad[idx].x;
@@ -226,6 +211,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
 		////////////////////
+
 		for (int i = 0; i < 3; i++)
 		{
 			mat3x3 JNuNvx;

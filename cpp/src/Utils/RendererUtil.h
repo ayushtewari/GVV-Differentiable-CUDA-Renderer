@@ -18,6 +18,9 @@
 
 //==============================================================================================//
 
+/*
+Takes albedo color, normal direction and shading coefficients and computes the shaded color
+*/
 inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoeffs)
 {
 	float3 dirSq = dir * dir;
@@ -59,6 +62,10 @@ inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoe
 }
 
 //==============================================================================================//
+
+/*
+Computes the ray triangle intersection and returns the barycentric coordinates
+*/
 inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
 {
 	//just to make it numerically more stable
@@ -73,7 +80,6 @@ inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0,
 
 	// no need to normalize
 	float3  N = cross(v0v1, v0v2); // N 
-
 
 	/////////////////////////////
 	// Step 1: finding P
@@ -104,7 +110,7 @@ inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0,
 
 	float3 C; // vector perpendicular to triangle's plane 
 
-			  // edge 0
+	// edge 0
 	float3 edge0 = v1 - v0;
 	float3 vp0 = P - v0;
 	C = cross(edge0, vp0);
@@ -137,9 +143,11 @@ inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0,
 	return true; // this ray hits the triangle 
 }
 
-
 //==============================================================================================//
 
+/*
+Computes the per pixel barycentric coordinates
+*/
 inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, float3 v2, float4* invExtrinsics, float4* invProjection)
 {
 	float3 o = make_float3(0.f, 0.f, 0.f);
@@ -164,44 +172,9 @@ inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, 
 
 //==============================================================================================//
 
-__inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
-{
-	JCoAl.setZero();
-	JCoAl(0, 0) = pixLight.x;
-	JCoAl(1, 1) = pixLight.y;
-	JCoAl(2, 2) = pixLight.z;
-}
-
-//==============================================================================================//
-
-__inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
-{
-	JAlVc.setZero();
-	JAlVc(0, 0) = bcc.x;
-	JAlVc(1, 1) = bcc.x;
-	JAlVc(2, 2) = bcc.x;
-
-	JAlVc(3, 0) = bcc.y;
-	JAlVc(4, 1) = bcc.y;
-	JAlVc(5, 2) = bcc.y;
-
-	JAlVc(6, 0) = bcc.z;
-	JAlVc(7, 1) = bcc.z;
-	JAlVc(8, 2) = bcc.z;
-}
-
-//==============================================================================================//
-
-__inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
-{
-	JCoLi.setZero();
-	JCoLi(0, 0) = pixAlb.x;
-	JCoLi(1, 1) = pixAlb.y;
-	JCoLi(2, 2) = pixAlb.z;
-}
-
-//==============================================================================================//
-
+/*
+Computes the illumination from the surface normal and the lighting coefficients
+*/
 __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 {
 	float3 dirSq = dir * dir;
@@ -241,6 +214,76 @@ __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 
 //==============================================================================================//
 
+/*
+Extracts the rotation matrix from the full extrinsics matrix
+*/
+__device__ inline mat3x3 getRotationMatrix(float4* d_T)
+{
+	mat3x3 TE;
+	TE(0, 0) = d_T[0].x;
+	TE(0, 1) = d_T[0].y;
+	TE(0, 2) = d_T[0].z;
+	TE(1, 0) = d_T[1].x;
+	TE(1, 1) = d_T[1].y;
+	TE(1, 2) = d_T[1].z;
+	TE(2, 0) = d_T[2].x;
+	TE(2, 1) = d_T[2].y;
+	TE(2, 2) = d_T[2].z;
+	return TE;
+}
+
+//==============================================================================================//
+
+/*
+d_shadedColor / d_albedo
+*/
+__inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
+{
+	JCoAl.setZero();
+	JCoAl(0, 0) = pixLight.x;
+	JCoAl(1, 1) = pixLight.y;
+	JCoAl(2, 2) = pixLight.z;
+}
+
+//==============================================================================================//
+
+/*
+d_albedo / d_vertex_colors
+*/
+__inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
+{
+	JAlVc.setZero();
+	JAlVc(0, 0) = bcc.x;
+	JAlVc(1, 1) = bcc.x;
+	JAlVc(2, 2) = bcc.x;
+
+	JAlVc(3, 0) = bcc.y;
+	JAlVc(4, 1) = bcc.y;
+	JAlVc(5, 2) = bcc.y;
+
+	JAlVc(6, 0) = bcc.z;
+	JAlVc(7, 1) = bcc.z;
+	JAlVc(8, 2) = bcc.z;
+}
+
+//==============================================================================================//
+
+/*
+d_shadedColor / d_lighting
+*/
+__inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
+{
+	JCoLi.setZero();
+	JCoLi(0, 0) = pixAlb.x;
+	JCoLi(1, 1) = pixAlb.y;
+	JCoLi(2, 2) = pixAlb.z;
+}
+
+//==============================================================================================//
+
+/*
+d_lighting / d_lightingCoeffs
+*/
 __inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 {
 	JLiGm.setZero();
@@ -258,6 +301,9 @@ __inline__ __device__ void getJLiGm(mat3x9 &JLiGm, int rgb, float3 pixNorm)
 
 //==============================================================================================//
 
+/*
+d_lighting / d_normalizedNormal
+*/
 __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, const float* shCoeff)
 {
 	JLiNo.setZero();
@@ -281,6 +327,9 @@ __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, const float* shCo
 
 //==============================================================================================//
 
+/*
+d_normalizedNormal / d_unnormalizedNormal
+*/
 __inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 {
 	float norm_p2 = norm * norm;
@@ -302,6 +351,9 @@ __inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 
 //==============================================================================================//
 
+/*
+d_unnormalizedNormal / d_v_k
+*/
 __inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
@@ -334,6 +386,9 @@ __inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 
 //==============================================================================================//
 
+/*
+d_unnormalizedNormal / d_v_j
+*/
 __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 {
 	float3 temp3;
@@ -366,6 +421,9 @@ __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 
 //==============================================================================================//
 
+/*
+d_unnormalizedNormal / d_v_i
+*/
 __inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
@@ -417,67 +475,9 @@ __inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, ma
 
 //==============================================================================================//
 
-__inline__ __device__ void addGradients(mat1x3 grad, float3* d_grad)
-{
-	float* d_gradFloat0 = (float*)d_grad;
-	float* d_gradFloat1 = (float*)d_grad + 1;
-	float* d_gradFloat2 = (float*)d_grad + 2;
-	atomicAdd(d_gradFloat0, grad(0, 0));
-	atomicAdd(d_gradFloat1, grad(0, 1));
-	atomicAdd(d_gradFloat2, grad(0, 2));
-}
-
-//==============================================================================================//
-
-__inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
-{
-	for (int ii = 0; ii < 9; ii++)
-		atomicAdd(&d_grad[ii], grad(0, ii));
-}
-
-//==============================================================================================//
-
-__inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
-{
-	//if (index.x == 1)
-	{
-		atomicAdd(&d_grad[index.x].x, grad(0, 0));
-		atomicAdd(&d_grad[index.x].y, grad(1, 0));
-		atomicAdd(&d_grad[index.x].z, grad(2, 0));
-	}
-	//if (index.y == 1)
-	{
-		atomicAdd(&d_grad[index.y].x, grad(3, 0));
-		atomicAdd(&d_grad[index.y].y, grad(4, 0));
-		atomicAdd(&d_grad[index.y].z, grad(5, 0));
-	}
-	//if (index.z == 1)
-	{
-		atomicAdd(&d_grad[index.z].x, grad(6, 0));
-		atomicAdd(&d_grad[index.z].y, grad(7, 0));
-		atomicAdd(&d_grad[index.z].z, grad(8, 0));
-	}
-}
-
-//==============================================================================================//
-
-__device__ inline mat3x3 getRotationMatrix(float4* d_T)
-{
-	mat3x3 TE;
-	TE(0, 0) = d_T[0].x;
-	TE(0, 1) = d_T[0].y;
-	TE(0, 2) = d_T[0].z;
-	TE(1, 0) = d_T[1].x;
-	TE(1, 1) = d_T[1].y;
-	TE(1, 2) = d_T[1].z;
-	TE(2, 0) = d_T[2].x;
-	TE(2, 1) = d_T[2].y;
-	TE(2, 2) = d_T[2].z;
-	return TE;
-}
-
-//==============================================================================================//
-
+/*
+d_albedo / d_barycentricCoords
+*/
 __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 vertexCol1, float3 vertexCol2)
 {
 	JAlBc.setZero();
@@ -495,6 +495,9 @@ __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 ver
 
 //==============================================================================================//
 
+/*
+d_unnormalizedNormal / d_barycentricCoords
+*/
 __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 N2)
 {
 	JNoBc(0, 0) = N0.x;
@@ -513,8 +516,9 @@ __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 
 
 //==============================================================================================//
 
-//==============================================================================================//
-
+/*
+d_barycentricCoords / d_vertexPositons
+*/
 inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float3 v0, float3 v1, float3 v2)
 {
 	dJBC.setZero();
@@ -699,5 +703,58 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	for (int var = 0; var < 9; var++)
 	{
 		dJBC(2, var) = -dJBC(0, var) - dJBC(1, var);
+	}
+}
+
+//==============================================================================================//
+
+/*
+Gradient adding helper
+*/
+__inline__ __device__ void addGradients(mat1x3 grad, float3* d_grad)
+{
+	float* d_gradFloat0 = (float*)d_grad;
+	float* d_gradFloat1 = (float*)d_grad + 1;
+	float* d_gradFloat2 = (float*)d_grad + 2;
+	atomicAdd(d_gradFloat0, grad(0, 0));
+	atomicAdd(d_gradFloat1, grad(0, 1));
+	atomicAdd(d_gradFloat2, grad(0, 2));
+}
+
+//==============================================================================================//
+
+/*
+Gradient adding helper
+*/
+__inline__ __device__ void addGradients9(mat1x9 grad, float* d_grad)
+{
+	for (int ii = 0; ii < 9; ii++)
+		atomicAdd(&d_grad[ii], grad(0, ii));
+}
+
+//==============================================================================================//
+
+/*
+Gradient adding helper
+*/
+__inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
+{
+	//if (index.x == 1)
+	{
+		atomicAdd(&d_grad[index.x].x, grad(0, 0));
+		atomicAdd(&d_grad[index.x].y, grad(1, 0));
+		atomicAdd(&d_grad[index.x].z, grad(2, 0));
+	}
+	//if (index.y == 1)
+	{
+		atomicAdd(&d_grad[index.y].x, grad(3, 0));
+		atomicAdd(&d_grad[index.y].y, grad(4, 0));
+		atomicAdd(&d_grad[index.y].z, grad(5, 0));
+	}
+	//if (index.z == 1)
+	{
+		atomicAdd(&d_grad[index.z].x, grad(6, 0));
+		atomicAdd(&d_grad[index.z].y, grad(7, 0));
+		atomicAdd(&d_grad[index.z].z, grad(8, 0));
 	}
 }
