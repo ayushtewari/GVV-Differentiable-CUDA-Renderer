@@ -115,6 +115,8 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 
 	//misc
 	input.N = numberOfVertices;
+
+
 }
 
 //==============================================================================================//

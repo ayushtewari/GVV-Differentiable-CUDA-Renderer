@@ -15,6 +15,7 @@
 #include <cutil_inline.h>
 #include <cutil_math.h>
 #include "CameraUtil.h"
+#include "IndexHelper.h"
 
 //==============================================================================================//
 
@@ -250,20 +251,20 @@ __inline__ __device__ void getJCoAl(mat3x3 &JCoAl, float3 pixLight)
 /*
 d_albedo / d_vertex_colors
 */
-__inline__ __device__ void getJAlVc(mat9x3 &JAlVc, float3 bcc)
+__inline__ __device__ void getJAlVc(mat3x9 &JAlVc, float3 bcc)
 {
 	JAlVc.setZero();
 	JAlVc(0, 0) = bcc.x;
 	JAlVc(1, 1) = bcc.x;
 	JAlVc(2, 2) = bcc.x;
 
-	JAlVc(3, 0) = bcc.y;
-	JAlVc(4, 1) = bcc.y;
-	JAlVc(5, 2) = bcc.y;
+	JAlVc(0, 3) = bcc.y;
+	JAlVc(1, 4) = bcc.y;
+	JAlVc(2, 5) = bcc.y;
 
-	JAlVc(6, 0) = bcc.z;
-	JAlVc(7, 1) = bcc.z;
-	JAlVc(8, 2) = bcc.z;
+	JAlVc(0, 6) = bcc.z;
+	JAlVc(1, 7) = bcc.z;
+	JAlVc(2, 8) = bcc.z;
 }
 
 //==============================================================================================//
@@ -496,6 +497,129 @@ __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 ver
 //==============================================================================================//
 
 /*
+Image gradient helper
+*/
+__inline__ __device__ mat3x2 imageGradient(float3* image, float2 point, int imageWidth, int imageHeight)
+{
+	mat3x2 dIdUV;
+	dIdUV.setZero();
+
+	mat5x5 kernelU ;
+	(kernelU)(0, 0) = -5.f;
+	(kernelU)(0, 1) = -4.f;
+	(kernelU)(0, 2) =  0.f;
+	(kernelU)(0, 3) =  4.f;
+	(kernelU)(0, 4) =  5.f;
+
+	(kernelU)(1, 0) = - 8.f;
+	(kernelU)(1, 1) = -10.f;
+	(kernelU)(1, 2) =   0.f;
+	(kernelU)(1, 3) =  10.f;
+	(kernelU)(1, 4) =   8.f;
+
+	(kernelU)(2, 0) = -10.f;
+	(kernelU)(2, 1) = -20.f;
+	(kernelU)(2, 2) =   0.f;
+	(kernelU)(2, 3) =  20.f;
+	(kernelU)(2, 4) =  10.f;
+
+	(kernelU)(3, 0) = - 8.f;
+	(kernelU)(3, 1) = -10.f;
+	(kernelU)(3, 2) =   0.f;
+	(kernelU)(3, 3) =  10.f;
+	(kernelU)(3, 4) =   8.f;
+
+	(kernelU)(4, 0) = -5.f;
+	(kernelU)(4, 1) = -4.f;
+	(kernelU)(4, 2) =  0.f;
+	(kernelU)(4, 3) =  4.f;
+	(kernelU)(4, 4) =  5.f;
+
+	mat5x5 kernelV;
+	(kernelV)(0, 0) = -5.f;
+	(kernelV)(0, 1) = -8.f;
+	(kernelV)(0, 2) = -10.f;
+	(kernelV)(0, 3) = -8.f;
+	(kernelV)(0, 4) = -5.f;
+
+	(kernelV)(1, 0) = -4.f;
+	(kernelV)(1, 1) = -10.f;
+	(kernelV)(1, 2) = -20.f;
+	(kernelV)(1, 3) = -10.f;
+	(kernelV)(1, 4) = -4.f;
+
+	(kernelV)(2, 0) = 0.f;
+	(kernelV)(2, 1) = 0.f;
+	(kernelV)(2, 2) = 0.f;
+	(kernelV)(2, 3) = 0.f;
+	(kernelV)(2, 4) = 0.f;
+
+	(kernelV)(3, 0) = 4.f;
+	(kernelV)(3, 1) = 10.f;
+	(kernelV)(3, 2) = 20.f;
+	(kernelV)(3, 3) = 10.f;
+	(kernelV)(3, 4) = 4.f;
+
+	(kernelV)(4, 0) = 5.f;
+	(kernelV)(4, 1) = 8.f;
+	(kernelV)(4, 2) = 10.f;
+	(kernelV)(4, 3) = 8.f;
+	(kernelV)(4, 4) = 5.f;
+
+	if (point.x >= 2.f && point.y >= 2.f && point.x < imageWidth - 2 && point.y < imageHeight - 2)
+	{
+		float3 dI_du = make_float3(0.f, 0.f, 0.f);
+		float3 dI_dv = make_float3(0.f, 0.f, 0.f);
+
+		for (int y = -2; y <= 2; y++)
+		{
+			for (int x = -2; x <= 2; x++)
+			{
+				float3 I = image[index2DTo1D(imageHeight, imageWidth, (point.y + y), (point.x + x))];
+				dI_du += I * (kernelU)(x + 2, y + 2);
+				dI_dv += I * (kernelV)(x + 2, y + 2);
+			}
+		}
+		dIdUV(0, 0) = dI_du.x;
+		dIdUV(1, 0) = dI_du.y;
+		dIdUV(2, 0) = dI_du.z;
+
+		dIdUV(0, 1) = dI_dv.x;
+		dIdUV(1, 1) = dI_dv.y;
+		dIdUV(2, 1) = dI_dv.z;
+	}
+
+	dIdUV /= 20.f;
+
+	return dIdUV;
+}
+
+//==============================================================================================//
+
+/*
+d_albedo / d_barycentricCoords
+*/
+__inline__ __device__ void getJAlTexBc(mat3x3 &JAlBc, const float* d_textureMap, float2 uv, float2 tc0, float2 tc1, float2 tc2, int imageWidth, int imageHeight)
+{
+	JAlBc.setZero();
+
+	mat3x2 dIdUV = imageGradient((float3*)d_textureMap, uv, imageWidth, imageHeight);
+
+	mat2x3 dUVdabc;
+	dUVdabc(0, 0) = tc0.x;
+	dUVdabc(1, 0) = tc0.y;
+
+	dUVdabc(0, 1) = tc1.x;
+	dUVdabc(1, 1) = tc1.y;
+
+	dUVdabc(0, 2) = tc2.x;
+	dUVdabc(1, 2) = tc2.y;
+
+	JAlBc = dIdUV * dUVdabc;
+}
+//==============================================================================================//
+
+/*
 d_unnormalizedNormal / d_barycentricCoords
 */
 __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 N2)
@@ -507,7 +631,6 @@ __inline__ __device__ void getJNoBc(mat3x3 &JNoBc, float3 N0, float3 N1, float3 
 	JNoBc(1, 0) = N0.y;
 	JNoBc(1, 1) = N1.y;
 	JNoBc(1, 2) = N2.y;
-
 
 	JNoBc(2, 0) = N0.z;
 	JNoBc(2, 1) = N1.z;
@@ -526,7 +649,7 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	float3  v0v1 = v1 - v0;
 	float3  v0v2 = v2 - v0;
 
-	float3  N = cross(v0v1, v0v2); // N 
+	float3  N = cross(v0v1, v0v2); 
 	float denom = dot(N, N);
 	float NdotRayDirection = dot(dir, N);
 

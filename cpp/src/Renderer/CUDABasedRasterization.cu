@@ -276,12 +276,12 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					//render buffer
 					if (input.renderMode == RenderMode::Textured)
 					{
-						float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
-						float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
-						float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
+						float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
+						float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
+						float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
 						float2 finalTexCoord = texCoord0* abc.x + texCoord1* abc.y + texCoord2* abc.z;
 						finalTexCoord.x = finalTexCoord.x * input.texWidth;
-						finalTexCoord.y = (1.f - finalTexCoord.y) * input.texHeight;
+						finalTexCoord.y = finalTexCoord.y * input.texHeight;
 
 						finalTexCoord.x = fmaxf(finalTexCoord.x, 0);
 						finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth - 1);

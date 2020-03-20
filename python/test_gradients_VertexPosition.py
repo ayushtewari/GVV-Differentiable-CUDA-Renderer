@@ -29,7 +29,7 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-cameraReader = CameraReader.CameraReader('data/cameras.calibration')
+cameraReader = CameraReader.CameraReader('data/monocular.calibration')
 testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
 objreader = OBJReader.OBJReader('data/cone.obj')
 objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
@@ -53,7 +53,7 @@ def test_color_gradient():
                                         intrinsics_attr              = cameraReader.intrinsics,
                                         renderResolutionU_attr       = 1024,
                                         renderResolutionV_attr       = 1024,
-                                        renderMode_attr              = 'vertexColor',
+                                        renderMode_attr              = 'textured',
 
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
@@ -67,7 +67,7 @@ def test_color_gradient():
     summedUp = tf.reduce_sum(target, 4)  # check G B are black
     maskInverse = tf.greater(summedUp, constThreshold)
     maskFloat = tf.cast(maskInverse, tf.float32)
-    maskFloat = tf.reshape(maskFloat, [1, 14, 1024, 1024, 1])
+    maskFloat = tf.reshape(maskFloat, [1, 1, 1024, 1024, 1])
     maskFloat = tf.tile(maskFloat, [1, 1, 1, 1, 3])
 
     ####
@@ -87,7 +87,7 @@ def test_color_gradient():
                 intrinsics_attr=cameraReader.intrinsics,
                 renderResolutionU_attr=1024,
                 renderResolutionV_attr=1024,
-                renderMode_attr='vertexColor',
+                renderMode_attr='textured',
 
                 vertexPos_input=VertexPosition_rnd,
                 vertexColor_input=VertexColorConst,

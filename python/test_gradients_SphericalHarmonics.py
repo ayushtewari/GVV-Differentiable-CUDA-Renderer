@@ -51,7 +51,7 @@ def test_SHC_gradient():
                                             intrinsics_attr=cameraReader.intrinsics,
                                             renderResolutionU_attr=1024,
                                             renderResolutionV_attr=1024,
-                                            renderMode_attr='textured',
+                                            renderMode_attr='vertexColor',
 
                                             vertexPos_input=VertexPosConst,
                                             vertexColor_input=VertexColorConst,
@@ -76,7 +76,7 @@ def test_SHC_gradient():
                                             intrinsics_attr=cameraReader.intrinsics,
                                             renderResolutionU_attr=1024,
                                             renderResolutionV_attr=1024,
-                                            renderMode_attr='textured',
+                                            renderMode_attr='vertexColor',
                                             vertexPos_input=VertexPosConst,
                                             vertexColor_input=VertexColorConst,
                                             texture_input=VertexTextureConst,

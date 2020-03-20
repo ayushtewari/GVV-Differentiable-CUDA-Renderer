@@ -18,6 +18,7 @@
 //==============================================================================================//
 
 extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input);
+extern "C" void createSobelGPU(CUDABasedRasterizationGradInput& input);
 
 //==============================================================================================//
 
@@ -74,7 +75,7 @@ class CUDABasedRasterizationGrad
 		//=================================================//
 
 		//setter
-		inline void							set_D_vertexColorBufferGrad(float3* d_inputVertexColorBufferGrad)		{ input.d_vertexColorBufferGrad			= d_inputVertexColorBufferGrad; };
+		inline void							set_D_RenderBufferGrad(float3* d_inputVertexColorBufferGrad)			{ input.d_renderBufferGrad				= d_inputVertexColorBufferGrad; };
 		inline void							set_D_vertices(float3* d_inputVertices)									{ input.d_vertices						= d_inputVertices; };
 		inline void							set_D_vertexColors(float3* d_inputVertexColors)							{ input.d_vertexColor					= d_inputVertexColors; };
 		inline void							set_D_textureMap(const float* newTextureMap)							{ input.d_textureMap					= newTextureMap; };

@@ -639,6 +639,7 @@ typedef matNxM<9, 9> mat9x9;
 typedef matNxM<9, 1> mat9x1;
 typedef matNxM<1, 9> mat1x9;
 
+typedef matNxM<5, 5> mat5x5;
 typedef matNxM<6, 6> mat6x6;
 
 typedef matNxM<6, 1> mat6x1;

@@ -110,10 +110,12 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	//render mode
 	if (renderMode == "vertexColor")
 	{
+		std::cout << "Render mode is: vertexColor" << std::endl;
 		input.renderMode = RenderMode::VertexColor;
 	}
 	else if (renderMode == "textured")
 	{
+		std::cout << "Render mode is: textured" << std::endl;
 		input.renderMode = RenderMode::Textured;
 	}
 

@@ -15,6 +15,7 @@
 
 #include <cuda_runtime.h> 
 #include "CUDABasedRasterizationInput.h"
+#include "../Utils/cuda_SimpleMatrixUtil.h"
 
 //==============================================================================================//
 
@@ -41,7 +42,7 @@ struct CUDABasedRasterizationGradInput
 	int3*				d_facesVertex;							//part of face data structure										//INIT IN CONSTRUCTOR
 
 	//texture	
-	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR			////
+	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR			
 
 	//////////////////////////
 	//STATES 
@@ -51,35 +52,28 @@ struct CUDABasedRasterizationGradInput
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
-	float4*				d_inverseExtrinsics;					// inverse camera extrinsics										//INIT IN CONSTRUCTOR
-	float4*				d_inverseProjection;					// inverse camera projection										//INIT IN CONSTRUCTOR
+	float4*				d_inverseExtrinsics;					//inverse camera extrinsics											//INIT IN CONSTRUCTOR
+	float4*				d_inverseProjection;					//inverse camera projection											//INIT IN CONSTRUCTOR
 		
 	//////////////////////////
 	//INPUTS
 	//////////////////////////
 	
-	float3*				d_vertexColorBufferGrad;
+	float3*				d_renderBufferGrad;						//render buffer gradient from later layers
 
 	float3*				d_vertices;								//vertex positions
-	float3*				d_vertexColor;							//vertex color
-	float3*				d_vertexNormal;							//vertex normals												
-	//texture
-	int					texWidth;								//dimension of texture																				///
-	int					texHeight;								//dimension of texture																				///
-	const float*		d_textureMap;							//texture map																						///
+	float3*				d_vertexColor;							//vertex color								
+	const float*		d_textureMap;							//texture map																						
 	const float*		d_shCoeff;								//shading coefficients
+	float3*				d_vertexNormal;							//vertex normals				
+	float3*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view														
+	int4*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
+	
+	int					texWidth;								//dimension of texture																				
+	int					texHeight;								//dimension of texture																				
 
 	//////////////////////////
 	//OUTPUT 
-	//////////////////////////
-
-	//render buffers
-	int4*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
-	float3*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
-
-
-	//////////////////////////
-	//Gradients
 	//////////////////////////
 
 	float3*				d_vertexPosGrad;

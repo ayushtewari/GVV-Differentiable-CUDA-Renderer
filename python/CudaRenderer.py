@@ -105,7 +105,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender,
 
     gradients = customOperators.cuda_renderer_grad_gpu(
         # grads
-        vertex_color_buffer_grad    = gradRender,
+        render_buffer_grad          = gradRender,
         # inputs
         vertex_pos                  = op.inputs[0],
         vertex_color                = op.inputs[1],

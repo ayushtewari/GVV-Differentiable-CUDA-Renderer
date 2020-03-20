@@ -30,6 +30,7 @@
 #include "tensorflow/core/framework/shape_inference.h"
 
 #include "../../Renderer/CUDABasedRasterizationGrad.h"
+
 //==============================================================================================//
 
 using namespace tensorflow;
@@ -67,7 +68,7 @@ class CudaRendererGrad : public OpKernel
 		CUDABasedRasterizationGrad* cudaBasedRasterizationGrad;
 
 		//GPU input
-		const float* d_inputVertexColorBufferGrad;
+		const float* d_inputRenderBufferGrad;
 		const float* d_inputVertexPos;
 		const float* d_inputVertexColor;
 		const float* d_inputTexture;

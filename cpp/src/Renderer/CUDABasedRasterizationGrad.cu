@@ -96,6 +96,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 vertexNor0 = input.d_vertexNormal[idc*input.N + faceVerticesIds.x];
 		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + faceVerticesIds.y];
 		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + faceVerticesIds.z];
+		float2 texCoord0 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 1]);
+		float2 texCoord1 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 1]);
+		float2 texCoord2 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 1]);
 
 		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
@@ -109,39 +112,41 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x3 JCoAl;
 		getJCoAl(JCoAl, pixLight); 
 
-		mat3x1 GVCBVertexColor;
-		GVCBVertexColor(0, 0) = input.d_vertexColorBufferGrad[idx].x;
-		GVCBVertexColor(1, 0) = input.d_vertexColorBufferGrad[idx].y;
-		GVCBVertexColor(2, 0) = input.d_vertexColorBufferGrad[idx].z;
+		mat1x3 GVCBVertexColor;
+		GVCBVertexColor(0, 0) = input.d_renderBufferGrad[idx].x;
+		GVCBVertexColor(0, 1) = input.d_renderBufferGrad[idx].y;
+		GVCBVertexColor(0, 2) = input.d_renderBufferGrad[idx].z;
+
+		float2 finalTexCoord = make_float2(0.f, 0.f);
 
 		if (input.renderMode == RenderMode::VertexColor)
 		{
-			mat9x3 JAlVc;
+			mat3x9 JAlVc;
 			getJAlVc(JAlVc, bcc);
 
-			mat9x1 gradVerCol = JAlVc * JCoAl * GVCBVertexColor;
+			mat1x9 gradVerCol = GVCBVertexColor * JCoAl * JAlVc;
 
-			addGradients9I(gradVerCol, input.d_vertexColorGrad, faceVerticesIds);
+			addGradients9I(gradVerCol.getTranspose(), input.d_vertexColorGrad, faceVerticesIds);
 		}
-
-		if (input.renderMode == RenderMode::Textured)
+		else if (input.renderMode == RenderMode::Textured)
 		{
-			mat3x1 gradTexColor = JCoAl * GVCBVertexColor;
+			mat1x3 gradTexColor = GVCBVertexColor * JCoAl ;
 
-			float2 texCoord0 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 1]);
-			float2 texCoord1 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 1]);
-			float2 texCoord2 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 0], input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 1]);
-			float2 finalTexCoord = texCoord0* bcc.x + texCoord1* bcc.y + texCoord2* bcc.z;
+			finalTexCoord = texCoord0* bcc.x + texCoord1* bcc.y + texCoord2* bcc.z;
 			finalTexCoord.x = finalTexCoord.x * input.texWidth;
-			finalTexCoord.y = (1.f - finalTexCoord.y) * input.texHeight;
+			finalTexCoord.y = finalTexCoord.y * input.texHeight;
 			finalTexCoord.x = fmaxf(finalTexCoord.x, 0);
 			finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth - 1);
 			finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
 			finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
 
 			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].x, gradTexColor(0, 0));
-			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].y, gradTexColor(1, 0));
-			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].z, gradTexColor(2, 0));
+			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].y, gradTexColor(0, 1));
+			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].z, gradTexColor(0, 2));
+		}
+		else
+		{
+			printf("Unsupported color mode in renderer gradient! \n");
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -149,13 +154,22 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		////////////////////////////////////////////////////////////////////////
 
 		mat1x3 GVCBLight;
-		GVCBLight(0, 0) = input.d_vertexColorBufferGrad[idx].x;
-		GVCBLight(0, 1) = input.d_vertexColorBufferGrad[idx].y;
-		GVCBLight(0, 2) = input.d_vertexColorBufferGrad[idx].z;
+		GVCBLight(0, 0) = input.d_renderBufferGrad[idx].x;
+		GVCBLight(0, 1) = input.d_renderBufferGrad[idx].y;
+		GVCBLight(0, 2) = input.d_renderBufferGrad[idx].z;
 
-		// jacobians
 		mat3x3 JCoLi;
-		float3 pixAlb = bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
+		float3 pixAlb = make_float3(0.f, 0.f, 0.f);
+		if (input.renderMode == RenderMode::VertexColor)
+		{
+			pixAlb = bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
+		}
+		else if (input.renderMode == RenderMode::Textured)
+		{
+			pixAlb = make_float3(input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 0)],
+								 input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 1)],
+								 input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 2)]);
+		}
 		getJCoLi(JCoLi, pixAlb);
 
 		mat3x9 JLiGmR;
@@ -169,18 +183,18 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat1x9 gradSHCoeffG = GVCBLight * JCoLi * JLiGmG;
 		mat1x9 gradSHCoeffB = GVCBLight * JCoLi * JLiGmB;
 
-		addGradients9(gradSHCoeffR, &input.d_shCoeffGrad[idc * 27]);
-		addGradients9(gradSHCoeffG, &input.d_shCoeffGrad[idc * 27+9]);
-		addGradients9(gradSHCoeffB, &input.d_shCoeffGrad[idc * 27+18]);
+		addGradients9(gradSHCoeffR, &input.d_shCoeffGrad[idc * 27     ]);
+		addGradients9(gradSHCoeffG, &input.d_shCoeffGrad[idc * 27 +  9]);
+		addGradients9(gradSHCoeffB, &input.d_shCoeffGrad[idc * 27 + 18]);
 
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX POS GRAD
 		////////////////////////////////////////////////////////////////////////
 
 		mat1x3 GVCBPosition;
-		GVCBPosition(0, 0) = input.d_vertexColorBufferGrad[idx].x;
-		GVCBPosition(0, 1) = input.d_vertexColorBufferGrad[idx].y;
-		GVCBPosition(0, 2) = input.d_vertexColorBufferGrad[idx].z;
+		GVCBPosition(0, 0) = input.d_renderBufferGrad[idx].x;
+		GVCBPosition(0, 1) = input.d_renderBufferGrad[idx].y;
+		GVCBPosition(0, 2) = input.d_renderBufferGrad[idx].z;
 
 		mat3x3 JNoNu;
 		getJNoNu(JNoNu, pixNormUn, pixNormVal);
@@ -193,7 +207,15 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		/////////////////////
 
 		mat3x3 JAlBc;
-		getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
+
+		if (input.renderMode == RenderMode::VertexColor)
+		{
+			getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
+		}
+		else if (input.renderMode == RenderMode::Textured)
+		{
+			getJAlTexBc(JAlBc, input.d_textureMap, finalTexCoord, texCoord0, texCoord1, texCoord2, input.texWidth, input.texHeight);
+		}
 
 		mat3x3 JNoBc;
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
@@ -253,17 +275,20 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				// gradients vi
 				getJ_vi(J, TR, vk, vj, vi);
 				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+				//if(v_index_inner.x ==1)
+					addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
 				// gradients vj
 				getJ_vj(J, TR, vk, vi);
 				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+				//if (v_index_inner.y == 1)
+					addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
 				// gradients vk
 				getJ_vk(J, TR, vj, vi);
 				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
+				//if (v_index_inner.z == 1)
+					addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
 			}
 		}
 	}
@@ -271,6 +296,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 //==============================================================================================//
 
+/*
+Call to the devices for computing the gradients
+*/
 extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input)
 {
 	initBuffersGradDevice2    << < (input.numberOfCameras * 27 + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >				(input);
@@ -283,3 +311,5 @@ extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input)
 }
 
 //==============================================================================================//
+
+
