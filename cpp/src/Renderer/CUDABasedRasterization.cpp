@@ -110,12 +110,10 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	//render mode
 	if (renderMode == "vertexColor")
 	{
-		std::cout << "Render mode is: vertexColor" << std::endl;
 		input.renderMode = RenderMode::VertexColor;
 	}
 	else if (renderMode == "textured")
 	{
-		std::cout << "Render mode is: textured" << std::endl;
 		input.renderMode = RenderMode::Textured;
 	}
 
@@ -124,6 +122,8 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	cutilSafeCall(cudaMalloc(&input.d_BBoxes,				sizeof(int4)   *	input.F*input.numberOfCameras));
 	cutilSafeCall(cudaMalloc(&input.d_projectedVertices,	sizeof(float3) *	numberOfVertices * input.numberOfCameras));
 	cutilSafeCall(cudaMalloc(&input.d_faceNormal,			sizeof(float3) *	input.F * input.numberOfCameras));
+
+	cutilSafeCall(cudaMalloc(&input.d_depthBuffer, sizeof(int) * input.numberOfCameras * input.h * input.w ));
 }
 
 //==============================================================================================//

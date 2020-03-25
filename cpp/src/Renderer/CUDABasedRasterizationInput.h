@@ -20,6 +20,7 @@
 #define THREADS_PER_BLOCK_CUDABASEDRASTERIZER 256
 
 //==============================================================================================//
+
 enum RenderMode
 {
 	VertexColor, Textured
@@ -83,7 +84,7 @@ struct CUDABasedRasterizationInput
 	int*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
 	int*				d_depthBuffer;							//depth value per pixel per view
 	float*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
-	float*				d_renderBuffer;
+	float*				d_renderBuffer;							//buffer for the final image
 
 	float3*				d_vertexNormal;							//vertex normals				
 };

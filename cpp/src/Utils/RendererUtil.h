@@ -862,22 +862,15 @@ Gradient adding helper
 */
 __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
-	//if (index.x == 1)
-	{
 		atomicAdd(&d_grad[index.x].x, grad(0, 0));
 		atomicAdd(&d_grad[index.x].y, grad(1, 0));
 		atomicAdd(&d_grad[index.x].z, grad(2, 0));
-	}
-	//if (index.y == 1)
-	{
+	
 		atomicAdd(&d_grad[index.y].x, grad(3, 0));
 		atomicAdd(&d_grad[index.y].y, grad(4, 0));
 		atomicAdd(&d_grad[index.y].z, grad(5, 0));
-	}
-	//if (index.z == 1)
-	{
+	
 		atomicAdd(&d_grad[index.z].x, grad(6, 0));
 		atomicAdd(&d_grad[index.z].y, grad(7, 0));
 		atomicAdd(&d_grad[index.z].z, grad(8, 0));
-	}
 }

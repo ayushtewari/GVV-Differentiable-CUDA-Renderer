@@ -1,5 +1,6 @@
 
 import cv2
+import numpy as np
 
 class OBJReader:
 
@@ -76,4 +77,7 @@ class OBJReader:
 
                     self.textureMap = cv2.imread(textureMapPath)
                     self.textureMap = cv2.cvtColor( self.textureMap , cv2.COLOR_BGR2RGB)
-                    self.textureMap =  self.textureMap /255.0
+                    self.textureMap = list(self.textureMap / 255.0)
+                    self.texHeight = np.size(self.textureMap, 0)
+                    self.texWidth = np.size(self.textureMap, 1)
+

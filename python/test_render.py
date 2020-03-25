@@ -1,23 +1,58 @@
+
+########################################################################################################################
+# Imports
+########################################################################################################################
+
 import data.test_mesh_tensor as test_mesh_tensor
 import data.test_SH_tensor as test_SH_tensor
 import CudaRenderer
 import utils.CheckGPU as CheckGPU
 import cv2 as cv
+import numpy as np
 import utils.OBJReader as OBJReader
 import utils.CameraReader as CameraReader
-#import matplotlib.pyplot as plt
-#import os
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
 
 freeGPU = CheckGPU.get_free_gpu()
 
+########################################################################################################################
+# CudaRendererGpu class
+########################################################################################################################
+
+numberOfBatches = 2
+renderResolutionU = 1024
+renderResolutionV = 1024
+
+cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
+objreader = OBJReader.OBJReader('data/magdalena.obj')
+
+inputVertexPositions = test_mesh_tensor.getGTMesh()
+inputVertexPositions = np.asarray(inputVertexPositions)
+inputVertexPositions = inputVertexPositions.reshape([1, objreader.numberOfVertices, 3])
+inputVertexPositions = np.tile(inputVertexPositions, (numberOfBatches, 1, 1))
+
+inputVertexColors = objreader.vertexColors
+inputVertexColors = np.asarray(inputVertexColors)
+inputVertexColors = inputVertexColors.reshape([1, objreader.numberOfVertices, 3])
+inputVertexColors = np.tile(inputVertexColors, (numberOfBatches, 1, 1))
+
+inputTexture = objreader.textureMap
+inputTexture = np.asarray(inputTexture)
+inputTexture = inputTexture.reshape([1, objreader.texHeight, objreader.texWidth, 3])
+inputTexture = np.tile(inputTexture, (numberOfBatches, 1, 1, 1))
+
+inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
+
+########################################################################################################################
+# Test render
+########################################################################################################################
+
 if freeGPU:
 
-    testMesh3D = test_mesh_tensor.getGTMesh()
-    testSHCoeff = test_SH_tensor.getSHCoeff()
-
-    objreader = OBJReader.OBJReader('data/magdalena.obj')
-    cameraReader = CameraReader.CameraReader('data/cameras.calibration')
+    VertexPosConst = tf.constant(inputVertexPositions, dtype=tf.float32)
+    VertexColorConst = tf.constant(inputVertexColors, dtype=tf.float32)
+    VertexTextureConst = tf.constant(inputTexture, dtype=tf.float32)
+    SHCConst = tf.constant(inputSHCoeff, dtype=tf.float32)
 
     renderer = CudaRenderer.CudaRendererGpu(
                                             faces_attr                  = objreader.facesVertexId,
@@ -25,20 +60,18 @@ if freeGPU:
                                             numberOfVertices_attr       = len(objreader.vertexCoordinates),
                                             extrinsics_attr             = cameraReader.extrinsics,
                                             intrinsics_attr             = cameraReader.intrinsics,
-                                            renderResolutionU_attr      = 1024,
-                                            renderResolutionV_attr      = 1024,
+                                            renderResolutionU_attr      = renderResolutionU,
+                                            renderResolutionV_attr      = renderResolutionV,
+                                            renderMode_attr             = 'vertexColor',
 
-                                            vertexPos_input             = testMesh3D,
-                                            vertexColor_input           = [objreader.vertexColors],
-                                            texture_input               = [objreader.textureMap],
-                                            shCoeff_input               =testSHCoeff,
+                                            vertexPos_input             = VertexPosConst,
+                                            vertexColor_input           = VertexColorConst,
+                                            texture_input               = VertexTextureConst,
+                                            shCoeff_input               = SHCConst,
 
                                             nodeName                    = 'test')
 
-    vertexColorBuffer = renderer.getRenderBuffer()[0][3].numpy() * 255.0
-    BCBuffer=renderer.getBaryCentricBuffer()[0][0].numpy() * 255.0
-    vertexColorBuffer = cv.cvtColor(vertexColorBuffer, cv.COLOR_BGR2RGB)
-    BC = cv.cvtColor(BCBuffer, cv.COLOR_BGR2RGB)
-    #plt.imsave('Color.png', renderer.getRenderBuffer()[0][0].numpy())
-    cv.imwrite('./color.png',vertexColorBuffer)
-    cv.imwrite('./Barycentric.png',BC)
+    # output images
+    outputCV = renderer.getRenderBufferOpenCV(1, 0)
+    cv.imshow('output', outputCV)
+    cv.waitKey(-1)

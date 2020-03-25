@@ -10,6 +10,7 @@ import data.test_SH_tensor as test_SH_tensor
 import CudaRenderer
 import utils.CheckGPU as CheckGPU
 import cv2 as cv
+import numpy as np
 import utils.OBJReader as OBJReader
 import utils.CameraReader as CameraReader
 
@@ -28,10 +29,29 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-testMesh3D = test_mesh_tensor.getGTMesh()
-cameraReader = CameraReader.CameraReader('data/cameras.calibration')
-testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
+numberOfBatches = 1
+renderResolutionU = 1024
+renderResolutionV = 1024
+
+cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
 objreader = OBJReader.OBJReader('data/magdalena.obj')
+
+inputVertexPositions = test_mesh_tensor.getGTMesh()
+inputVertexPositions = np.asarray(inputVertexPositions)
+inputVertexPositions = inputVertexPositions.reshape([1, objreader.numberOfVertices, 3])
+inputVertexPositions = np.tile(inputVertexPositions, (numberOfBatches, 1, 1))
+
+inputVertexColors = objreader.vertexColors
+inputVertexColors = np.asarray(inputVertexColors)
+inputVertexColors = inputVertexColors.reshape([1, objreader.numberOfVertices, 3])
+inputVertexColors = np.tile(inputVertexColors, (numberOfBatches, 1, 1))
+
+inputTexture = objreader.textureMap
+inputTexture = np.asarray(inputTexture)
+inputTexture = inputTexture.reshape([1, objreader.texHeight, objreader.texWidth, 3])
+inputTexture = np.tile(inputTexture, (numberOfBatches, 1, 1, 1))
+
+inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
 
 ########################################################################################################################
 # Test color function
@@ -39,10 +59,10 @@ objreader = OBJReader.OBJReader('data/magdalena.obj')
 
 def test_color_gradient():
 
-    VertexPosConst=tf.constant(testMesh3D,dtype=tf.float32)
-    VertexColorConst=tf.constant([objreader.vertexColors],dtype=tf.float32)
-    VertexTextureConst=tf.constant([objreader.textureMap],dtype=tf.float32)
-    SHCConst = tf.constant(testSHCoeff,dtype=tf.float32)
+    VertexPosConst = tf.constant(inputVertexPositions, dtype=tf.float32)
+    VertexColorConst = tf.constant(inputVertexColors, dtype=tf.float32)
+    VertexTextureConst = tf.constant(inputTexture, dtype=tf.float32)
+    SHCConst = tf.constant(inputSHCoeff, dtype=tf.float32)
 
     rendererTarget = CudaRenderer.CudaRendererGpu(
                                         faces_attr                   = objreader.facesVertexId,
@@ -50,8 +70,8 @@ def test_color_gradient():
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
                                         extrinsics_attr              = cameraReader.extrinsics ,
                                         intrinsics_attr              = cameraReader.intrinsics,
-                                        renderResolutionU_attr       = 1024,
-                                        renderResolutionV_attr       = 1024,
+                                        renderResolutionU_attr       = renderResolutionU,
+                                        renderResolutionV_attr       = renderResolutionV,
                                         renderMode_attr              = 'textured',
 
                                         vertexPos_input              = VertexPosConst,
@@ -76,8 +96,8 @@ def test_color_gradient():
                 numberOfVertices_attr=len(objreader.vertexCoordinates),
                 extrinsics_attr=cameraReader.extrinsics,
                 intrinsics_attr=cameraReader.intrinsics,
-                renderResolutionU_attr=1024,
-                renderResolutionV_attr=1024,
+                renderResolutionU_attr=renderResolutionU,
+                renderResolutionV_attr=renderResolutionV,
                 renderMode_attr='textured',
 
                 vertexPos_input=VertexPosConst,

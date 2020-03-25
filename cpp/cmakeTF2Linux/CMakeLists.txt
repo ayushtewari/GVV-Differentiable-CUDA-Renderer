@@ -7,9 +7,9 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED
 
-SET (CUDA_PATH /usr/lib/cuda-10.0/bin/nvcc)
-SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf20/lib/python3.5/site-packages/tensorflow)
-SET (TFVERSION "2.0.0-beta0")
+SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
+SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf201/lib/python3.5/site-packages/tensorflow_core)
+SET (TFVERSION "2.1.0")
 
 #############################################################################################
 #Project with CUDA
@@ -94,11 +94,11 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
 
-IF (TFVERSION EQUAL  "2.0.0-beta0")
-	MESSAGE("TF VERSION IS 2.0.0-beta0 --> SET -D_GLIBCXX_USE_CXX11_ABI=0")
+IF (TFVERSION EQUAL  "2.0.0-beta0" OR TFVERSION EQUAL  "2.1.0" )
+	MESSAGE("TF VERSION IS 2.0.0-beta0 or 2.1.0  --> SET -D_GLIBCXX_USE_CXX11_ABI=0")
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 ELSE()
-	MESSAGE("TF VERSION IS DIFFERENT FROM 2.0.0-beta0 --> SET -D_GLIBCXX_USE_CXX11_ABI=1")
+	MESSAGE("TF VERSION IS DIFFERENT FROM 2.0.0-beta0 or 2.1.0  --> SET -D_GLIBCXX_USE_CXX11_ABI=1")
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
 ENDIF()
 

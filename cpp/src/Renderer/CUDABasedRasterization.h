@@ -86,7 +86,6 @@ class CUDABasedRasterization
 		inline void							set_D_shCoeff(const float* newSHCoeff)							{ input.d_shCoeff = newSHCoeff; };
 
 		inline void							set_D_faceIDBuffer(int* newFaceBuffer)							{ input.d_faceIDBuffer = newFaceBuffer; };
-		inline void							set_D_depthBuffer(int* newDepthBuffer)							{ input.d_depthBuffer = newDepthBuffer; };
 		inline void							set_D_barycentricCoordinatesBuffer(float* newBarycentricBuffer) { input.d_barycentricCoordinatesBuffer = newBarycentricBuffer; };
 		inline void							set_D_renderBuffer(float* newRenderBuffer)						{ input.d_renderBuffer = newRenderBuffer; };
 

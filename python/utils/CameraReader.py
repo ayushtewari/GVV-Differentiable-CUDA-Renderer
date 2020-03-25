@@ -2,7 +2,7 @@ import numpy as np
 
 class CameraReader:
 
-    def __init__(self, filename):
+    def __init__(self, filename, renderResolutionU,renderResolutionV):
 
         self.filename = filename
 
@@ -11,7 +11,8 @@ class CameraReader:
         #read faces
         self.extrinsics =[]
         self.intrinsics = []
-
+        self.originalSizeU = []
+        self.originalSizeV = []
 
         for line in file:
 
@@ -27,5 +28,22 @@ class CameraReader:
                     if (i <= 12):
                         self.extrinsics.append(float(splittedLine[i]))
 
-        self.numberOfCameras = len(self.extrinsics) / 12
+            if (splittedLine[0] == 'size'):
+                self.originalSizeU.append(float(splittedLine[1]))
+                self.originalSizeV.append(float(splittedLine[2]))
 
+        self.numberOfCameras = int(len(self.extrinsics) / 12)
+
+        self.intrinsics = np.asarray(self.intrinsics)
+        self.intrinsics = self.intrinsics.reshape((self.numberOfCameras,3,3))
+
+
+        for c in range(0,self.numberOfCameras):
+            self.intrinsics[c, 0, 0] = (self.intrinsics[c, 0, 0] / self.originalSizeU[c]) * renderResolutionU
+            self.intrinsics[c, 1, 1] = (self.intrinsics[c, 1, 1] / self.originalSizeV[c]) * renderResolutionV
+
+            self.intrinsics[c, 0, 2] = (self.intrinsics[c, 0, 2] / self.originalSizeU[c]) * renderResolutionU
+            self.intrinsics[c, 1, 2] = (self.intrinsics[c, 1, 2] / self.originalSizeV[c]) * renderResolutionV
+
+        self.intrinsics = self.intrinsics.flatten()
+        self.intrinsics= list(self.intrinsics)

@@ -74,17 +74,19 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		int idc = index.x;
 		int idh = index.y;
 		int idw = index.z;
-		int4 idf = input.d_faceIDBuffer[idx];
+		int idf = input.d_faceIDBuffer[idx];
 
-		if (idf.w == -1)
+		if (idf == -1)
 			return;
 
 		////////////////////////////////////////////////////////////////////////
 		//INIT
 		////////////////////////////////////////////////////////////////////////
 
-		float3 bcc				= input.d_barycentricCoordinatesBuffer[idx];
-		int3   faceVerticesIds  = input.d_facesVertex[idf.x];
+		float2 bccTmp	= input.d_barycentricCoordinatesBuffer[idx];
+		float3 bcc		= make_float3(bccTmp.x, bccTmp.y, 1.f - bccTmp.x - bccTmp.y);
+
+		int3   faceVerticesIds  = input.d_facesVertex[idf];
 		const float* shCoeff	= input.d_shCoeff + idc * 27;
 
 		float3 vertexPos0 = input.d_vertices[faceVerticesIds.x];
@@ -96,9 +98,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 vertexNor0 = input.d_vertexNormal[idc*input.N + faceVerticesIds.x];
 		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + faceVerticesIds.y];
 		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + faceVerticesIds.z];
-		float2 texCoord0 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 0 * 2 + 1]);
-		float2 texCoord1 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 1 * 2 + 1]);
-		float2 texCoord2 = make_float2(input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf.x * 3 * 2 + 2 * 2 + 1]);
+		float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
+		float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
+		float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
 
 		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
@@ -275,20 +277,17 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				// gradients vi
 				getJ_vi(J, TR, vk, vj, vi);
 				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				//if(v_index_inner.x ==1)
-					addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
 				// gradients vj
 				getJ_vj(J, TR, vk, vi);
 				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				//if (v_index_inner.y == 1)
-					addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
 				// gradients vk
 				getJ_vk(J, TR, vj, vi);
 				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				//if (v_index_inner.z == 1)
-					addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
+				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
 			}
 		}
 	}

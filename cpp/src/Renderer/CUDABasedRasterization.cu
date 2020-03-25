@@ -28,14 +28,10 @@ __global__ void initializeDevice(CUDABasedRasterizationInput input)
 	{
 		input.d_depthBuffer[idx] = INT_MAX;
 
-		input.d_faceIDBuffer[idx * 4 + 0] = -1;
-		input.d_faceIDBuffer[idx * 4 + 1] = -1;
-		input.d_faceIDBuffer[idx * 4 + 2] = -1;
-		input.d_faceIDBuffer[idx * 4 + 3] = -1;
+		input.d_faceIDBuffer[idx] = -1;
 
-		input.d_barycentricCoordinatesBuffer[3 * idx + 0] = 0.f;
-		input.d_barycentricCoordinatesBuffer[3 * idx + 1] = 0.f;
-		input.d_barycentricCoordinatesBuffer[3 * idx + 2] = 0.f;
+		input.d_barycentricCoordinatesBuffer[2 * idx + 0] = 0.f;
+		input.d_barycentricCoordinatesBuffer[2 * idx + 1] = 0.f;
 
 		input.d_renderBuffer[3 * idx + 0] = 0.f;
 		input.d_renderBuffer[3 * idx + 1] = 0.f;
@@ -251,19 +247,16 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 
 				if (isInsideTriangle && (int)z == input.d_depthBuffer[pixelId])
 				{
+					int pixelId1 = 2 * idc* input.w * input.h + 2 * input.w * v + 2 * u;
 					int pixelId2 = 3 * idc* input.w * input.h + 3 * input.w * v + 3 * u;
 					int pixelId3 = 4 * idc* input.w * input.h + 4 * input.w * v + 4 * u;
 
 					//face buffer
-					input.d_faceIDBuffer[pixelId3 + 0] = idf;
-					input.d_faceIDBuffer[pixelId3 + 1] = indexv0;
-					input.d_faceIDBuffer[pixelId3 + 2] = indexv1;
-					input.d_faceIDBuffer[pixelId3 + 3] = indexv2;
-
+					input.d_faceIDBuffer[pixelId] = idf;
+				
 					//barycentric buffer
-					input.d_barycentricCoordinatesBuffer[pixelId2 + 0] = abc.x;
-					input.d_barycentricCoordinatesBuffer[pixelId2 + 1] = abc.y;
-					input.d_barycentricCoordinatesBuffer[pixelId2 + 2] = abc.z;
+					input.d_barycentricCoordinatesBuffer[pixelId1 + 0] = abc.x;
+					input.d_barycentricCoordinatesBuffer[pixelId1 + 1] = abc.y;
 
 					//shading
 					float3 v0_norm = input.d_vertexNormal[input.N*idc + indexv0];

@@ -68,8 +68,8 @@ class CUDABasedRasterizationGrad
 		inline int								getFrameHeight()							{ return input.h; };
 	
 		//getter for render buffers
-		inline int4*							get_D_faceIDBuffer()						{ return input.d_faceIDBuffer; };
-		inline float3*							get_D_barycentricCoordinatesBuffer()		{ return input.d_barycentricCoordinatesBuffer; };
+		inline int*								get_D_faceIDBuffer()						{ return input.d_faceIDBuffer; };
+		inline float2*							get_D_barycentricCoordinatesBuffer()		{ return input.d_barycentricCoordinatesBuffer; };
 
 		//=================================================//
 		//=================================================//
@@ -84,8 +84,8 @@ class CUDABasedRasterizationGrad
 		inline void							set_D_shCoeff(const float* newSHCoeff)									{ input.d_shCoeff						= newSHCoeff; };
 		inline void							set_D_vertexNormal(float3* newVertexNormal)								{ input.d_vertexNormal					= newVertexNormal; };
 
-		inline void							set_D_faceIDBuffer(int4* newFaceBuffer)									{ input.d_faceIDBuffer					= newFaceBuffer; };
-		inline void							set_D_barycentricCoordinatesBuffer(float3* newBarycentricBuffer)		{ input.d_barycentricCoordinatesBuffer	= newBarycentricBuffer; };
+		inline void							set_D_faceIDBuffer(int* newFaceBuffer)									{ input.d_faceIDBuffer					= newFaceBuffer; };
+		inline void							set_D_barycentricCoordinatesBuffer(float2* newBarycentricBuffer)		{ input.d_barycentricCoordinatesBuffer	= newBarycentricBuffer; };
 
 		inline void							set_D_vertexPosGrad(float3* d_outputVertexPosGrad)						{ input.d_vertexPosGrad					= d_outputVertexPosGrad; };
 		inline void							set_D_vertexColorGrad(float3* d_outputVertexColorGrad)					{ input.d_vertexColorGrad				= d_outputVertexColorGrad; };

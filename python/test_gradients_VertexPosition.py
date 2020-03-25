@@ -29,10 +29,35 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-cameraReader = CameraReader.CameraReader('data/monocular.calibration')
-testSHCoeff = test_SH_tensor.getSHCoeff(cameraReader.numberOfCameras)
+numberOfBatches = 1
+renderResolutionU = 1024
+renderResolutionV = 1024
+
+cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
 objreader = OBJReader.OBJReader('data/cone.obj')
+
+inputVertexPositions = test_mesh_tensor.getGTMesh()
+inputVertexPositions = np.asarray(inputVertexPositions)
+inputVertexPositions = inputVertexPositions.reshape([1, objreader.numberOfVertices, 3])
+inputVertexPositions = np.tile(inputVertexPositions, (numberOfBatches, 1, 1))
+
+inputVertexColors = objreader.vertexColors
+inputVertexColors = np.asarray(inputVertexColors)
+inputVertexColors = inputVertexColors.reshape([1, objreader.numberOfVertices, 3])
+inputVertexColors = np.tile(inputVertexColors, (numberOfBatches, 1, 1))
+
+inputTexture = objreader.textureMap
+inputTexture = np.asarray(inputTexture)
+inputTexture = inputTexture.reshape([1, objreader.texHeight, objreader.texWidth, 3])
+inputTexture = np.tile(inputTexture, (numberOfBatches, 1, 1, 1))
+
+inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
+
 objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
+inputVertexPositionsMod = objreaderMod.vertexCoordinates
+inputVertexPositionsMod = np.asarray(inputVertexPositionsMod)
+inputVertexPositionsMod = inputVertexPositionsMod.reshape([1, objreader.numberOfVertices, 3])
+inputVertexPositionsMod = np.tile(inputVertexPositionsMod, (numberOfBatches, 1, 1))
 
 ########################################################################################################################
 # Test color function
@@ -40,10 +65,10 @@ objreaderMod = OBJReader.OBJReader('data/coneMod.obj')
 
 def test_color_gradient():
 
-    VertexPosConst=tf.constant([objreader.vertexCoordinates],dtype=tf.float32)
-    VertexColorConst=tf.constant([objreader.vertexColors],dtype=tf.float32)
-    VertexTextureConst=tf.constant([objreader.textureMap],dtype=tf.float32)
-    SHCConst = tf.constant(testSHCoeff,dtype=tf.float32)
+    VertexPosConst = tf.constant(inputVertexPositions, dtype=tf.float32)
+    VertexColorConst = tf.constant(inputVertexColors, dtype=tf.float32)
+    VertexTextureConst = tf.constant(inputTexture, dtype=tf.float32)
+    SHCConst = tf.constant(inputSHCoeff, dtype=tf.float32)
 
     rendererTarget = CudaRenderer.CudaRendererGpu(
                                         faces_attr                   = objreader.facesVertexId,
@@ -51,8 +76,8 @@ def test_color_gradient():
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
                                         extrinsics_attr              = cameraReader.extrinsics ,
                                         intrinsics_attr              = cameraReader.intrinsics,
-                                        renderResolutionU_attr       = 1024,
-                                        renderResolutionV_attr       = 1024,
+                                        renderResolutionU_attr       = renderResolutionU,
+                                        renderResolutionV_attr       = renderResolutionV,
                                         renderMode_attr              = 'textured',
 
                                         vertexPos_input              = VertexPosConst,
@@ -63,15 +88,15 @@ def test_color_gradient():
     target = rendererTarget.getRenderBufferTF()
 
     ####
-    constThreshold = tf.constant(0.0, tf.float32, [1024, 1024])
+    constThreshold = tf.constant(0.0, tf.float32, [1,14,renderResolutionU, renderResolutionV])
     summedUp = tf.reduce_sum(target, 4)  # check G B are black
     maskInverse = tf.greater(summedUp, constThreshold)
     maskFloat = tf.cast(maskInverse, tf.float32)
-    maskFloat = tf.reshape(maskFloat, [1, 1, 1024, 1024, 1])
+    maskFloat = tf.reshape(maskFloat, [1, 14, renderResolutionU, renderResolutionV, 1])
     maskFloat = tf.tile(maskFloat, [1, 1, 1, 1, 3])
 
     ####
-    VertexPosition_rnd = tf.Variable([objreaderMod.vertexCoordinates])
+    VertexPosition_rnd = tf.Variable(inputVertexPositionsMod)
 
     opt = tf.keras.optimizers.SGD(learning_rate=100.0)
 
@@ -85,8 +110,8 @@ def test_color_gradient():
                 numberOfVertices_attr=len(objreader.vertexCoordinates),
                 extrinsics_attr=cameraReader.extrinsics,
                 intrinsics_attr=cameraReader.intrinsics,
-                renderResolutionU_attr=1024,
-                renderResolutionV_attr=1024,
+                renderResolutionU_attr=renderResolutionU,
+                renderResolutionV_attr=renderResolutionV,
                 renderMode_attr='textured',
 
                 vertexPos_input=VertexPosition_rnd,
@@ -108,8 +133,8 @@ def test_color_gradient():
         print(i, Loss.numpy())
 
         #output images
-        outputCV = renderer.getRenderBufferOpenCV(0,0)
-        targetCV = rendererTarget.getRenderBufferOpenCV(0,0)
+        outputCV = renderer.getRenderBufferOpenCV(0,1)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0,1)
 
         combined = targetCV
         cv.addWeighted(outputCV,0.8,targetCV,0.2,0.0,combined)

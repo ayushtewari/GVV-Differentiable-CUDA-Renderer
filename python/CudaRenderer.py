@@ -79,14 +79,23 @@ class CudaRendererGpu:
 
     def getBaryCentricBufferTF(self):
         return self.cudaRendererOperator[0]
+
     def getFaceBufferTF(self):
         return self.cudaRendererOperator[1]
 
     def getRenderBufferTF(self):
-        return self.cudaRendererOperator[3]
+        return self.cudaRendererOperator[2]
+
+    def getModelMaskTF(self):
+        shape = tf.shape(self.cudaRendererOperator[1])
+        mask = tf.greater_equal(self.cudaRendererOperator[1], 0)
+        mask = tf.reshape(mask, [shape[0], shape[1] , shape[2], shape[3], 1])
+        mask = tf.tile(mask, [1, 1, 1, 1, 3])
+        mask = tf.cast(mask, tf.float32)
+        return mask
 
     def getBaryCentricBufferOpenCV(self, batchId, camId):
-        return cv.cvtColor(self.cudaRendererOperator[0][batchId][camId].numpy(), cv.COLOR_BGR2RGB)
+        return cv.cvtColor(self.cudaRendererOperator[0][batchId][camId].numpy(), cv.COLOR_RGB2BGR)
 
     def getFaceBufferOpenCV(self, batchId, camId):
         faceImg = self.cudaRendererOperator[1][batchId][camId].numpy().astype(np.float32)    #convert to float
@@ -94,18 +103,19 @@ class CudaRendererGpu:
         return cv.cvtColor(faceImg, cv.COLOR_GRAY2RGB)                                       #convert grey to rgb for visualization
 
     def getRenderBufferOpenCV(self, batchId, camId):
-        return  cv.cvtColor(self.cudaRendererOperator[3][batchId][camId].numpy(), cv.COLOR_BGR2RGB)
+        return  cv.cvtColor(self.cudaRendererOperator[2][batchId][camId].numpy(), cv.COLOR_RGB2BGR)
 
 ########################################################################################################################
 # Register gradients
 ########################################################################################################################
 
 @ops.RegisterGradient("CudaRendererGpu")
-def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender, gradNorm):
+def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
 
     gradients = customOperators.cuda_renderer_grad_gpu(
         # grads
         render_buffer_grad          = gradRender,
+
         # inputs
         vertex_pos                  = op.inputs[0],
         vertex_color                = op.inputs[1],
@@ -114,7 +124,8 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradDepth, gradRender,
 
         barycentric_buffer          = op.outputs[0],
         face_buffer                 = op.outputs[1],
-        vertex_normal               = op.outputs[4],
+        vertex_normal               = op.outputs[3],
+
         # attr
         faces                       = op.get_attr('faces'),
         texture_coordinates         = op.get_attr('texture_coordinates'),

@@ -77,7 +77,6 @@ class CudaRenderer : public OpKernel
 		//GPU output
 		float*	d_outputBarycentricCoordinatesBuffer;
 		int*	d_outputFaceIDBuffer;
-		int*	d_outputDepthBuffer;
 		float*	d_outputRenderBuffer;
 
 		float*	d_outputVertexNormal;

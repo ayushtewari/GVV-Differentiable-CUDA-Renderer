@@ -66,8 +66,8 @@ struct CUDABasedRasterizationGradInput
 	const float*		d_textureMap;							//texture map																						
 	const float*		d_shCoeff;								//shading coefficients
 	float3*				d_vertexNormal;							//vertex normals				
-	float3*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view														
-	int4*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
+	float2*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view														
+	int*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
 	
 	int					texWidth;								//dimension of texture																				
 	int					texHeight;								//dimension of texture																				

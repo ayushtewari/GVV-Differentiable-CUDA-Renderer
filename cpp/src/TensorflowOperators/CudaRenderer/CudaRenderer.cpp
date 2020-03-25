@@ -11,8 +11,6 @@ REGISTER_OP("CudaRendererGpu")
 
 .Output("barycentric_buffer: float")
 .Output("face_buffer: int32")
-.Output("depth_buffer: int32")
-
 .Output("render_buffer: float")
 
 .Output("vertex_normal: float")
@@ -67,17 +65,47 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	//---CONSOLE OUTPUT---
 
 	std::cout << std::endl;
-
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
-
 	std::cout << std::endl;
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
 
 	std::cout << "OPERATOR: CudaRenderer" << std::endl;
 
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	//render mode
+	if (renderMode == "vertexColor")
+	{
+		std::cout << "Render mode: vertexColor" << std::endl;
+	}
+	else if (renderMode == "textured")
+	{
+		std::cout << "Render mode: textured" << std::endl;
+	}
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	//number of cameras 
+	std::cout << "Number of cameras: " << std::to_string(numberOfCameras) << std::endl;
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	//render resolution
+	std::cout << "Resolution: " << std::to_string(renderResolutionU) << " x " << std::to_string(renderResolutionV) << std::endl;
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	//number of vertices 
+	std::cout << "Number of vertices: " << std::to_string(numberOfPoints) << std::endl;
+
 	std::cout << std::endl;
-
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
-
 	std::cout << std::endl;
 
 	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, renderMode);
@@ -115,19 +143,28 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 
 	//---MISC---
 
-	numberOfBatches      = inputTensorVertexPos.dim_size(0); 
+	numberOfBatches      = inputTensorTexture.dim_size(0);
 	textureResolutionV	 = inputTensorTexture.dim_size(1);
 	textureResolutionU   = inputTensorTexture.dim_size(2);
 
 	//---OUTPUT---
 
 	//determine the output dimensions
+
 	std::vector<tensorflow::int64> channel1Dim;
 	channel1Dim.push_back(numberOfBatches);
 	channel1Dim.push_back(numberOfCameras);
 	channel1Dim.push_back(renderResolutionV);
 	channel1Dim.push_back(renderResolutionU);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> channel1DimSize(channel1Dim);
+
+	std::vector<tensorflow::int64> channel2Dim;
+	channel2Dim.push_back(numberOfBatches);
+	channel2Dim.push_back(numberOfCameras);
+	channel2Dim.push_back(renderResolutionV);
+	channel2Dim.push_back(renderResolutionU);
+	channel2Dim.push_back(2);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> channel2DimSize(channel2Dim);
 
 	std::vector<tensorflow::int64> channel3Dim;
 	channel3Dim.push_back(numberOfBatches);
@@ -136,20 +173,6 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	channel3Dim.push_back(renderResolutionU);
 	channel3Dim.push_back(3);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> channel3DimSize(channel3Dim);
-
-	std::vector<tensorflow::int64> channel4Dim;
-	channel4Dim.push_back(numberOfBatches);
-	channel4Dim.push_back(numberOfCameras);
-	channel4Dim.push_back(renderResolutionV);
-	channel4Dim.push_back(renderResolutionU);
-	channel4Dim.push_back(4);
-	tensorflow::gtl::ArraySlice<tensorflow::int64> channel4DimSize(channel4Dim);
-
-	std::vector<tensorflow::int64> vertexDim;
-	vertexDim.push_back(numberOfBatches);
-	vertexDim.push_back(numberOfCameras);
-	vertexDim.push_back(numberOfPoints);
-	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexDimSize(vertexDim);
 
 	std::vector<tensorflow::int64> vertexNormalDim;
 	vertexNormalDim.push_back(numberOfBatches);
@@ -161,35 +184,28 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	//[0]
 	//barycentric
 	tensorflow::Tensor* outputTensorBarycentric;
-	OP_REQUIRES_OK(context, context->allocate_output(0, tensorflow::TensorShape(channel3DimSize), &outputTensorBarycentric));
+	OP_REQUIRES_OK(context, context->allocate_output(0, tensorflow::TensorShape(channel2DimSize), &outputTensorBarycentric));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorBarycentricFlat = outputTensorBarycentric->flat<float>();
 	d_outputBarycentricCoordinatesBuffer = outputTensorBarycentricFlat.data();
 
 	//[1]
 	//face
 	tensorflow::Tensor* outputTensorFace;
-	OP_REQUIRES_OK(context, context->allocate_output(1, tensorflow::TensorShape(channel4DimSize), &outputTensorFace));
+	OP_REQUIRES_OK(context, context->allocate_output(1, tensorflow::TensorShape(channel1DimSize), &outputTensorFace));
 	Eigen::TensorMap<Eigen::Tensor<int, 1, 1, Eigen::DenseIndex>, 16> outputTensorFaceFlat = outputTensorFace->flat<int>();
 	d_outputFaceIDBuffer = outputTensorFaceFlat.data();
 
 	//[2]
-	//depth
-	tensorflow::Tensor* outputTensorDepth;
-	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(channel1DimSize), &outputTensorDepth));
-	Eigen::TensorMap<Eigen::Tensor<int, 1, 1, Eigen::DenseIndex>, 16> outputTensorDepthFlat = outputTensorDepth->flat<int>();
-	d_outputDepthBuffer = outputTensorDepthFlat.data();
-
-	//[3]
 	//render
 	tensorflow::Tensor* outputTensorRender;
-	OP_REQUIRES_OK(context, context->allocate_output(3, tensorflow::TensorShape(channel3DimSize), &outputTensorRender));
+	OP_REQUIRES_OK(context, context->allocate_output(2, tensorflow::TensorShape(channel3DimSize), &outputTensorRender));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorRenderFlat = outputTensorRender->flat<float>();
 	d_outputRenderBuffer = outputTensorRenderFlat.data();
 
-	//[4]
+	//[3]
 	//vertex normal
 	tensorflow::Tensor* outputTensorVertexNormal;
-	OP_REQUIRES_OK(context, context->allocate_output(4, tensorflow::TensorShape(vertexNormalDimSize), &outputTensorVertexNormal));
+	OP_REQUIRES_OK(context, context->allocate_output(3, tensorflow::TensorShape(vertexNormalDimSize), &outputTensorVertexNormal));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexNormalFlat = outputTensorVertexNormal->flat<float>();
 	d_outputVertexNormal = outputTensorVertexNormalFlat.data();
 }
@@ -203,23 +219,24 @@ void CudaRenderer::Compute(OpKernelContext* context)
 		//setup the input and output pointers of the tensor because they change from compute to compute call
 		setupInputOutputTensorPointers(context);
 
+		//set input 
+		cudaBasedRasterization->setTextureWidth(textureResolutionU);
+		cudaBasedRasterization->setTextureHeight(textureResolutionV);
+
 		for (int b = 0; b < numberOfBatches; b++)
 		{
 			//set input 
-			cudaBasedRasterization->setTextureWidth(textureResolutionU);
-			cudaBasedRasterization->setTextureHeight(textureResolutionV);
-			cudaBasedRasterization->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints * 3);
-			cudaBasedRasterization->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints * 3);
+			cudaBasedRasterization->set_D_vertices(			(float3*)   d_inputVertexPos						+ b * numberOfPoints );
+			cudaBasedRasterization->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints );
 			cudaBasedRasterization->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
 			cudaBasedRasterization->set_D_shCoeff(						d_inputSHCoeff							+ b * numberOfCameras * 27);
 
 			//set output
-			cudaBasedRasterization->set_D_barycentricCoordinatesBuffer(	d_outputBarycentricCoordinatesBuffer	+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
-			cudaBasedRasterization->set_D_faceIDBuffer(					d_outputFaceIDBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU * 4);
-			cudaBasedRasterization->set_D_depthBuffer(					d_outputDepthBuffer						+ b * numberOfCameras * renderResolutionV * renderResolutionU);
+			cudaBasedRasterization->set_D_barycentricCoordinatesBuffer(	d_outputBarycentricCoordinatesBuffer	+ b * numberOfCameras * renderResolutionV * renderResolutionU * 2);
+			cudaBasedRasterization->set_D_faceIDBuffer(					d_outputFaceIDBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU);
 			cudaBasedRasterization->set_D_renderBuffer(					d_outputRenderBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
 
-			cudaBasedRasterization->set_D_vertexNormal(		(float3*)	d_outputVertexNormal					+ b * numberOfCameras * numberOfPoints * 3);
+			cudaBasedRasterization->set_D_vertexNormal(		(float3*)	d_outputVertexNormal					+ b * numberOfCameras * numberOfPoints );
 
 			//render
 			cudaBasedRasterization->renderBuffers();
@@ -228,7 +245,7 @@ void CudaRenderer::Compute(OpKernelContext* context)
 
 	catch (std::exception e)
 	{
-		std::cerr << "Compute projected mesh boundary error!" << std::endl;
+		std::cerr << "Something went wrong during the forward rendering!" << std::endl;
 	}
 }
 
