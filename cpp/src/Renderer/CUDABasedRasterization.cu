@@ -311,6 +311,15 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						input.d_renderBuffer[pixelId2 + 1] = (1.f + pixNorm.y) / 2.f;
 						input.d_renderBuffer[pixelId2 + 2] = (1.f + pixNorm.z) / 2.f;
 					}
+					else if (input.renderMode == RenderMode::Lighting)
+					{
+						//vertex color buffer
+						float3 color = make_float3(1.f,1.f,1.f);
+						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
+						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
+						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
+						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+					}
 				}
 			}
 		}

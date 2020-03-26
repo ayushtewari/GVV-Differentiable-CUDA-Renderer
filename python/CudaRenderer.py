@@ -139,7 +139,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
             render_resolution_v         = op.get_attr('render_resolution_v'),
             render_mode                 = op.get_attr('render_mode'),
         )
-    elif (renderMode == 'normal'):
+    elif (renderMode == 'normal' or renderMode == 'lighting'):
         gradients = [
             tf.zeros(tf.shape(op.inputs[0])),
             tf.zeros(tf.shape(op.inputs[1])),

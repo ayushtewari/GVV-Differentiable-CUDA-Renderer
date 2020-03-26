@@ -119,6 +119,10 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	{
 		input.renderMode = RenderMode::Normal;
 	}
+	else if (renderMode == "lighting")
+	{
+		input.renderMode = RenderMode::Lighting;
+	}
 	
 	//misc
 	input.N = numberOfVertices;
