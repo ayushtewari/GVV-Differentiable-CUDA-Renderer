@@ -83,6 +83,11 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		//INIT
 		////////////////////////////////////////////////////////////////////////
 
+		float3 o = make_float3(0.f, 0.f, 0.f);
+		float3 d = make_float3(0.f, 0.f, 0.f);
+		float2 pixelPos = make_float2(idw, idh);
+		getRayCuda2(pixelPos, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
+
 		float2 bccTmp	= input.d_barycentricCoordinatesBuffer[idx];
 		float3 bcc		= make_float3(bccTmp.x, bccTmp.y, 1.f - bccTmp.x - bccTmp.y);
 
@@ -105,6 +110,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
+
+		if (dot(pixNorm, d) > 0.f)
+			pixNorm = -pixNorm;
 
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX COLOR AND TEXTURE GRAD
@@ -204,8 +212,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x3 JLiNo;
 		getJLiNo(JLiNo, pixNorm, shCoeff);
 
-		mat3x3 TR = getRotationMatrix(&input.d_cameraExtrinsics[3 * idc]);
-
 		/////////////////////
 
 		mat3x3 JAlBc;
@@ -223,10 +229,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
 		
 		mat3x9 JBcVp;
-		float3 o = make_float3(0.f, 0.f, 0.f);
-		float3 d = make_float3(0.f, 0.f, 0.f);
-		float2 pixelPos = make_float2(idw, idh);
-		getRayCuda2(pixelPos, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
 		
 		dJBCDVerpos(JBcVp,o,d,vertexPos0, vertexPos1, vertexPos2);
 
@@ -268,24 +270,24 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				int faceId = input.d_vertexFaces[j];
 			
 				int3 v_index_inner = input.d_facesVertex[faceId];
-				mat3x1 vi = TR * (mat3x1)input.d_vertices[v_index_inner.x];
-				mat3x1 vj = TR * (mat3x1)input.d_vertices[v_index_inner.y];
-				mat3x1 vk = TR * (mat3x1)input.d_vertices[v_index_inner.z];
+				mat3x1 vi = (mat3x1)input.d_vertices[v_index_inner.x];
+				mat3x1 vj = (mat3x1)input.d_vertices[v_index_inner.y];
+				mat3x1 vk = (mat3x1)input.d_vertices[v_index_inner.z];
 
 				mat3x3 J;
 				
 				// gradients vi
-				getJ_vi(J, TR, vk, vj, vi);
+				getJ_vi(J, vk, vj, vi);
 				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
 				// gradients vj
-				getJ_vj(J, TR, vk, vi);
+				getJ_vj(J, vk, vi);
 				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
 				// gradients vk
-				getJ_vk(J, TR, vj, vi);
+				getJ_vk(J, vj, vi);
 				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
 				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
 			}

@@ -62,8 +62,6 @@ class CUDABasedRasterizationGrad
 	
 		//getter for camera and frame
 		inline int								getNrCameras()								{ return input.numberOfCameras; };
-		inline float4*							get_D_cameraExtrinsics()					{ return input.d_cameraExtrinsics; };
-		inline float3*							get_D_cameraIntrinsics()					{ return input.d_cameraIntrinsics; };
 		inline int								getFrameWidth()								{ return input.w; };
 		inline int								getFrameHeight()							{ return input.h; };
 	

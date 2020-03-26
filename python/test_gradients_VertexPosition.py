@@ -36,7 +36,7 @@ renderResolutionV = 1024
 cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
 objreader = OBJReader.OBJReader('data/cone.obj')
 
-inputVertexPositions = test_mesh_tensor.getGTMesh()
+inputVertexPositions = objreader.vertexCoordinates
 inputVertexPositions = np.asarray(inputVertexPositions)
 inputVertexPositions = inputVertexPositions.reshape([1, objreader.numberOfVertices, 3])
 inputVertexPositions = np.tile(inputVertexPositions, (numberOfBatches, 1, 1))
@@ -78,7 +78,7 @@ def test_color_gradient():
                                         intrinsics_attr              = cameraReader.intrinsics,
                                         renderResolutionU_attr       = renderResolutionU,
                                         renderResolutionV_attr       = renderResolutionV,
-                                        renderMode_attr              = 'textured',
+                                        renderMode_attr              = 'vertexColor',
 
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
@@ -96,7 +96,7 @@ def test_color_gradient():
     maskFloat = tf.tile(maskFloat, [1, 1, 1, 1, 3])
 
     ####
-    VertexPosition_rnd = tf.Variable(inputVertexPositionsMod)
+    VertexPosition_rnd = tf.Variable(inputVertexPositionsMod, dtype=tf.float32)
 
     opt = tf.keras.optimizers.SGD(learning_rate=100.0)
 
@@ -112,7 +112,7 @@ def test_color_gradient():
                 intrinsics_attr=cameraReader.intrinsics,
                 renderResolutionU_attr=renderResolutionU,
                 renderResolutionV_attr=renderResolutionV,
-                renderMode_attr='textured',
+                renderMode_attr='vertexColor',
 
                 vertexPos_input=VertexPosition_rnd,
                 vertexColor_input=VertexColorConst,
@@ -137,7 +137,7 @@ def test_color_gradient():
         targetCV = rendererTarget.getRenderBufferOpenCV(0,1)
 
         combined = targetCV
-        cv.addWeighted(outputCV,0.8,targetCV,0.2,0.0,combined)
+        cv.addWeighted(outputCV,0.8, targetCV,0.2,0.0,combined)
         cv.imshow('combined',combined)
         cv.waitKey(1)
 

@@ -31,13 +31,11 @@ struct CUDABasedRasterizationGradInput
 
 	//camera and frame
 	int					numberOfCameras;						//number of cameras													//INIT IN CONSTRUCTOR
-	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
-	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR			////
 	int					w;										//frame width														//INIT IN CONSTRUCTOR
 	int					h;										//frame height														//INIT IN CONSTRUCTOR
 
 	//geometry
-	int					F;										//number of faces													//INIT IN CONSTRUCTOR			////
+	int					F;										//number of faces													//INIT IN CONSTRUCTOR			
 	int					N;										//number of vertices												//INIT IN CONSTRUCTOR
 	int3*				d_facesVertex;							//part of face data structure										//INIT IN CONSTRUCTOR
 

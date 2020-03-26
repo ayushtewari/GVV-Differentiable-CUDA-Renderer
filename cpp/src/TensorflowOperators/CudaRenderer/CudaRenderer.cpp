@@ -56,7 +56,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
 	OP_REQUIRES_OK(context, context->GetAttr("render_mode", &renderMode));
-	if (renderMode != "vertexColor" && renderMode != "textured")
+	if (renderMode != "vertexColor" && renderMode != "textured" && renderMode != "normal")
 	{
 		std::cout << "INVALID RENDER MODE" << std::endl;
 		return;
@@ -84,6 +84,10 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	else if (renderMode == "textured")
 	{
 		std::cout << "Render mode: textured" << std::endl;
+	}
+	else if (renderMode == "normal")
+	{
+		std::cout << "Render mode: normal (note that gradients are zero now)" << std::endl;
 	}
 
 	/////////////////////////////////////////

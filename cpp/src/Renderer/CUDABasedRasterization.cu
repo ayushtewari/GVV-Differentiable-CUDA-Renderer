@@ -85,12 +85,8 @@ __global__ void renderFaceNormalDevice(CUDABasedRasterizationInput input)
 		float3 v0 = input.d_vertices[indexv0];
 		float3 v1 = input.d_vertices[indexv1];
 		float3 v2 = input.d_vertices[indexv2];
-
-		float3 c_v0 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v0);
-		float3 c_v1 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v1);
-		float3 c_v2 = getCamSpacePoint(&input.d_cameraExtrinsics[3 * idc], v2);
-
-		input.d_faceNormal[idx] = cross(c_v1 - c_v0, c_v2 - c_v0);
+	
+		input.d_faceNormal[idx] = cross(v1 - v0, v2 - v0);
 	}
 }
 
@@ -189,7 +185,7 @@ __global__ void renderDepthBufferDevice(CUDABasedRasterizationInput input)
 			for (int v = input.d_BBoxes[idx].y; v <= input.d_BBoxes[idx].w; v++)
 			{
 				float2 pixelCenter1 = make_float2(u + 0.5f, v + 0.5f);
-				
+
 				float3 abc = uv2barycentric(pixelCenter1.x, pixelCenter1.y, input.d_vertices[indexv0], input.d_vertices[indexv1], input.d_vertices[indexv2], input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
 				
 				float z = FLT_MAX;
@@ -249,7 +245,6 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 				{
 					int pixelId1 = 2 * idc* input.w * input.h + 2 * input.w * v + 2 * u;
 					int pixelId2 = 3 * idc* input.w * input.h + 3 * input.w * v + 3 * u;
-					int pixelId3 = 4 * idc* input.w * input.h + 4 * input.w * v + 4 * u;
 
 					//face buffer
 					input.d_faceIDBuffer[pixelId] = idf;
@@ -258,14 +253,20 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					input.d_barycentricCoordinatesBuffer[pixelId1 + 0] = abc.x;
 					input.d_barycentricCoordinatesBuffer[pixelId1 + 1] = abc.y;
 
-					//shading
+					//get pix normal
 					float3 v0_norm = input.d_vertexNormal[input.N*idc + indexv0];
 					float3 v1_norm = input.d_vertexNormal[input.N*idc + indexv1];
 					float3 v2_norm = input.d_vertexNormal[input.N*idc + indexv2];
 					float3 pixNorm = v0_norm * abc.x + v1_norm * abc.y + v2_norm * abc.z;
-					float pixNormNorm = sqrtf(pixNorm.x*pixNorm.x + pixNorm.y*pixNorm.y + pixNorm.z*pixNorm.z);
-					pixNorm = pixNorm / pixNormNorm;
+					pixNorm = pixNorm / length(pixNorm);
 
+					//get normal flip
+					float3 o = make_float3(0.f, 0.f, 0.f);
+					float3 d = make_float3(0.f, 0.f, 0.f);
+					getRayCuda2(pixelCenter1, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
+					if (dot(pixNorm, d) > 0.f)
+						pixNorm = -pixNorm;
+		
 					//render buffer
 					if (input.renderMode == RenderMode::Textured)
 					{
@@ -281,7 +282,8 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
 						finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
 
-						float3 color = make_float3(input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
+						float3 color = make_float3(
+							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
 							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 1],
 							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
 
@@ -302,6 +304,12 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x; 
 						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y; 
 						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
+					}
+					else if (input.renderMode == RenderMode::Normal)
+					{
+						input.d_renderBuffer[pixelId2 + 0] = (1.f + pixNorm.x) / 2.f;
+						input.d_renderBuffer[pixelId2 + 1] = (1.f + pixNorm.y) / 2.f;
+						input.d_renderBuffer[pixelId2 + 2] = (1.f + pixNorm.z) / 2.f;
 					}
 				}
 			}

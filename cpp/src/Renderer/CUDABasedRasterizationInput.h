@@ -23,7 +23,7 @@
 
 enum RenderMode
 {
-	VertexColor, Textured
+	VertexColor, Textured, Normal
 };
 
 //==============================================================================================//

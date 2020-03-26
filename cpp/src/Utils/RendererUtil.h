@@ -355,7 +355,7 @@ __inline__ __device__ void getJNoNu(mat3x3 &JNoNu, float3 un_vec, float norm)
 /*
 d_unnormalizedNormal / d_v_k
 */
-__inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
+__inline__ __device__ void getJ_vk(mat3x3 &J, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
 
@@ -382,7 +382,7 @@ __inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 	J2(1, 2) = temp3.y;
 	J2(2, 2) = temp3.z;
 
-	J = J2 * TR;
+	J = J2 ;
 }
 
 //==============================================================================================//
@@ -390,7 +390,7 @@ __inline__ __device__ void getJ_vk(mat3x3 &J, mat3x3 TR, mat3x1 vj, mat3x1 vi)
 /*
 d_unnormalizedNormal / d_v_j
 */
-__inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
+__inline__ __device__ void getJ_vj(mat3x3 &J, mat3x1 vk, mat3x1 vi)
 {
 	float3 temp3;
 
@@ -417,7 +417,7 @@ __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 	J1(1, 2) = temp3.y;
 	J1(2, 2) = temp3.z;
 
-	J = J1  * TR;
+	J = J1  ;
 }
 
 //==============================================================================================//
@@ -425,7 +425,7 @@ __inline__ __device__ void getJ_vj(mat3x3 &J, mat3x3 TR, mat3x1 vk, mat3x1 vi)
 /*
 d_unnormalizedNormal / d_v_i
 */
-__inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, mat3x1 vi)
+__inline__ __device__ void getJ_vi(mat3x3 &J, mat3x1 vk, mat3x1 vj, mat3x1 vi)
 {
 	float3 temp3;
 
@@ -471,7 +471,7 @@ __inline__ __device__ void getJ_vi(mat3x3 &J, mat3x3 TR,mat3x1 vk, mat3x1 vj, ma
 	J2(1, 2) = temp3.y;
 	J2(2, 2) = temp3.z;
 
-	J = (J1 + J2 ) * TR;
+	J = (J1 + J2 );
 }
 
 //==============================================================================================//
@@ -692,9 +692,9 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	v2Mat(1, 0) = v2.y;
 	v2Mat(2, 0) = v2.z;
 
-	getJ_vi(dN_v0, identity, v2Mat, v1Mat, v0Mat);
-	getJ_vj(dN_v1, identity, v2Mat, v0Mat);
-	getJ_vk(dN_v2, identity, v1Mat, v0Mat);
+	getJ_vi(dN_v0, v2Mat, v1Mat, v0Mat);
+	getJ_vj(dN_v1, v2Mat, v0Mat);
+	getJ_vk(dN_v2, v1Mat, v0Mat);
 
 	dN[0].x = dN_v0(0, 0);
 	dN[0].y = dN_v0(1, 0);

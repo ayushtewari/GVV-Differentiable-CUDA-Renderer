@@ -41,10 +41,7 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 	if (extrinsics.size() % 12 == 0 && intrinsics.size() % 9 == 0)
 	{
 		input.numberOfCameras = extrinsics.size()/12;
-		cutilSafeCall(cudaMalloc(&input.d_cameraExtrinsics, sizeof(float4)*input.numberOfCameras * 3));
-		cutilSafeCall(cudaMalloc(&input.d_cameraIntrinsics, sizeof(float3)*input.numberOfCameras * 3));
-		cutilSafeCall(cudaMemcpy(input.d_cameraExtrinsics, extrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 4, cudaMemcpyHostToDevice));
-		cutilSafeCall(cudaMemcpy(input.d_cameraIntrinsics, intrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 3, cudaMemcpyHostToDevice));
+		
 
 		cutilSafeCall(cudaMalloc(&input.d_inverseExtrinsics, sizeof(float4)*input.numberOfCameras * 4));
 		cutilSafeCall(cudaMalloc(&input.d_inverseProjection, sizeof(float4)*input.numberOfCameras * 4));
@@ -156,8 +153,6 @@ void CUDABasedRasterizationGrad::getVertexFaces(int numberOfVertices, std::vecto
 
 CUDABasedRasterizationGrad::~CUDABasedRasterizationGrad()
 {
-	cutilSafeCall(cudaFree(input.d_cameraExtrinsics));
-	cutilSafeCall(cudaFree(input.d_cameraIntrinsics));
 	cutilSafeCall(cudaFree(input.d_textureCoordinates));
 	cutilSafeCall(cudaFree(input.d_facesVertex));
 	cutilSafeCall(cudaFree(input.d_vertexFaces));

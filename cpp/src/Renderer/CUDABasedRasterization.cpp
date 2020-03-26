@@ -50,9 +50,9 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 		cutilSafeCall(cudaMemcpy(input.d_cameraExtrinsics, extrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 4, cudaMemcpyHostToDevice));
 		cutilSafeCall(cudaMemcpy(input.d_cameraIntrinsics, intrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 3, cudaMemcpyHostToDevice));
 
-		cutilSafeCall(cudaMalloc(&input.d_inverseExtrinsics, sizeof(float4)*input.numberOfCameras * 4));
-		cutilSafeCall(cudaMalloc(&input.d_inverseProjection, sizeof(float4)*input.numberOfCameras * 4));
-
+		cutilSafeCall(cudaMalloc(&input.d_inverseExtrinsics,		sizeof(float4)*input.numberOfCameras * 4));
+		cutilSafeCall(cudaMalloc(&input.d_inverseProjection,		sizeof(float4)*input.numberOfCameras * 4));
+	
 		for (int idc = 0; idc < input.numberOfCameras; idc++)
 		{
 			float4x4 h_intrinsics;
@@ -92,10 +92,9 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 
 			float4x4 h_inExtrinsics = h_extrinsics.getInverse();
 			float4x4 h_invProjection = (h_intrinsics * h_extrinsics).getInverse();
-	
-			cutilSafeCall(cudaMemcpy(input.d_inverseExtrinsics + idc * 4, (float4*)&h_inExtrinsics(0, 0),  sizeof(float4) * 4, cudaMemcpyHostToDevice));
-			cutilSafeCall(cudaMemcpy(input.d_inverseProjection + idc * 4, (float4*)&h_invProjection(0, 0), sizeof(float4) * 4, cudaMemcpyHostToDevice));
-		}
+			cutilSafeCall(cudaMemcpy(input.d_inverseExtrinsics       + idc * 4,	(float4*)&h_inExtrinsics(0, 0),			sizeof(float4) * 4, cudaMemcpyHostToDevice));
+			cutilSafeCall(cudaMemcpy(input.d_inverseProjection		 + idc * 4, (float4*)&h_invProjection(0, 0),		sizeof(float4) * 4, cudaMemcpyHostToDevice));
+		}	
 	}
 	else
 	{
@@ -116,7 +115,11 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	{
 		input.renderMode = RenderMode::Textured;
 	}
-
+	else if (renderMode == "normal")
+	{
+		input.renderMode = RenderMode::Normal;
+	}
+	
 	//misc
 	input.N = numberOfVertices;
 	cutilSafeCall(cudaMalloc(&input.d_BBoxes,				sizeof(int4)   *	input.F*input.numberOfCameras));

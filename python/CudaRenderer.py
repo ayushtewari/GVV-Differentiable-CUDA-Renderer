@@ -112,35 +112,43 @@ class CudaRendererGpu:
 @ops.RegisterGradient("CudaRendererGpu")
 def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
 
-    gradients = customOperators.cuda_renderer_grad_gpu(
-        # grads
-        render_buffer_grad          = gradRender,
+    renderMode = op.get_attr('render_mode').decode("utf-8")
 
-        # inputs
-        vertex_pos                  = op.inputs[0],
-        vertex_color                = op.inputs[1],
-        texture                     = op.inputs[2],
-        sh_coeff                    = op.inputs[3],
+    if(renderMode == 'vertexColor' or renderMode == 'textured' ):
+        gradients = customOperators.cuda_renderer_grad_gpu(
+            # grads
+            render_buffer_grad          = gradRender,
 
-        barycentric_buffer          = op.outputs[0],
-        face_buffer                 = op.outputs[1],
-        vertex_normal               = op.outputs[3],
+            # inputs
+            vertex_pos                  = op.inputs[0],
+            vertex_color                = op.inputs[1],
+            texture                     = op.inputs[2],
+            sh_coeff                    = op.inputs[3],
 
-        # attr
-        faces                       = op.get_attr('faces'),
-        texture_coordinates         = op.get_attr('texture_coordinates'),
-        number_of_vertices          = op.get_attr('number_of_vertices'),
-        extrinsics                  = op.get_attr('extrinsics'),
-        intrinsics                  = op.get_attr('intrinsics'),
-        render_resolution_u         = op.get_attr('render_resolution_u'),
-        render_resolution_v         = op.get_attr('render_resolution_v'),
-        render_mode                 = op.get_attr('render_mode'),
-    )
+            barycentric_buffer          = op.outputs[0],
+            face_buffer                 = op.outputs[1],
+            vertex_normal               = op.outputs[3],
+
+            # attr
+            faces                       = op.get_attr('faces'),
+            texture_coordinates         = op.get_attr('texture_coordinates'),
+            number_of_vertices          = op.get_attr('number_of_vertices'),
+            extrinsics                  = op.get_attr('extrinsics'),
+            intrinsics                  = op.get_attr('intrinsics'),
+            render_resolution_u         = op.get_attr('render_resolution_u'),
+            render_resolution_v         = op.get_attr('render_resolution_v'),
+            render_mode                 = op.get_attr('render_mode'),
+        )
+    elif (renderMode == 'normal'):
+        gradients = [
+            tf.zeros(tf.shape(op.inputs[0])),
+            tf.zeros(tf.shape(op.inputs[1])),
+            tf.zeros(tf.shape(op.inputs[2])),
+            tf.zeros(tf.shape(op.inputs[3])),
+        ]
 
     return gradients[0], gradients[1], gradients[2], gradients[3]
 
 ########################################################################################################################
 #
 ########################################################################################################################
-
-
