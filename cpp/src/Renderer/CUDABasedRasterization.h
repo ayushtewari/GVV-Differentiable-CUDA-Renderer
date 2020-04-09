@@ -30,7 +30,7 @@ class CUDABasedRasterization
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode);
+		CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string albedoMode, std::string shadingMode);
 		~CUDABasedRasterization();
 
 		void getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId);

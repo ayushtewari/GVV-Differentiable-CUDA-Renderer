@@ -201,6 +201,8 @@ __inline__ __device__ float3 getCamSpaceVector(float4* extrinsicMatrix, float3 v
 	return camSpaceVector;
 }
 
+//==============================================================================================//
+
 __inline__ __device__ float3 backprojectPixelCuda(float3 p, int cameraId, float4* invCamProj)
 {
 	const float3 tp = make_float3(p.x * p.z, p.y * p.z, p.z);
@@ -215,6 +217,8 @@ __inline__ __device__ float3 backprojectPixelCuda(float3 p, int cameraId, float4
 
 	return make_float3(temp.x, temp.y, temp.z);
 }
+
+//==============================================================================================//
 
 __inline__ __device__ float3 backprojectPixelCuda(float3 p, float4* invCamProj)
 {

@@ -21,9 +21,16 @@
 
 //==============================================================================================//
 
-enum RenderMode
+enum AlbedoMode
 {
 	VertexColor, Textured, Normal, Lighting
+};
+
+//==============================================================================================//
+
+enum ShadingMode
+{
+	Shaded, Shadeless
 };
 
 //==============================================================================================//
@@ -59,7 +66,8 @@ struct CUDABasedRasterizationInput
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
-	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
+	AlbedoMode			albedoMode;								//which albedo is used												//INIT IN CONSTRUCTOR
+	ShadingMode			shadingMode;							//which shading is used												//INIT IN CONSTRUCTOR
 	float4*				d_inverseExtrinsics;					// inverse camera extrinsics										//INIT IN CONSTRUCTOR
 	float4*				d_inverseProjection;					// inverse camera projection										//INIT IN CONSTRUCTOR
 

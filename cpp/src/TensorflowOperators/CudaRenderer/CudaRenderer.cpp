@@ -8,6 +8,7 @@ REGISTER_OP("CudaRendererGpu")
 .Input("vertex_color: float")
 .Input("texture: float")
 .Input("sh_coeff: float")
+.Input("target_image: float")
 
 .Output("barycentric_buffer: float")
 .Output("face_buffer: int32")
@@ -22,7 +23,10 @@ REGISTER_OP("CudaRendererGpu")
 .Attr("intrinsics: list(float)")
 .Attr("render_resolution_u: int = 512")
 .Attr("render_resolution_v: int = 512")
-.Attr("render_mode: string");
+.Attr("albedo_mode: string")
+.Attr("shading_mode: string")
+.Attr("image_filter_size: int = 2")
+.Attr("texture_filter_size: int = 2");
 
 //==============================================================================================//
 
@@ -55,10 +59,17 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_v", &renderResolutionV));
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
-	OP_REQUIRES_OK(context, context->GetAttr("render_mode", &renderMode));
-	if (renderMode != "vertexColor" && renderMode != "textured" && renderMode != "normal"  && renderMode != "lighting")
+	OP_REQUIRES_OK(context, context->GetAttr("albedo_mode", &albedoMode));
+	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "normal"  && albedoMode != "lighting")
 	{
-		std::cout << "INVALID RENDER MODE" << std::endl;
+		std::cout << "INVALID ALBEDO MODE" << std::endl;
+		return;
+	}
+
+	OP_REQUIRES_OK(context, context->GetAttr("shading_mode", &shadingMode));
+	if (shadingMode != "shaded" && shadingMode != "shadeless")
+	{
+		std::cout << "INVALID SHADING MODE" << std::endl;
 		return;
 	}
 
@@ -77,21 +88,34 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	/////////////////////////////////////////
 
 	//render mode
-	if (renderMode == "vertexColor")
+	if (albedoMode == "vertexColor")
 	{
-		std::cout << "Render mode: vertexColor" << std::endl;
+		std::cout << "Albedo mode: vertexColor" << std::endl;
 	}
-	else if (renderMode == "textured")
+	else if (albedoMode == "textured")
 	{
-		std::cout << "Render mode: textured" << std::endl;
+		std::cout << "Albedo mode: textured" << std::endl;
 	}
-	else if (renderMode == "normal")
+	else if (albedoMode == "normal")
 	{
-		std::cout << "Render mode: normal (note that gradients are zero now)" << std::endl;
+		std::cout << "Albedo mode: normal (note that gradients are zero now)" << std::endl;
 	}
-	else if (renderMode == "lighting")
+	else if (albedoMode == "lighting")
 	{
-		std::cout << "Render mode: lighting (note that gradients are zero now)" << std::endl;
+		std::cout << "Albedo mode: lighting (note that gradients are zero now)" << std::endl;
+	}
+
+	/////////////////////////////////////////
+	/////////////////////////////////////////
+
+	//shading mode
+	if (shadingMode == "shaded")
+	{
+		std::cout << "Shading mode: shaded" << std::endl;
+	}
+	else if (shadingMode == "shadeless")
+	{
+		std::cout << "Shading mode: shadeless" << std::endl;
 	}
 
 	/////////////////////////////////////////
@@ -116,7 +140,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 	std::cout << std::endl;
 
-	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, renderMode);
+	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode);
 }
 
 //==============================================================================================//
@@ -148,6 +172,12 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	const Tensor& inputTensorSHCoeff = context->input(3);
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorSHCoeffFlat = inputTensorSHCoeff.flat_inner_dims<float, 1>();
 	d_inputSHCoeff = inputTensorSHCoeffFlat.data();
+
+	//[4]
+	//Grab the target image
+	const Tensor& inputTargetImage = context->input(4);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTargetImageFlat = inputTargetImage.flat_inner_dims<float, 1>();
+	d_inputTargetImage = inputTargetImageFlat.data();
 
 	//---MISC---
 

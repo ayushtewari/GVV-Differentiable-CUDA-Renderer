@@ -4,7 +4,18 @@
 
 //==============================================================================================//
 
-CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode)
+CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(
+	std::vector<int>faces, 
+	std::vector<float>textureCoordinates, 
+	int numberOfVertices, 
+	std::vector<float>extrinsics, 
+	std::vector<float>intrinsics, 
+	int frameResolutionU, 
+	int frameResolutionV, 
+	std::string albedoMode, 
+	std::string shadingMode,
+	int imageFilterSize,
+	int textureFilterSize)
 {
 	//faces
 	if(faces.size() % 3 == 0)
@@ -41,7 +52,10 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 	if (extrinsics.size() % 12 == 0 && intrinsics.size() % 9 == 0)
 	{
 		input.numberOfCameras = extrinsics.size()/12;
-		
+		cutilSafeCall(cudaMalloc(&input.d_cameraExtrinsics, sizeof(float4)*input.numberOfCameras * 3));
+		cutilSafeCall(cudaMalloc(&input.d_cameraIntrinsics, sizeof(float3)*input.numberOfCameras * 3));
+		cutilSafeCall(cudaMemcpy(input.d_cameraExtrinsics, extrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 4, cudaMemcpyHostToDevice));
+		cutilSafeCall(cudaMemcpy(input.d_cameraIntrinsics, intrinsics.data(), sizeof(float)*input.numberOfCameras * 3 * 3, cudaMemcpyHostToDevice));
 
 		cutilSafeCall(cudaMalloc(&input.d_inverseExtrinsics, sizeof(float4)*input.numberOfCameras * 4));
 		cutilSafeCall(cudaMalloc(&input.d_inverseProjection, sizeof(float4)*input.numberOfCameras * 4));
@@ -97,14 +111,24 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 		std::cout << "Intrinsics have dimension " << intrinsics.size() << std::endl;
 	}
 
-	//render mode
-	if (renderMode == "vertexColor")
+	//albedo mode
+	if (albedoMode == "vertexColor")
 	{
-		input.renderMode = RenderMode::VertexColor;
+		input.albedoMode = AlbedoMode::VertexColor;
 	}
-	else if (renderMode == "textured")
+	else if (albedoMode == "textured")
 	{
-		input.renderMode = RenderMode::Textured;
+		input.albedoMode = AlbedoMode::Textured;
+	}
+
+	//shading mode
+	if (shadingMode == "shaded")
+	{
+		input.shadingMode = ShadingMode::Shaded;
+	}
+	else if (shadingMode == "shadeless")
+	{
+		input.shadingMode = ShadingMode::Shadeless;
 	}
 
 	input.w = frameResolutionU;
@@ -112,8 +136,8 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(std::vector<int>faces, st
 
 	//misc
 	input.N = numberOfVertices;
-
-
+	input.imageFilterSize = imageFilterSize;
+	input.textureFilterSize = textureFilterSize;
 }
 
 //==============================================================================================//

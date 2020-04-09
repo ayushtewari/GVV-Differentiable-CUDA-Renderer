@@ -18,7 +18,6 @@
 //==============================================================================================//
 
 extern "C" void renderBuffersGradGPU(CUDABasedRasterizationGradInput& input);
-extern "C" void createSobelGPU(CUDABasedRasterizationGradInput& input);
 
 //==============================================================================================//
 
@@ -31,7 +30,17 @@ class CUDABasedRasterizationGrad
 		//=================================================//
 		//=================================================//
 
-		CUDABasedRasterizationGrad(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode);
+		CUDABasedRasterizationGrad( std::vector<int>faces, 
+									std::vector<float>textureCoordinates, 
+									int numberOfVertices, 
+									std::vector<float>extrinsics, 
+									std::vector<float>intrinsics, 
+									int frameResolutionU,		
+									int frameResolutionV, 
+									std::string albedoMode, 
+									std::string shadingMode, 
+									int imageFilterSize,
+									int textureFilterSize);
 		~CUDABasedRasterizationGrad();
 
 		void getVertexFaces(int numberOfVertices, std::vector<int> faces, std::vector<int> &vertexFaces, std::vector<int> &vertexFacesId);
@@ -81,6 +90,7 @@ class CUDABasedRasterizationGrad
 		inline void							setTextureHeight(int newTextureHeight)									{ input.texHeight						= newTextureHeight; };
 		inline void							set_D_shCoeff(const float* newSHCoeff)									{ input.d_shCoeff						= newSHCoeff; };
 		inline void							set_D_vertexNormal(float3* newVertexNormal)								{ input.d_vertexNormal					= newVertexNormal; };
+		inline void							set_D_targetImage(const float* newTargetImage)							{ input.d_targetImage					= newTargetImage; };
 
 		inline void							set_D_faceIDBuffer(int* newFaceBuffer)									{ input.d_faceIDBuffer					= newFaceBuffer; };
 		inline void							set_D_barycentricCoordinatesBuffer(float2* newBarycentricBuffer)		{ input.d_barycentricCoordinatesBuffer	= newBarycentricBuffer; };

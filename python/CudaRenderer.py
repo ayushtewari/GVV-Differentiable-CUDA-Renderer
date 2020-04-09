@@ -8,6 +8,7 @@ from tensorflow.python.framework import ops
 from sys import platform
 import cv2 as cv
 import numpy as np
+import tensorflow_probability as tfp
 
 ########################################################################################################################
 # Load custom operators
@@ -28,6 +29,8 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 
 class CudaRendererGpu:
 
+    ########################################################################################################################
+
     def __init__(self,
                  faces_attr,
                  texCoords_attr,
@@ -36,12 +39,16 @@ class CudaRendererGpu:
                  intrinsics_attr,
                  renderResolutionU_attr,
                  renderResolutionV_attr,
-                 renderMode_attr,
+                 albedoMode_attr,
+                 shadingMode_attr,
+                 image_filter_size_attr,
+                 texture_filter_size_attr,
 
                  vertexPos_input ,
                  vertexColor_input,
                  texture_input,
                  shCoeff_input,
+                 targetImage_input,
 
                  nodeName=''):
 
@@ -52,12 +59,16 @@ class CudaRendererGpu:
         self.intrinsics_attr            = intrinsics_attr
         self.renderResolutionU_attr     = renderResolutionU_attr
         self.renderResolutionV_attr     = renderResolutionV_attr
-        self.renderMode_attr            = renderMode_attr
+        self.albedoMode_attr            = albedoMode_attr
+        self.shadingMode_attr           = shadingMode_attr
+        self.image_filter_size_attr     = image_filter_size_attr
+        self.texture_filter_size_attr   = texture_filter_size_attr
 
         self.vertexPos_input            = vertexPos_input
         self.vertexColor_input          = vertexColor_input
         self.texture_input              = texture_input
         self.shCoeff_input              = shCoeff_input
+        self.targetImage_input          = targetImage_input
 
         self.nodeName                   = nodeName
 
@@ -68,23 +79,35 @@ class CudaRendererGpu:
                                                                         intrinsics              = self.intrinsics_attr,
                                                                         render_resolution_u     = self.renderResolutionU_attr,
                                                                         render_resolution_v     = self.renderResolutionV_attr,
-                                                                        render_mode             = self.renderMode_attr,
+                                                                        albedo_mode             = self.albedoMode_attr,
+                                                                        shading_mode            = self.shadingMode_attr,
+                                                                        image_filter_size       = self.image_filter_size_attr,
+                                                                        texture_filter_size     = self.texture_filter_size_attr,
 
                                                                         vertex_pos              = self.vertexPos_input,
                                                                         vertex_color            = self.vertexColor_input,
                                                                         texture                 = self.texture_input,
                                                                         sh_coeff                = self.shCoeff_input,
+                                                                        target_image            = self.targetImage_input,
 
                                                                         name                    = self.nodeName)
+
+    ########################################################################################################################
 
     def getBaryCentricBufferTF(self):
         return self.cudaRendererOperator[0]
 
+    ########################################################################################################################
+
     def getFaceBufferTF(self):
         return self.cudaRendererOperator[1]
 
+    ########################################################################################################################
+
     def getRenderBufferTF(self):
-        return self.cudaRendererOperator[2]
+        return 255.0 * self.cudaRendererOperator[2]
+
+    ########################################################################################################################
 
     def getModelMaskTF(self):
         shape = tf.shape(self.cudaRendererOperator[1])
@@ -94,16 +117,47 @@ class CudaRendererGpu:
         mask = tf.cast(mask, tf.float32)
         return mask
 
+    ########################################################################################################################
+
     def getBaryCentricBufferOpenCV(self, batchId, camId):
         return cv.cvtColor(self.cudaRendererOperator[0][batchId][camId].numpy(), cv.COLOR_RGB2BGR)
+
+    ########################################################################################################################
 
     def getFaceBufferOpenCV(self, batchId, camId):
         faceImg = self.cudaRendererOperator[1][batchId][camId].numpy().astype(np.float32)    #convert to float
         faceImg = faceImg[:,:,0]   + 1.0                                                     #only select the face channel
         return cv.cvtColor(faceImg, cv.COLOR_GRAY2RGB)                                       #convert grey to rgb for visualization
 
+    ########################################################################################################################
+
     def getRenderBufferOpenCV(self, batchId, camId):
         return  cv.cvtColor(self.cudaRendererOperator[2][batchId][camId].numpy(), cv.COLOR_RGB2BGR)
+
+    ########################################################################################################################
+
+    def smoothImage(self, size: int, mean: float, std: float, ):
+
+        if(size ==0 or std == 0.0):
+            return self.getRenderBufferTF()
+
+        #create kernel
+        d = tfp.distributions.Normal(mean, std)
+        vals = d.prob(tf.range(start=-size, limit=size + 1, dtype=tf.float32))
+        gauss_kernel = tf.einsum('i,j->ij', vals, vals)
+        gauss_kernel = gauss_kernel / tf.reduce_sum(gauss_kernel)
+        gauss_kernel = gauss_kernel[:, :, tf.newaxis, tf.newaxis]
+        gauss_kernel = tf.tile(gauss_kernel, [1, 1, 3, 1])
+
+        #smooth
+        renderTensorShape = tf.shape(self.getRenderBufferTF())
+        smoothed = tf.reshape(self.getRenderBufferTF(),  [renderTensorShape[0] * renderTensorShape[1], renderTensorShape[2], renderTensorShape[3],  renderTensorShape[4]])
+        smoothed = tf.nn.depthwise_conv2d(smoothed, gauss_kernel, strides=[1, 1, 1, 1], padding="SAME")
+        smoothed = tf.reshape(smoothed, [renderTensorShape[0], renderTensorShape[1], renderTensorShape[2], renderTensorShape[3],  renderTensorShape[4]])
+
+        return smoothed
+
+    ########################################################################################################################
 
 ########################################################################################################################
 # Register gradients
@@ -112,9 +166,9 @@ class CudaRendererGpu:
 @ops.RegisterGradient("CudaRendererGpu")
 def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
 
-    renderMode = op.get_attr('render_mode').decode("utf-8")
+    albedoMode = op.get_attr('albedo_mode').decode("utf-8")
 
-    if(renderMode == 'vertexColor' or renderMode == 'textured' ):
+    if(albedoMode == 'vertexColor' or albedoMode == 'textured' ):
         gradients = customOperators.cuda_renderer_grad_gpu(
             # grads
             render_buffer_grad          = gradRender,
@@ -124,6 +178,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
             vertex_color                = op.inputs[1],
             texture                     = op.inputs[2],
             sh_coeff                    = op.inputs[3],
+            target_image                = op.inputs[4],
 
             barycentric_buffer          = op.outputs[0],
             face_buffer                 = op.outputs[1],
@@ -137,9 +192,12 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
             intrinsics                  = op.get_attr('intrinsics'),
             render_resolution_u         = op.get_attr('render_resolution_u'),
             render_resolution_v         = op.get_attr('render_resolution_v'),
-            render_mode                 = op.get_attr('render_mode'),
+            albedo_mode                 = op.get_attr('albedo_mode'),
+            shading_mode                = op.get_attr('shading_mode'),
+            image_filter_size           = op.get_attr('image_filter_size'),
+            texture_filter_size         = op.get_attr('texture_filter_size')
         )
-    elif (renderMode == 'normal' or renderMode == 'lighting'):
+    elif (albedoMode == 'normal' or albedoMode == 'lighting'):
         gradients = [
             tf.zeros(tf.shape(op.inputs[0])),
             tf.zeros(tf.shape(op.inputs[1])),
@@ -147,7 +205,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
             tf.zeros(tf.shape(op.inputs[3])),
         ]
 
-    return gradients[0], gradients[1], gradients[2], gradients[3]
+    return gradients[0], gradients[1], gradients[2], gradients[3],  tf.zeros(tf.shape(op.inputs[4])),
 
 ########################################################################################################################
 #

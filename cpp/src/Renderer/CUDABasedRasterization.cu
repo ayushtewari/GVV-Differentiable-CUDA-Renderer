@@ -33,7 +33,7 @@ __global__ void initializeDevice(CUDABasedRasterizationInput input)
 		input.d_barycentricCoordinatesBuffer[2 * idx + 0] = 0.f;
 		input.d_barycentricCoordinatesBuffer[2 * idx + 1] = 0.f;
 
-		input.d_renderBuffer[3 * idx + 0] = 0.f;
+		input.d_renderBuffer[3 * idx + 0] = 1.f;
 		input.d_renderBuffer[3 * idx + 1] = 0.f;
 		input.d_renderBuffer[3 * idx + 2] = 0.f;
 	}
@@ -75,7 +75,6 @@ __global__ void renderFaceNormalDevice(CUDABasedRasterizationInput input)
 	if (idx < input.numberOfCameras * input.F)
 	{
 		int2 index = index1DTo2D(input.numberOfCameras, input.F, idx);
-		int idc = index.x;
 		int idf = index.y;
 
 		int indexv0 = input.d_facesVertex[idf].x;
@@ -264,11 +263,13 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					float3 o = make_float3(0.f, 0.f, 0.f);
 					float3 d = make_float3(0.f, 0.f, 0.f);
 					getRayCuda2(pixelCenter1, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
-					if (dot(pixNorm, d) > 0.f)
-						pixNorm = -pixNorm;
-		
-					//render buffer
-					if (input.renderMode == RenderMode::Textured)
+					/*if (dot(pixNorm, d) > 0.f)
+						pixNorm = -pixNorm;*/
+
+					float3 color = make_float3(0.f,0.f,0.f);
+
+					//albedo
+					if (input.albedoMode == AlbedoMode::Textured)
 					{
 						float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
 						float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
@@ -282,44 +283,36 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
 						finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
 
-						float3 color = make_float3(
+						color = make_float3(
 							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
 							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 1],
 							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
-
-						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
-						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
-						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
-						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
 					}
-					else if (input.renderMode == RenderMode::VertexColor)
+					else if (input.albedoMode == AlbedoMode::VertexColor)
 					{
-						//vertex color buffer
-						float3 color = make_float3(
+						color = make_float3(
 							input.d_vertexColor[indexv0].x * abc.x + input.d_vertexColor[indexv1].x * abc.y + input.d_vertexColor[indexv2].x * abc.z,
 							input.d_vertexColor[indexv0].y * abc.x + input.d_vertexColor[indexv1].y * abc.y + input.d_vertexColor[indexv2].y * abc.z,
 							input.d_vertexColor[indexv0].z * abc.x + input.d_vertexColor[indexv1].z * abc.y + input.d_vertexColor[indexv2].z * abc.z);
+					}
+					else if (input.albedoMode == AlbedoMode::Normal)
+					{
+						color = make_float3((1.f + pixNorm.x) / 2.f,  (1.f + pixNorm.y) / 2.f, (1.f + pixNorm.z) / 2.f);
+					}
+					else if (input.albedoMode == AlbedoMode::Lighting)
+					{
+						color = make_float3(1.f, 1.f, 1.f);
+					}
+					
+					//shading
+					if ((input.shadingMode == ShadingMode::Shaded && (input.albedoMode != AlbedoMode::Normal)) || input.albedoMode == AlbedoMode::Lighting)
+					{
+						color = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
+					}
 
-						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
-						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x; 
-						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y; 
-						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
-					}
-					else if (input.renderMode == RenderMode::Normal)
-					{
-						input.d_renderBuffer[pixelId2 + 0] = (1.f + pixNorm.x) / 2.f;
-						input.d_renderBuffer[pixelId2 + 1] = (1.f + pixNorm.y) / 2.f;
-						input.d_renderBuffer[pixelId2 + 2] = (1.f + pixNorm.z) / 2.f;
-					}
-					else if (input.renderMode == RenderMode::Lighting)
-					{
-						//vertex color buffer
-						float3 color = make_float3(1.f,1.f,1.f);
-						float3 colorShaded = getShading(color, pixNorm, input.d_shCoeff + (idc * 27));
-						input.d_renderBuffer[pixelId2 + 0] = colorShaded.x;
-						input.d_renderBuffer[pixelId2 + 1] = colorShaded.y;
-						input.d_renderBuffer[pixelId2 + 2] = colorShaded.z;
-					}
+					input.d_renderBuffer[pixelId2 + 0] = color.x;
+					input.d_renderBuffer[pixelId2 + 1] = color.y;
+					input.d_renderBuffer[pixelId2 + 2] = color.z;
 				}
 			}
 		}

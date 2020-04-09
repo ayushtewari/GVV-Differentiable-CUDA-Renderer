@@ -11,6 +11,8 @@ REGISTER_OP("CudaRendererGradGpu")
 .Input("vertex_color: float")
 .Input("texture: float")
 .Input("sh_coeff: float")
+.Input("target_image: float")
+
 .Input("vertex_normal: float")
 .Input("barycentric_buffer: float")
 .Input("face_buffer: int32")
@@ -27,7 +29,10 @@ REGISTER_OP("CudaRendererGradGpu")
 .Attr("intrinsics: list(float)")
 .Attr("render_resolution_u: int = 512")
 .Attr("render_resolution_v: int = 512")
-.Attr("render_mode: string");
+.Attr("albedo_mode: string")
+.Attr("shading_mode: string")
+.Attr("image_filter_size: int = 2")
+.Attr("texture_filter_size: int = 2");
 
 //==============================================================================================//
 
@@ -60,14 +65,37 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_v", &renderResolutionV));
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
-	OP_REQUIRES_OK(context, context->GetAttr("render_mode", &renderMode));
-	if (renderMode != "vertexColor" && renderMode != "textured")
+	OP_REQUIRES_OK(context, context->GetAttr("albedo_mode", &albedoMode));
+	if (albedoMode != "vertexColor" && albedoMode != "textured")
 	{
-		std::cout << "INVALID RENDER MODE" << std::endl;
+		std::cout << "INVALID ALBEDO MODE" << std::endl;
 		return;
 	}
 
-	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, renderMode);
+	OP_REQUIRES_OK(context, context->GetAttr("shading_mode", &shadingMode));
+	if (shadingMode != "shaded" && shadingMode != "shadeless")
+	{
+		std::cout << "INVALID SHADING MODE" << std::endl;
+		return;
+	}
+
+	int imageFilterSize = -1;
+	OP_REQUIRES_OK(context, context->GetAttr("image_filter_size", &imageFilterSize));
+	if (imageFilterSize <=0)
+	{
+		std::cout << "INVALID IMAGE FILTER SIZE" << std::endl;
+		return;
+	}
+
+	int textureFilterSize = -1;
+	OP_REQUIRES_OK(context, context->GetAttr("texture_filter_size", &textureFilterSize));
+	if (textureFilterSize <= 0)
+	{
+		std::cout << "INVALID TEXTURE FILTER SIZE" << std::endl;
+		return;
+	}
+
+	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode, imageFilterSize, textureFilterSize);
 }
 
 //==============================================================================================//
@@ -76,11 +104,19 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 {
 	//---INPUT---
 
+	/////////////
+	//INPUT FROM LATER LAYERS
+	/////////////
+
 	//[0]
 	//Grab the vertec color buffer gradients 
 	const Tensor& inputTensorRenderBufferGrad = context->input(0);
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorRenderBufferGradFlat = inputTensorRenderBufferGrad.flat_inner_dims<float, 1>();
 	d_inputRenderBufferGrad = inputTensorRenderBufferGradFlat.data();
+
+	/////////////
+	//INPUT FROM INPUT OF FORWARD
+	/////////////
 
 	//[1]
 	//Grab the 3D vertex position
@@ -107,22 +143,34 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	d_inputSHCoeff = inputTensorSHCoeffFlat.data();
 
 	//[5]
+	//Grab the target image
+	const Tensor& inputTensorTargetImage = context->input(5);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorTargetImageFlat = inputTensorTargetImage.flat_inner_dims<float, 1>();
+	d_inputTargetImage = inputTensorTargetImageFlat.data();
+
+	/////////////
+	//INPUT FROM OUTPUT OF FORWARD
+	/////////////
+
+	//[6]
 	//Grab the vertex normals 
-	const Tensor& inputTensorVertexNormal = context->input(5);
+	const Tensor& inputTensorVertexNormal = context->input(6);
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorVertexNormalFlat = inputTensorVertexNormal.flat_inner_dims<float, 1>();
 	d_inputVertexNormal = inputTensorVertexNormalFlat.data();
 
-	//[6]
+	//[7]
 	//Grab the barycentric co-ordinates 
-	const Tensor& inputTensorBaryCentricBuffer= context->input(6);
+	const Tensor& inputTensorBaryCentricBuffer= context->input(7);
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorBaryCentricBufferFlat = inputTensorBaryCentricBuffer.flat_inner_dims<float, 1>();
 	d_inputBaryCentricBuffer = inputTensorBaryCentricBufferFlat.data();
 
-	//[7]
+	//[8]
 	//Grab the face id buffer  
-	const Tensor& inputTensorFaceBuffer = context->input(7);
+	const Tensor& inputTensorFaceBuffer = context->input(8);
 	Eigen::TensorMap<Eigen::Tensor< const int, 1, 1, Eigen::DenseIndex>, 16> inputTensorFaceBufferFlat = inputTensorFaceBuffer.flat_inner_dims<int, 1>();
 	d_inputFaceBuffer= inputTensorFaceBufferFlat.data();
+
+
 
 	//---MISC---
 
@@ -206,6 +254,7 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			cudaBasedRasterizationGrad->set_D_barycentricCoordinatesBuffer( (float2 *)			d_inputBaryCentricBuffer				+ b * numberOfCameras * renderResolutionV * renderResolutionU);
 			
 			cudaBasedRasterizationGrad->set_D_faceIDBuffer(					(int*)				d_inputFaceBuffer						+ b * numberOfCameras * renderResolutionV * renderResolutionU);
+			cudaBasedRasterizationGrad->set_D_targetImage(										d_inputTargetImage						+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
 			
 			//set output
 			cudaBasedRasterizationGrad->set_D_vertexPosGrad(				(float3*)			d_outputVertexPosGrad					+ b * numberOfPoints);

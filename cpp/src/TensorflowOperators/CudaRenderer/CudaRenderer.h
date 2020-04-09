@@ -64,7 +64,8 @@ class CudaRenderer : public OpKernel
 		int textureResolutionU;
 		int textureResolutionV;
 
-		std::string renderMode;
+		std::string albedoMode;
+		std::string shadingMode;
 
 		CUDABasedRasterization* cudaBasedRasterization;
 
@@ -73,6 +74,7 @@ class CudaRenderer : public OpKernel
 		const float* d_inputVertexColor;
 		const float* d_inputTexture;
 		const float* d_inputSHCoeff;
+		const float* d_inputTargetImage;
 
 		//GPU output
 		float*	d_outputBarycentricCoordinatesBuffer;

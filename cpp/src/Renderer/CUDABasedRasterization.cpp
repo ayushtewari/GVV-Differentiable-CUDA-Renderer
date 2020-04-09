@@ -8,7 +8,16 @@
 
 //==============================================================================================//
 
-CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vector<float>textureCoordinates, int numberOfVertices, std::vector<float>extrinsics, std::vector<float>intrinsics, int frameResolutionU, int frameResolutionV, std::string renderMode)
+CUDABasedRasterization::CUDABasedRasterization(
+	std::vector<int>faces, 
+	std::vector<float>textureCoordinates, 
+	int numberOfVertices, 
+	std::vector<float>extrinsics, 
+	std::vector<float>intrinsics, 
+	int frameResolutionU, 
+	int frameResolutionV, 
+	std::string albedoMode, 
+	std::string shadingMode)
 {
 	//faces
 	if(faces.size() % 3 == 0)
@@ -107,23 +116,34 @@ CUDABasedRasterization::CUDABasedRasterization(std::vector<int>faces, std::vecto
 	input.h = frameResolutionV;
 
 	//render mode
-	if (renderMode == "vertexColor")
+	if (albedoMode == "vertexColor")
 	{
-		input.renderMode = RenderMode::VertexColor;
+		input.albedoMode = AlbedoMode::VertexColor;
 	}
-	else if (renderMode == "textured")
+	else if (albedoMode == "textured")
 	{
-		input.renderMode = RenderMode::Textured;
+		input.albedoMode = AlbedoMode::Textured;
 	}
-	else if (renderMode == "normal")
+	else if (albedoMode == "normal")
 	{
-		input.renderMode = RenderMode::Normal;
+		input.albedoMode = AlbedoMode::Normal;
 	}
-	else if (renderMode == "lighting")
+	else if (albedoMode == "lighting")
 	{
-		input.renderMode = RenderMode::Lighting;
+		input.albedoMode = AlbedoMode::Lighting;
 	}
 	
+
+	//shading mode
+	if (shadingMode == "shaded")
+	{
+		input.shadingMode = ShadingMode::Shaded;
+	}
+	else if (shadingMode == "shadeless")
+	{
+		input.shadingMode = ShadingMode::Shadeless;
+	}
+
 	//misc
 	input.N = numberOfVertices;
 	cutilSafeCall(cudaMalloc(&input.d_BBoxes,				sizeof(int4)   *	input.F*input.numberOfCameras));

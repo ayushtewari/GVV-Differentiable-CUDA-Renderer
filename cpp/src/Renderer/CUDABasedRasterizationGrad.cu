@@ -67,7 +67,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 	if (idx < input.numberOfCameras * input.w * input.h)
 	{
 		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		//INDEXING
+		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 
 		int3 index = index1DTo3D(input.numberOfCameras, input.h, input.w, idx);
@@ -80,7 +82,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 			return;
 
 		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		//INIT
+		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 
 		float3 o = make_float3(0.f, 0.f, 0.f);
@@ -103,24 +107,36 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float3 vertexNor0 = input.d_vertexNormal[idc*input.N + faceVerticesIds.x];
 		float3 vertexNor1 = input.d_vertexNormal[idc*input.N + faceVerticesIds.y];
 		float3 vertexNor2 = input.d_vertexNormal[idc*input.N + faceVerticesIds.z];
-		float2 texCoord0 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
-		float2 texCoord1 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
-		float2 texCoord2 = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
+		float2 texCoord0  = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 0 * 2 + 1]);
+		float2 texCoord1  = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 1 * 2 + 1]);
+		float2 texCoord2  = make_float2(input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 0], 1.f - input.d_textureCoordinates[idf * 3 * 2 + 2 * 2 + 1]);
+
+		float3 fragmentPosition = bcc.x * vertexPos0 + bcc.y * vertexPos1 + bcc.z * vertexPos2;
 
 		float3 pixNormUn	= bcc.x * vertexNor0 + bcc.y * vertexNor1 + bcc.z * vertexNor2;
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
 
-		if (dot(pixNorm, d) > 0.f)
-			pixNorm = -pixNorm;
+		/*if (dot(pixNorm, d) > 0.f)
+			pixNorm = -pixNorm;*/
 
 		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		//VERTEX COLOR AND TEXTURE GRAD
+		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 
 		float3 pixLight = getIllum(pixNorm, shCoeff);
 		mat3x3 JCoAl;
-		getJCoAl(JCoAl, pixLight); 
+
+		if (input.shadingMode == ShadingMode::Shaded)
+		{
+			getJCoAl(JCoAl, pixLight);
+		}
+		else if (input.shadingMode == ShadingMode::Shadeless)
+		{
+			JCoAl.setIdentity();
+		}
 
 		mat1x3 GVCBVertexColor;
 		GVCBVertexColor(0, 0) = input.d_renderBufferGrad[idx].x;
@@ -129,7 +145,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		float2 finalTexCoord = make_float2(0.f, 0.f);
 
-		if (input.renderMode == RenderMode::VertexColor)
+		if (input.albedoMode == AlbedoMode::VertexColor)
 		{
 			mat3x9 JAlVc;
 			getJAlVc(JAlVc, bcc);
@@ -138,7 +154,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 			addGradients9I(gradVerCol.getTranspose(), input.d_vertexColorGrad, faceVerticesIds);
 		}
-		else if (input.renderMode == RenderMode::Textured)
+		else if (input.albedoMode == AlbedoMode::Textured)
 		{
 			mat1x3 gradTexColor = GVCBVertexColor * JCoAl ;
 
@@ -160,7 +176,9 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		}
 
 		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		//LIGHTING GRAD
+		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 
 		mat1x3 GVCBLight;
@@ -170,11 +188,11 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		mat3x3 JCoLi;
 		float3 pixAlb = make_float3(0.f, 0.f, 0.f);
-		if (input.renderMode == RenderMode::VertexColor)
+		if (input.albedoMode == AlbedoMode::VertexColor)
 		{
 			pixAlb = bcc.x * vertexCol0 + bcc.y * vertexCol1 + bcc.z * vertexCol2;
 		}
-		else if (input.renderMode == RenderMode::Textured)
+		else if (input.albedoMode == AlbedoMode::Textured)
 		{
 			pixAlb = make_float3(input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 0)],
 								 input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 1)],
@@ -189,16 +207,31 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x9 JLiGmB;
 		getJLiGm(JLiGmB, 2, pixNorm);
 
-		mat1x9 gradSHCoeffR = GVCBLight * JCoLi * JLiGmR;
-		mat1x9 gradSHCoeffG = GVCBLight * JCoLi * JLiGmG;
-		mat1x9 gradSHCoeffB = GVCBLight * JCoLi * JLiGmB;
+		mat1x9 gradSHCoeffR;
+		mat1x9 gradSHCoeffG;
+		mat1x9 gradSHCoeffB;
+
+		if (input.shadingMode == ShadingMode::Shaded)
+		{
+			gradSHCoeffR = GVCBLight * JCoLi * JLiGmR;
+			gradSHCoeffG = GVCBLight * JCoLi * JLiGmG;
+			gradSHCoeffB = GVCBLight * JCoLi * JLiGmB;
+		}
+		else if (input.shadingMode == ShadingMode::Shadeless)
+		{
+			gradSHCoeffR.setZero();
+			gradSHCoeffG.setZero();
+			gradSHCoeffB.setZero();
+		}
 
 		addGradients9(gradSHCoeffR, &input.d_shCoeffGrad[idc * 27     ]);
 		addGradients9(gradSHCoeffG, &input.d_shCoeffGrad[idc * 27 +  9]);
 		addGradients9(gradSHCoeffB, &input.d_shCoeffGrad[idc * 27 + 18]);
 
 		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		//VERTEX POS GRAD
+		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 
 		mat1x3 GVCBPosition;
@@ -206,90 +239,130 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		GVCBPosition(0, 1) = input.d_renderBufferGrad[idx].y;
 		GVCBPosition(0, 2) = input.d_renderBufferGrad[idx].z;
 
+		////////////////////////////////////////////////////////////////////////
+		//data to model
+		////////////////////////////////////////////////////////////////////////
+
 		mat3x3 JNoNu;
 		getJNoNu(JNoNu, pixNormUn, pixNormVal);
 
 		mat3x3 JLiNo;
 		getJLiNo(JLiNo, pixNorm, shCoeff);
 
-		/////////////////////
-
 		mat3x3 JAlBc;
-
-		if (input.renderMode == RenderMode::VertexColor)
+		if (input.albedoMode == AlbedoMode::VertexColor)
 		{
 			getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
 		}
-		else if (input.renderMode == RenderMode::Textured)
+		else if (input.albedoMode == AlbedoMode::Textured)
 		{
-			getJAlTexBc(JAlBc, input.d_textureMap, finalTexCoord, texCoord0, texCoord1, texCoord2, input.texWidth, input.texHeight);
+			getJAlTexBc(JAlBc, input.d_textureMap, finalTexCoord, texCoord0, texCoord1, texCoord2, input.texWidth, input.texHeight, input.textureFilterSize);
 		}
 
 		mat3x3 JNoBc;
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
 		
 		mat3x9 JBcVp;
-		
-		dJBCDVerpos(JBcVp,o,d,vertexPos0, vertexPos1, vertexPos2);
+		dJBCDVerpos(JBcVp, o,d,vertexPos0, vertexPos1, vertexPos2);
 
-		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp + GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
+		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp;
+
+		if (input.shadingMode == ShadingMode::Shaded)
+		{
+			gradVerPos = gradVerPos + GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
+		}
 
 		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
-		////////////////////
+		////////////////////////////////////////////////////////////////////////
+		//model to data
+		////////////////////////////////////////////////////////////////////////
 
-		for (int i = 0; i < 3; i++)
+		// dT 3x2
+		mat3x2 dT = imageGradient((float3*)input.d_targetImage, make_float2(idw, idh),input.w, input.h, input.imageFilterSize);
+
+		//dProj 2x3
+		mat2x3 dProj;
+		getJProjection(dProj, fragmentPosition, input.d_cameraIntrinsics + 3 * idc, input.d_cameraExtrinsics + 3 * idc);
+
+		//dFrag 
+		mat3x9 dFrag;
+		dFrag.setZero();
+		dFrag(0, 0) = bcc.x;
+		dFrag(1, 1) = bcc.x;
+		dFrag(2, 2) = bcc.x;
+
+		dFrag(0, 3) = bcc.y;
+		dFrag(1, 4) = bcc.y;
+		dFrag(2, 5) = bcc.y;
+
+		dFrag(0, 6) = bcc.z;
+		dFrag(1, 7) = bcc.z;
+		dFrag(2, 8) = bcc.z;
+
+		mat1x9 model2DataGrad = -GVCBPosition * dT * dProj * dFrag; // the minus here is tricky! assume || X - Y ||^2 --> in our case tensorflow gives us gradient wrt Y but we need gradient X --> luckily it is just a sign change
+
+		addGradients9I(model2DataGrad.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
+
+		//////////////////////////////////////////////////////////////////////////////////
+
+
+		if (input.shadingMode == ShadingMode::Shaded)
 		{
-			mat3x3 JNuNvx;
-			JNuNvx.setIdentity();
-			int idv = -1;
 
-			//
-			if (i == 0) 
-			{ 
-				idv = faceVerticesIds.x; 
-				JNuNvx = bcc.x * JNuNvx; 
-			}
-			else if (i == 1) 
-			{ 
-				idv = faceVerticesIds.y; 
-				JNuNvx = bcc.y * JNuNvx; 
-			}
-			else 
-			{ 
-				idv = faceVerticesIds.z; 
-				JNuNvx = bcc.z * JNuNvx; 
-			}
-
-			//
-			int2 verFaceId = input.d_vertexFacesId[idv];
-
-			//
-			for (int j = verFaceId.x; j < verFaceId.x + verFaceId.y; j++)
+			for (int i = 0; i < 3; i++)
 			{
-				int faceId = input.d_vertexFaces[j];
-			
-				int3 v_index_inner = input.d_facesVertex[faceId];
-				mat3x1 vi = (mat3x1)input.d_vertices[v_index_inner.x];
-				mat3x1 vj = (mat3x1)input.d_vertices[v_index_inner.y];
-				mat3x1 vk = (mat3x1)input.d_vertices[v_index_inner.z];
+				mat3x3 JNuNvx;
+				JNuNvx.setIdentity();
+				int idv = -1;
 
-				mat3x3 J;
-				
-				// gradients vi
-				getJ_vi(J, vk, vj, vi);
-				mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+				//
+				if (i == 0)
+				{
+					idv = faceVerticesIds.x;
+					JNuNvx = bcc.x * JNuNvx;
+				}
+				else if (i == 1)
+				{
+					idv = faceVerticesIds.y;
+					JNuNvx = bcc.y * JNuNvx;
+				}
+				else
+				{
+					idv = faceVerticesIds.z;
+					JNuNvx = bcc.z * JNuNvx;
+				}
 
-				// gradients vj
-				getJ_vj(J, vk, vi);
-				mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+				//
+				int2 verFaceId = input.d_vertexFacesId[idv];
 
-				// gradients vk
-				getJ_vk(J, vj, vi);
-				mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-				addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);	
+				//
+				for (int j = verFaceId.x; j < verFaceId.x + verFaceId.y; j++)
+				{
+					int faceId = input.d_vertexFaces[j];
+
+					int3 v_index_inner = input.d_facesVertex[faceId];
+					mat3x1 vi = (mat3x1)input.d_vertices[v_index_inner.x];
+					mat3x1 vj = (mat3x1)input.d_vertices[v_index_inner.y];
+					mat3x1 vk = (mat3x1)input.d_vertices[v_index_inner.z];
+
+					mat3x3 J;
+
+					// gradients vi
+					getJ_vi(J, vk, vj, vi);
+					mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+					addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+
+					// gradients vj
+					getJ_vj(J, vk, vi);
+					mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+					addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+
+					// gradients vk
+					getJ_vk(J, vj, vi);
+					mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
+					addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);
+				}
 			}
 		}
 	}

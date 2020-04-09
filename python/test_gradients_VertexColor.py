@@ -72,7 +72,8 @@ def test_color_gradient():
                                         intrinsics_attr              = cameraReader.intrinsics,
                                         renderResolutionU_attr       = renderResolutionU,
                                         renderResolutionV_attr       = renderResolutionV,
-                                        renderMode_attr              = 'vertexColor',
+                                        albedoMode_attr              = 'vertexColor',
+                                        shadingMode_attr             = 'shaded',
 
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
@@ -98,7 +99,8 @@ def test_color_gradient():
                 intrinsics_attr=cameraReader.intrinsics,
                 renderResolutionU_attr=renderResolutionU,
                 renderResolutionV_attr=renderResolutionV,
-                renderMode_attr='vertexColor',
+                albedoMode_attr='vertexColor',
+                shadingMode_attr='shaded',
 
                 vertexPos_input=VertexPosConst,
                 vertexColor_input=VertexColor_rnd,

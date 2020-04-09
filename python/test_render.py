@@ -62,12 +62,14 @@ if freeGPU:
                                             intrinsics_attr             = cameraReader.intrinsics,
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
-                                            renderMode_attr             = 'vertexColor',
-
+                                            albedoMode_attr             = 'normal',
+                                            shadingMode_attr            = 'shaded',
+                                            image_filter_size_attr      = 1,
                                             vertexPos_input             = VertexPosConst,
                                             vertexColor_input           = VertexColorConst,
                                             texture_input               = VertexTextureConst,
                                             shCoeff_input               = SHCConst,
+                                            targetImage_input           = tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
 
                                             nodeName                    = 'test')
 

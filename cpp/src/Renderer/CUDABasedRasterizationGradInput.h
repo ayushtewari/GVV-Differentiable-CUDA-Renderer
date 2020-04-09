@@ -49,9 +49,14 @@ struct CUDABasedRasterizationGradInput
 	//misc
 	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
 	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
-	RenderMode			renderMode;								//which rendering is used											//INIT IN CONSTRUCTOR
+	AlbedoMode			albedoMode;								//which albedo is used												//INIT IN CONSTRUCTOR
+	ShadingMode			shadingMode;							//which shading is used												//INIT IN CONSTRUCTOR
 	float4*				d_inverseExtrinsics;					//inverse camera extrinsics											//INIT IN CONSTRUCTOR
 	float4*				d_inverseProjection;					//inverse camera projection											//INIT IN CONSTRUCTOR
+	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
+	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR
+	int					imageFilterSize;						//filter size of the sobel operator									//INIT IN CONSTRUCTOR
+	int					textureFilterSize;						//filter size of texture for the sobel operator						//INIT IN CONSTRUCTOR
 		
 	//////////////////////////
 	//INPUTS
@@ -66,6 +71,7 @@ struct CUDABasedRasterizationGradInput
 	float3*				d_vertexNormal;							//vertex normals				
 	float2*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view														
 	int*				d_faceIDBuffer;							//face ID per pixel per view and the ids of the 3 vertices
+	const float*		d_targetImage;							//target image used for model to data gradient
 	
 	int					texWidth;								//dimension of texture																				
 	int					texHeight;								//dimension of texture																				

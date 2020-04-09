@@ -1,10 +1,10 @@
 //==============================================================================================//
 // Classname:
-//      GradUtil 
+//      RendererUtil 
 //
 //==============================================================================================//
 // Description:
-//      Basic operations for gradients for rendering 
+//      Basic operations for rendering and gradients for rendering 
 //
 //==============================================================================================//
 
@@ -16,6 +16,7 @@
 #include <cutil_math.h>
 #include "CameraUtil.h"
 #include "IndexHelper.h"
+#include "cuda_SimpleMatrixUtil.h"
 
 //==============================================================================================//
 
@@ -270,6 +271,68 @@ __inline__ __device__ void getJAlVc(mat3x9 &JAlVc, float3 bcc)
 //==============================================================================================//
 
 /*
+d_projection / d_position
+*/
+__inline__ __device__ void getJProjection(mat2x3 &JProjection, float3 globalPosition, float3* intrinsics, float4* extrinsics)
+{
+	JProjection.setZero();
+
+	mat4x3 dP;
+	dP.setZero();
+	dP(0, 0) = 1.f;
+	dP(1, 1) = 1.f;
+	dP(2, 2) = 1.f;
+
+	mat3x4 E;
+	E(0, 0) = extrinsics[0].x;
+	E(0, 1) = extrinsics[0].y;
+	E(0, 2) = extrinsics[0].z;
+	E(0, 3) = extrinsics[0].w;
+
+	E(1, 0) = extrinsics[1].x;
+	E(1, 1) = extrinsics[1].y;
+	E(1, 2) = extrinsics[1].z;
+	E(1, 3) = extrinsics[1].w;
+
+	E(2, 0) = extrinsics[2].x;
+	E(2, 1) = extrinsics[2].y;
+	E(2, 2) = extrinsics[2].z;
+	E(2, 3) = extrinsics[2].w;
+
+	mat3x3 I;
+	I(0, 0) = intrinsics[0].x;
+	I(0, 1) = intrinsics[0].y;
+	I(0, 2) = intrinsics[0].z;
+
+	I(1, 0) = intrinsics[1].x;
+	I(1, 1) = intrinsics[1].y;
+	I(1, 2) = intrinsics[1].z;
+
+	I(2, 0) = intrinsics[2].x;
+	I(2, 1) = intrinsics[2].y;
+	I(2, 2) = intrinsics[2].z;
+
+	mat4x1 PP;
+	PP(0, 0) = globalPosition.x;
+	PP(1, 0) = globalPosition.y;
+	PP(2, 0) = globalPosition.z;
+	PP(3, 0) = 1.f;
+	mat3x1 P = I * E * PP;
+
+	mat2x3 dDivide;
+	dDivide(0, 0) = 1.f / P(2, 0);
+	dDivide(0, 1) = 0.f;
+	dDivide(0, 2) = -P(0, 0) / (P(2, 0) * P(2, 0));
+
+	dDivide(1, 0) = 0.f;
+	dDivide(1, 1) = 1.f / P(2, 0);
+	dDivide(1, 2) = -P(1, 0) / (P(2, 0) * P(2, 0));
+
+	JProjection = dDivide * I * E * dP;
+}
+//==============================================================================================//
+
+/*
 d_shadedColor / d_lighting
 */
 __inline__ __device__ void getJCoLi(mat3x3 &JCoLi, float3 pixAlb)
@@ -499,87 +562,47 @@ __inline__ __device__ void getJAlBc(mat3x3 &JAlBc, float3 vertexCol0, float3 ver
 /*
 Image gradient helper
 */
-__inline__ __device__ mat3x2 imageGradient(float3* image, float2 point, int imageWidth, int imageHeight)
+__inline__ __device__ mat3x2 imageGradient(const float3* image, float2 point, int imageWidth, int imageHeight, int filterSize)
 {
 	mat3x2 dIdUV;
 	dIdUV.setZero();
 
-	mat5x5 kernelU ;
-	(kernelU)(0, 0) = -5.f;
-	(kernelU)(0, 1) = -4.f;
-	(kernelU)(0, 2) =  0.f;
-	(kernelU)(0, 3) =  4.f;
-	(kernelU)(0, 4) =  5.f;
-
-	(kernelU)(1, 0) = - 8.f;
-	(kernelU)(1, 1) = -10.f;
-	(kernelU)(1, 2) =   0.f;
-	(kernelU)(1, 3) =  10.f;
-	(kernelU)(1, 4) =   8.f;
-
-	(kernelU)(2, 0) = -10.f;
-	(kernelU)(2, 1) = -20.f;
-	(kernelU)(2, 2) =   0.f;
-	(kernelU)(2, 3) =  20.f;
-	(kernelU)(2, 4) =  10.f;
-
-	(kernelU)(3, 0) = - 8.f;
-	(kernelU)(3, 1) = -10.f;
-	(kernelU)(3, 2) =   0.f;
-	(kernelU)(3, 3) =  10.f;
-	(kernelU)(3, 4) =   8.f;
-
-	(kernelU)(4, 0) = -5.f;
-	(kernelU)(4, 1) = -4.f;
-	(kernelU)(4, 2) =  0.f;
-	(kernelU)(4, 3) =  4.f;
-	(kernelU)(4, 4) =  5.f;
-
-	mat5x5 kernelV;
-	(kernelV)(0, 0) = -5.f;
-	(kernelV)(0, 1) = -8.f;
-	(kernelV)(0, 2) = -10.f;
-	(kernelV)(0, 3) = -8.f;
-	(kernelV)(0, 4) = -5.f;
-
-	(kernelV)(1, 0) = -4.f;
-	(kernelV)(1, 1) = -10.f;
-	(kernelV)(1, 2) = -20.f;
-	(kernelV)(1, 3) = -10.f;
-	(kernelV)(1, 4) = -4.f;
-
-	(kernelV)(2, 0) = 0.f;
-	(kernelV)(2, 1) = 0.f;
-	(kernelV)(2, 2) = 0.f;
-	(kernelV)(2, 3) = 0.f;
-	(kernelV)(2, 4) = 0.f;
-
-	(kernelV)(3, 0) = 4.f;
-	(kernelV)(3, 1) = 10.f;
-	(kernelV)(3, 2) = 20.f;
-	(kernelV)(3, 3) = 10.f;
-	(kernelV)(3, 4) = 4.f;
-
-	(kernelV)(4, 0) = 5.f;
-	(kernelV)(4, 1) = 8.f;
-	(kernelV)(4, 2) = 10.f;
-	(kernelV)(4, 3) = 8.f;
-	(kernelV)(4, 4) = 5.f;
+	float3 dI_du = make_float3(0.f, 0.f, 0.f);
+	float3 dI_dv = make_float3(0.f, 0.f, 0.f);
 
 	if (point.x >= 2.f && point.y >= 2.f && point.x < imageWidth - 2 && point.y < imageHeight - 2)
 	{
-		float3 dI_du = make_float3(0.f, 0.f, 0.f);
-		float3 dI_dv = make_float3(0.f, 0.f, 0.f);
+		float normalizationFactor = 0.f;
 
-		for (int y = -2; y <= 2; y++)
+		for (int y = -filterSize; y <= filterSize; y++)
 		{
-			for (int x = -2; x <= 2; x++)
+			for (int x = -filterSize; x <= filterSize; x++)
 			{
-				float3 I = image[index2DTo1D(imageHeight, imageWidth, (point.y + y), (point.x + x))];
-				dI_du += I * (kernelU)(x + 2, y + 2);
-				dI_dv += I * (kernelV)(x + 2, y + 2);
+				float3 I = image[(int)((point.y + y) * imageWidth + (point.x + x))];
+
+				float denom = ((float)(x*x + y*y));
+				float xFloat = x;
+				float yFloat = y;
+
+				float G_u = 0.f;
+				float G_v = 0.f;
+
+				if (denom != 0.f)
+				{
+					G_u = xFloat / denom; //sobel filter for U
+					G_v = yFloat / denom; //sobel filter for V
+				}
+				
+				dI_du += I * G_u;
+				dI_dv += I * G_v;
+
+				normalizationFactor += fabs(G_u);		
 			}
 		}
+
+		dI_du /= normalizationFactor;
+		dI_dv /= normalizationFactor;
+		
 		dIdUV(0, 0) = dI_du.x;
 		dIdUV(1, 0) = dI_du.y;
 		dIdUV(2, 0) = dI_du.z;
@@ -589,8 +612,6 @@ __inline__ __device__ mat3x2 imageGradient(float3* image, float2 point, int imag
 		dIdUV(2, 1) = dI_dv.z;
 	}
 
-	dIdUV /= 20.f;
-
 	return dIdUV;
 }
 
@@ -599,21 +620,21 @@ __inline__ __device__ mat3x2 imageGradient(float3* image, float2 point, int imag
 /*
 d_albedo / d_barycentricCoords
 */
-__inline__ __device__ void getJAlTexBc(mat3x3 &JAlBc, const float* d_textureMap, float2 uv, float2 tc0, float2 tc1, float2 tc2, int imageWidth, int imageHeight)
+__inline__ __device__ void getJAlTexBc(mat3x3 &JAlBc, const float* d_textureMap, float2 uv, float2 tc0, float2 tc1, float2 tc2, int imageWidth, int imageHeight, int filterSize)
 {
 	JAlBc.setZero();
 
-	mat3x2 dIdUV = imageGradient((float3*)d_textureMap, uv, imageWidth, imageHeight);
+	mat3x2 dIdUV = imageGradient((const float3*)d_textureMap, uv, imageWidth, imageHeight, filterSize);
 
 	mat2x3 dUVdabc;
-	dUVdabc(0, 0) = tc0.x;
-	dUVdabc(1, 0) = tc0.y;
+	dUVdabc(0, 0) = tc0.x * imageWidth;
+	dUVdabc(1, 0) = tc0.y * imageHeight;
 
-	dUVdabc(0, 1) = tc1.x;
-	dUVdabc(1, 1) = tc1.y;
+	dUVdabc(0, 1) = tc1.x * imageWidth;
+	dUVdabc(1, 1) = tc1.y * imageHeight;
 
-	dUVdabc(0, 2) = tc2.x;
-	dUVdabc(1, 2) = tc2.y;
+	dUVdabc(0, 2) = tc2.x * imageWidth;
+	dUVdabc(1, 2) = tc2.y * imageHeight;
 
 	JAlBc = dIdUV * dUVdabc;
 }
@@ -652,6 +673,12 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	float3  N = cross(v0v1, v0v2); 
 	float denom = dot(N, N);
 	float NdotRayDirection = dot(dir, N);
+
+	//to avoid division by very small number (essentially it checks if the ray and the face normal are not close to perpendicular to each other)
+	if (fabs(dot(normalize(dir), normalize(N))) < 0.05f || fabs(denom * denom) < 0.01f)
+	{
+		return;
+	}
 
 	float d = dot(N, v0);
 
@@ -862,15 +889,22 @@ Gradient adding helper
 */
 __inline__ __device__ void addGradients9I(mat9x1 grad, float3* d_grad, int3 index)
 {
+	//if (index.x == 1)
+	{
 		atomicAdd(&d_grad[index.x].x, grad(0, 0));
 		atomicAdd(&d_grad[index.x].y, grad(1, 0));
 		atomicAdd(&d_grad[index.x].z, grad(2, 0));
-	
+	}
+	//if (index.y ==1)
+	{
 		atomicAdd(&d_grad[index.y].x, grad(3, 0));
 		atomicAdd(&d_grad[index.y].y, grad(4, 0));
 		atomicAdd(&d_grad[index.y].z, grad(5, 0));
-	
+	}
+	//if (index.z == 1)
+	{
 		atomicAdd(&d_grad[index.z].x, grad(6, 0));
 		atomicAdd(&d_grad[index.z].y, grad(7, 0));
 		atomicAdd(&d_grad[index.z].z, grad(8, 0));
+	}
 }

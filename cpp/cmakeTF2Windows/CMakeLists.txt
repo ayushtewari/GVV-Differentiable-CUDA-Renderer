@@ -7,8 +7,12 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED 
 
+#Tensorflow 2.0.0-beta0
+
 SET (CUDADIR C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2)
 SET (TENSORFLOW_PATH D:/Anaconda3/Lib/site-packages/tensorflow)
+
+#Fix change it manually to cuda 10.0
 
 #############################################################################################
 #CUDA 
