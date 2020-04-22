@@ -23,7 +23,7 @@
 
 enum AlbedoMode
 {
-	VertexColor, Textured, Normal, Lighting
+	VertexColor, Textured, Normal, Lighting, ForegroundMask
 };
 
 //==============================================================================================//

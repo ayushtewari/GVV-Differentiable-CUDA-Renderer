@@ -328,7 +328,8 @@ __inline__ __device__ void getJProjection(mat2x3 &JProjection, float3 globalPosi
 	dDivide(1, 1) = 1.f / P(2, 0);
 	dDivide(1, 2) = -P(1, 0) / (P(2, 0) * P(2, 0));
 
-	JProjection = dDivide * I * E * dP;
+	if(fabs(P(2, 0)) > 0.0001f)
+		JProjection = dDivide * I * E * dP;
 }
 //==============================================================================================//
 
@@ -371,7 +372,8 @@ d_lighting / d_normalizedNormal
 __inline__ __device__ void getJLiNo(mat3x3 &JLiNo, float3 dir, const float* shCoeff)
 {
 	JLiNo.setZero();
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 3; i++) 
+	{
 		JLiNo(i, 0) =    shCoeff[(i * 9) + 3] +
 						(shCoeff[(i * 9) + 4] * dir.y) +
 						(shCoeff[(i * 9) + 7] * dir.z) +
@@ -674,7 +676,7 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	float denom = dot(N, N);
 	float NdotRayDirection = dot(dir, N);
 
-	//to avoid division by very small number (essentially it checks if the ray and the face normal are not close to perpendicular to each other)
+	//to avoid division by very small number (essentially it checks if the ray and the face normal are not close to perpendicular to each other) == angle more than 87 degree
 	if (fabs(dot(normalize(dir), normalize(N))) < 0.05f || fabs(denom * denom) < 0.01f)
 	{
 		return;

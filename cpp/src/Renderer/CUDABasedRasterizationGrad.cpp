@@ -120,6 +120,10 @@ CUDABasedRasterizationGrad::CUDABasedRasterizationGrad(
 	{
 		input.albedoMode = AlbedoMode::Textured;
 	}
+	else if (albedoMode == "foregroundMask")
+	{
+		input.albedoMode = AlbedoMode::ForegroundMask;
+	}
 
 	//shading mode
 	if (shadingMode == "shaded")

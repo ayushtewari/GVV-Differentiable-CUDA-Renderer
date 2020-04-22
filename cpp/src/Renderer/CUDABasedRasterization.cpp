@@ -132,6 +132,10 @@ CUDABasedRasterization::CUDABasedRasterization(
 	{
 		input.albedoMode = AlbedoMode::Lighting;
 	}
+	else if (albedoMode == "foregroundMask")
+	{
+		input.albedoMode = AlbedoMode::ForegroundMask;
+	}
 	
 
 	//shading mode

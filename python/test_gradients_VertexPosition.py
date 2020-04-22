@@ -80,10 +80,10 @@ def test_color_gradient():
     spatialLoss = LaplacianLoss.LaplacianLoss('data/magdalena.obj', VertexPosConst)
 
     # generate perturbed vertex positions
-    offset = tf.constant([0.0, 48.0, 0.0])
+    offset = tf.constant([0.0, 50.0, 0.0])
     offset = tf.reshape(offset, [1, 1, 3])
     offset = tf.tile(offset, [numberOfBatches, objreader.numberOfVertices, 1])
-    VertexPosition_rnd = tf.Variable((VertexPosConst + offset), dtype=tf.float32)
+    VertexPosition_rnd = tf.Variable((VertexPosConst + tf.random.uniform(tf.shape(VertexPosConst), -50.0, 50.0) + offset), dtype=tf.float32)
     # VertexPosition_rnd = tf.Variable(inputVertexPositionsMod, dtype=tf.float32)
 
     opt = tf.keras.optimizers.SGD(learning_rate=1.0)

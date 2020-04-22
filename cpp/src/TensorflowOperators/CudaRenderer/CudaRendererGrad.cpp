@@ -66,7 +66,7 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
 	OP_REQUIRES_OK(context, context->GetAttr("albedo_mode", &albedoMode));
-	if (albedoMode != "vertexColor" && albedoMode != "textured")
+	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "foregroundMask")
 	{
 		std::cout << "INVALID ALBEDO MODE" << std::endl;
 		return;
@@ -77,6 +77,11 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	{
 		std::cout << "INVALID SHADING MODE" << std::endl;
 		return;
+	}
+	if (albedoMode == "foregroundMask")
+	{
+		std::cout << "Automatically chose shading mode: shadeless" << std::endl;
+		shadingMode = "shadeless";
 	}
 
 	int imageFilterSize = -1;

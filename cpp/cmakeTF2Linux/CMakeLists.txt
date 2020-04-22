@@ -20,7 +20,7 @@ SET( CUDACXX ${CUDA_PATH})
 SET( CMAKE_CUDA_COMPILER ${CUDA_PATH})
 
 PROJECT(${PROJECT_NAME} CXX CUDA)
-MESSAGE("++++ Project name: "${PROJECT_NAME})
+MESSAGE("++++ Project name: " ${PROJECT_NAME})
 
 #############################################################################################
 #Misc
@@ -36,7 +36,7 @@ STRING(REPLACE "/cmakeTF2Linux"
        "" projectDir
        ${CMAKE_SOURCE_DIR})
 
-MESSAGE("++++ Project directory: "${projectDir})
+MESSAGE("++++ Project directory: " ${projectDir})
 
 #############################################################################################
 #DEPENDENCIES
@@ -52,7 +52,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/../thirdParty/Shared/cutil/inc/)
 
 SET (tensorflowLib ${TENSORFLOW_PATH}/python/_pywrap_tensorflow_internal.so)
 INCLUDE_DIRECTORIES(${TENSORFLOW_PATH}/include/)
-MESSAGE("++++ Tensorflow directory: "${TENSORFLOW_PATH})
+MESSAGE("++++ Tensorflow directory: " ${TENSORFLOW_PATH})
 
 ##############################################################################################
 #ADD FILES

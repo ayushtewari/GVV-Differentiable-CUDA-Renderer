@@ -60,7 +60,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
 	OP_REQUIRES_OK(context, context->GetAttr("albedo_mode", &albedoMode));
-	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "normal"  && albedoMode != "lighting")
+	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "normal"  && albedoMode != "foregroundMask")
 	{
 		std::cout << "INVALID ALBEDO MODE" << std::endl;
 		return;
@@ -71,6 +71,11 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	{
 		std::cout << "INVALID SHADING MODE" << std::endl;
 		return;
+	}
+	if (albedoMode == "foregroundMask")
+	{
+		std::cout << "Automatically chose shading mode: shadeless" << std::endl;
+		shadingMode = "shadeless";
 	}
 
 	//---CONSOLE OUTPUT---
@@ -103,6 +108,10 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	else if (albedoMode == "lighting")
 	{
 		std::cout << "Albedo mode: lighting (note that gradients are zero now)" << std::endl;
+	}
+	else if (albedoMode == "foregroundMask")
+	{
+		std::cout << "Foreground mask mode: automatically choose shadeless" << std::endl;
 	}
 
 	/////////////////////////////////////////

@@ -33,8 +33,8 @@ __global__ void initializeDevice(CUDABasedRasterizationInput input)
 		input.d_barycentricCoordinatesBuffer[2 * idx + 0] = 0.f;
 		input.d_barycentricCoordinatesBuffer[2 * idx + 1] = 0.f;
 
-		input.d_renderBuffer[3 * idx + 0] = 1.f;
-		input.d_renderBuffer[3 * idx + 1] = 0.f;
+		input.d_renderBuffer[3 * idx + 0] = 0.f;
+		input.d_renderBuffer[3 * idx + 1] = 1.f;
 		input.d_renderBuffer[3 * idx + 2] = 0.f;
 	}
 }
@@ -263,8 +263,8 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 					float3 o = make_float3(0.f, 0.f, 0.f);
 					float3 d = make_float3(0.f, 0.f, 0.f);
 					getRayCuda2(pixelCenter1, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
-					/*if (dot(pixNorm, d) > 0.f)
-						pixNorm = -pixNorm;*/
+					if (dot(pixNorm, d) > 0.f)
+						pixNorm = -pixNorm;
 
 					float3 color = make_float3(0.f,0.f,0.f);
 
@@ -300,6 +300,10 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						color = make_float3((1.f + pixNorm.x) / 2.f,  (1.f + pixNorm.y) / 2.f, (1.f + pixNorm.z) / 2.f);
 					}
 					else if (input.albedoMode == AlbedoMode::Lighting)
+					{
+						color = make_float3(1.f, 1.f, 1.f);
+					}
+					else if (input.albedoMode == AlbedoMode::ForegroundMask)
 					{
 						color = make_float3(1.f, 1.f, 1.f);
 					}

@@ -89,7 +89,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 
 		float3 o = make_float3(0.f, 0.f, 0.f);
 		float3 d = make_float3(0.f, 0.f, 0.f);
-		float2 pixelPos = make_float2(idw, idh);
+		float2 pixelPos = make_float2(idw + 0.5f, idh + 0.5f);
 		getRayCuda2(pixelPos, o, d, input.d_inverseExtrinsics + idc * 4, input.d_inverseProjection + idc * 4);
 
 		float2 bccTmp	= input.d_barycentricCoordinatesBuffer[idx];
@@ -117,9 +117,16 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm = pixNormUn / pixNormVal;
 
-		/*if (dot(pixNorm, d) > 0.f)
-			pixNorm = -pixNorm;*/
+		if (dot(pixNorm, d) > 0.f)
+			pixNorm = -pixNorm;
 
+		if (input.albedoMode == AlbedoMode::ForegroundMask)
+		{
+			float3 ones = make_float3(1.f, 1.f, 1.f);
+			vertexCol0 = ones;
+			vertexCol1 = ones;
+			vertexCol2 = ones;
+		}
 		////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////
 		//VERTEX COLOR AND TEXTURE GRAD
@@ -170,6 +177,10 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].y, gradTexColor(0, 1));
 			atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, finalTexCoord.y, finalTexCoord.x)].z, gradTexColor(0, 2));
 		}
+		else if (input.albedoMode == AlbedoMode::ForegroundMask)
+		{
+			//do nothing
+		}
 		else
 		{
 			printf("Unsupported color mode in renderer gradient! \n");
@@ -198,6 +209,11 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 								 input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 1)],
 								 input.d_textureMap[index3DTo1D(input.texHeight, input.texWidth, 3, finalTexCoord.y, finalTexCoord.x, 2)]);
 		}
+		else if (input.albedoMode == AlbedoMode::ForegroundMask)
+		{
+			//do nothing
+		}
+
 		getJCoLi(JCoLi, pixAlb);
 
 		mat3x9 JLiGmR;
@@ -258,6 +274,10 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		{
 			getJAlTexBc(JAlBc, input.d_textureMap, finalTexCoord, texCoord0, texCoord1, texCoord2, input.texWidth, input.texHeight, input.textureFilterSize);
 		}
+		else if (input.albedoMode == AlbedoMode::ForegroundMask)
+		{
+			getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
+		}
 
 		mat3x3 JNoBc;
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
@@ -265,22 +285,22 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x9 JBcVp;
 		dJBCDVerpos(JBcVp, o,d,vertexPos0, vertexPos1, vertexPos2);
 
-		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp;
+		mat1x9 gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp / 2.f;
 
 		if (input.shadingMode == ShadingMode::Shaded)
 		{
 			gradVerPos = gradVerPos + GVCBPosition * JCoLi * JLiNo * JNoNu * JNoBc * JBcVp;
 		}
 
-		addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
+		//addGradients9I(gradVerPos.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
 		////////////////////////////////////////////////////////////////////////
 		//model to data
 		////////////////////////////////////////////////////////////////////////
 
 		// dT 3x2
-		mat3x2 dT = imageGradient((float3*)input.d_targetImage, make_float2(idw, idh),input.w, input.h, input.imageFilterSize);
-
+		mat3x2 dT = imageGradient(((float3*)input.d_targetImage ) + idc * input.w * input.h , make_float2(idw, idh),input.w, input.h, input.imageFilterSize);
+		 
 		//dProj 2x3
 		mat2x3 dProj;
 		getJProjection(dProj, fragmentPosition, input.d_cameraIntrinsics + 3 * idc, input.d_cameraExtrinsics + 3 * idc);
@@ -300,7 +320,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		dFrag(1, 7) = bcc.z;
 		dFrag(2, 8) = bcc.z;
 
-		mat1x9 model2DataGrad = -GVCBPosition * dT * dProj * dFrag; // the minus here is tricky! assume || X - Y ||^2 --> in our case tensorflow gives us gradient wrt Y but we need gradient X --> luckily it is just a sign change
+		mat1x9 model2DataGrad = -GVCBPosition * dT * dProj * dFrag;// / 2.f; // the minus here is tricky! assume || X - Y ||^2 --> in our case tensorflow gives us gradient wrt Y but we need gradient X --> luckily it is just a sign change
 
 		addGradients9I(model2DataGrad.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
@@ -351,17 +371,17 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 					// gradients vi
 					getJ_vi(J, vk, vj, vi);
 					mat1x3 gradVi = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-					addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
+					//addGradients(gradVi, &input.d_vertexPosGrad[v_index_inner.x]);
 
 					// gradients vj
 					getJ_vj(J, vk, vi);
 					mat1x3 gradVj = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-					addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
+					//addGradients(gradVj, &input.d_vertexPosGrad[v_index_inner.y]);
 
 					// gradients vk
 					getJ_vk(J, vj, vi);
 					mat1x3 gradVk = GVCBPosition * JCoLi * JLiNo * JNoNu * JNuNvx * J;
-					addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);
+					//addGradients(gradVk, &input.d_vertexPosGrad[v_index_inner.z]);
 				}
 			}
 		}
