@@ -572,7 +572,10 @@ __inline__ __device__ mat3x2 imageGradient(const float3* image, float2 point, in
 	float3 dI_du = make_float3(0.f, 0.f, 0.f);
 	float3 dI_dv = make_float3(0.f, 0.f, 0.f);
 
-	if (point.x >= 2.f && point.y >= 2.f && point.x < imageWidth - 2 && point.y < imageHeight - 2)
+	if (   point.x >= (filterSize+1 )
+		&& point.y >= (filterSize + 1 )
+		&& point.x <  ( imageWidth - (filterSize + 1) )
+		&& point.y <  (imageHeight - (filterSize + 1)))
 	{
 		float normalizationFactor = 0.f;
 
@@ -677,7 +680,7 @@ inline __device__  void dJBCDVerpos(mat3x9& dJBC, float3 orig, float3 dir, float
 	float NdotRayDirection = dot(dir, N);
 
 	//to avoid division by very small number (essentially it checks if the ray and the face normal are not close to perpendicular to each other) == angle more than 87 degree
-	if (fabs(dot(normalize(dir), normalize(N))) < 0.05f || fabs(denom * denom) < 0.01f)
+	if (fabs(dot(normalize(dir), normalize(N))) < 0.001f || fabs(denom * denom) < 0.001f)
 	{
 		return;
 	}

@@ -52,6 +52,8 @@ struct CUDABasedRasterizationInput
 	int					F;										//number of faces													//INIT IN CONSTRUCTOR
 	int					N;										//number of vertices												//INIT IN CONSTRUCTOR
 	int3*				d_facesVertex;							//part of face data structure										//INIT IN CONSTRUCTOR
+	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
+	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 
 	//texture 
 	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR
@@ -63,8 +65,6 @@ struct CUDABasedRasterizationInput
 	//misc
 	int4*				d_BBoxes;								//bbox for each triangle											//INIT IN CONSTRUCTOR
 	float3*				d_projectedVertices;					//vertex position on image with depth after projection				//INIT IN CONSTRUCTOR
-	int*                d_vertexFaces;                          //list of neighbourhood faces for each vertex						//INIT IN CONSTRUCTOR
-	int2*               d_vertexFacesId;                        //list of (index in d_vertexFaces, number of faces) for each vertex	//INIT IN CONSTRUCTOR
 	float3*				d_faceNormal;							//face normals														//INIT IN CONSTRUCTOR
 	AlbedoMode			albedoMode;								//which albedo is used												//INIT IN CONSTRUCTOR
 	ShadingMode			shadingMode;							//which shading is used												//INIT IN CONSTRUCTOR

@@ -83,6 +83,7 @@ class CUDABasedRasterizationGrad
 
 		//setter
 		inline void							set_D_RenderBufferGrad(float3* d_inputVertexColorBufferGrad)			{ input.d_renderBufferGrad				= d_inputVertexColorBufferGrad; };
+		inline void							set_D_TargetBufferGrad(float3* d_inputTargetGrad)						{ input.d_targetBufferGrad				= d_inputTargetGrad; };
 		inline void							set_D_vertices(float3* d_inputVertices)									{ input.d_vertices						= d_inputVertices; };
 		inline void							set_D_vertexColors(float3* d_inputVertexColors)							{ input.d_vertexColor					= d_inputVertexColors; };
 		inline void							set_D_textureMap(const float* newTextureMap)							{ input.d_textureMap					= newTextureMap; };

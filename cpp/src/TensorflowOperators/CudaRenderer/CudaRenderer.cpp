@@ -15,6 +15,7 @@ REGISTER_OP("CudaRendererGpu")
 .Output("render_buffer: float")
 
 .Output("vertex_normal: float")
+.Output("target_image_out: float")
 
 .Attr("faces: list(int)")
 .Attr("texture_coordinates: list(float)")
@@ -255,6 +256,14 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	OP_REQUIRES_OK(context, context->allocate_output(3, tensorflow::TensorShape(vertexNormalDimSize), &outputTensorVertexNormal));
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorVertexNormalFlat = outputTensorVertexNormal->flat<float>();
 	d_outputVertexNormal = outputTensorVertexNormalFlat.data();
+
+	//[4]
+	//target
+	tensorflow::Tensor* outputTensorTarget;
+	OP_REQUIRES_OK(context, context->allocate_output(4, tensorflow::TensorShape(channel3DimSize), &outputTensorTarget));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorTargetFlat = outputTensorTarget->flat<float>();
+	d_outputTargetImage = outputTensorTargetFlat.data();
+	cutilSafeCall(cudaMemcpy(d_outputTargetImage, d_inputTargetImage, sizeof(float) * numberOfBatches * numberOfCameras * renderResolutionV * renderResolutionU * 3, cudaMemcpyDeviceToDevice));
 }
 
 //==============================================================================================//

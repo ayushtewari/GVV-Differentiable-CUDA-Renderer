@@ -63,6 +63,7 @@ struct CUDABasedRasterizationGradInput
 	//////////////////////////
 	
 	float3*				d_renderBufferGrad;						//render buffer gradient from later layers
+	float3*				d_targetBufferGrad;						//render buffer gradient from later layers
 
 	float3*				d_vertices;								//vertex positions
 	float3*				d_vertexColor;							//vertex color								

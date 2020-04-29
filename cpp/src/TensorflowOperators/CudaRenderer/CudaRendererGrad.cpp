@@ -17,6 +17,8 @@ REGISTER_OP("CudaRendererGradGpu")
 .Input("barycentric_buffer: float")
 .Input("face_buffer: int32")
 
+.Input("target_buffer_grad: float")
+
 .Output("vertex_pos_grad: float")
 .Output("vertex_color_grad: float")
 .Output("texture_grad: float")
@@ -175,6 +177,11 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	Eigen::TensorMap<Eigen::Tensor< const int, 1, 1, Eigen::DenseIndex>, 16> inputTensorFaceBufferFlat = inputTensorFaceBuffer.flat_inner_dims<int, 1>();
 	d_inputFaceBuffer= inputTensorFaceBufferFlat.data();
 
+	//[9]
+	//target buffer grad
+	const Tensor& inputTensorTargetGrad = context->input(9);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorTargetGradFlat = inputTensorTargetGrad.flat_inner_dims<float, 1>();
+	d_inputTargetImageGrad = inputTensorTargetGradFlat.data();
 
 
 	//---MISC---
@@ -249,7 +256,7 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			cudaBasedRasterizationGrad->setTextureWidth(textureResolutionU);
 			cudaBasedRasterizationGrad->setTextureHeight(textureResolutionV);
 			cudaBasedRasterizationGrad->set_D_RenderBufferGrad(				(float3*)			d_inputRenderBufferGrad					+ b * numberOfCameras * renderResolutionV * renderResolutionU);
-			
+			cudaBasedRasterizationGrad->set_D_TargetBufferGrad(				(float3*)			d_inputTargetImageGrad					+ b * numberOfCameras * renderResolutionV * renderResolutionU);
 			cudaBasedRasterizationGrad->set_D_vertices(						(float3*)			d_inputVertexPos						+ b * numberOfPoints);
 			cudaBasedRasterizationGrad->set_D_vertexColors(					(float3*)			d_inputVertexColor						+ b * numberOfPoints);
 			cudaBasedRasterizationGrad->set_D_textureMap(										d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);

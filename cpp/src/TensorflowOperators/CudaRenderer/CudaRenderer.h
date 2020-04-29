@@ -82,6 +82,7 @@ class CudaRenderer : public OpKernel
 		float*	d_outputRenderBuffer;
 
 		float*	d_outputVertexNormal;
+		float*	d_outputTargetImage;
 };
 
 //==============================================================================================//

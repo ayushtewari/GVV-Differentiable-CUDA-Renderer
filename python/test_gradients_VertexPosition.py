@@ -14,7 +14,7 @@ import utils.OBJReader as OBJReader
 import utils.CameraReader as CameraReader
 import cv2 as cv
 import numpy as np
-
+import utils.GaussianSmoothingGpu as GaussianSmoothing
 ########################################################################################################################
 # Load custom operators
 ########################################################################################################################
@@ -40,8 +40,8 @@ def test_color_gradient():
     textureFilterSize           = 1
     shadingMode_attr            = 'shaded'
     albedoMode_attr             = 'textured'
-    imageSmoothingSize          = 2
-    imageSmoothingStandardDev   = 2.0
+    imageSmoothingSize          = 1
+    imageSmoothingStandardDev   = 1.0
 
     # INPUT
     objreader = OBJReader.OBJReader('data/magdalena.obj')
@@ -112,12 +112,10 @@ def test_color_gradient():
                                             vertexColor_input            = VertexColorConst,
                                             texture_input                = VertexTextureConst,
                                             shCoeff_input                = SHCConst,
-                                            targetImage_input            = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU, 3])
+                                            targetImage_input            = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU, 3]),
+                                            nodeName = 'Target'
                                             )
-        targetOriginal = rendererTarget.getRenderBufferTF()
-
-        # Smooth 1
-        target = rendererTarget.smoothImage(imageSmoothingSize, 0, imageSmoothingStandardDev)
+        targetOri2 = rendererTarget.getRenderBufferTF()
 
         for i in range(2500):
 
@@ -141,16 +139,31 @@ def test_color_gradient():
                     vertexColor_input           = VertexColorConst,
                     texture_input               = VertexTextureConst,
                     shCoeff_input               = SHCConst,
-                    targetImage_input           = target
+                    targetImage_input           = targetOri2,
+                    nodeName                    = 'CudaRenderer'
                 )
-                outputOriginal = renderer.getRenderBufferTF()
+                outputOriginal      = renderer.getRenderBufferTF()
+                targetOri           = renderer.getTargetBufferTF()
 
-                #smooth image
-                output = renderer.smoothImage(imageSmoothingSize, 0, imageSmoothingStandardDev)
+                output = tf.image.rgb_to_yuv(outputOriginal)[:, :, :, :, 1:3]
+                target = tf.image.rgb_to_yuv(targetOri)[:,:,:,:,1:3]
+                L = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU,1])
+                output = tf.concat([L, output],4)
+                target = tf.concat([L, target], 4)
+
+                # Smooth 1
+                #target = GaussianSmoothing.smoothImage(targetOri, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
+                #output = GaussianSmoothing.smoothImage(output, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
+
+                target = target * 255.0
+                output = output * 255.0
 
                 #image loss
                 difference = (output - target)
-                imageLoss = 1.0  * tf.nn.l2_loss((difference) ) / (float(cameraReader.numberOfCameras * 0.25 * renderResolutionV * renderResolutionU))
+
+                foregroundPixels = tf.math.count_nonzero(difference)
+
+                imageLoss = 100.0  * tf.nn.l2_loss((difference) ) / (float(foregroundPixels))
 
                 #spatial loss
                 spatialLossEval = 500.0 * spatialLoss.getLoss(VertexPosition_rnd)
@@ -165,8 +178,8 @@ def test_color_gradient():
             print('Iter '+ str(i) + ' | Loss '+ str(loss.numpy()) + ' | Image '+ str(imageLoss.numpy()) + ' | Spatial '+ str(spatialLossEval.numpy()) + '       |        GTLoss '+ str(gtLoss))
 
             #output images
-            outputCV = cv.cvtColor(outputOriginal[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
-            targetCV = cv.cvtColor(targetOriginal[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
+            outputCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
+            targetCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
             combined = outputCV
             cv.addWeighted(outputCV, 0.5, targetCV, 0.5, 0.0, combined)
             combined = cv.resize(combined, (1024,1024))

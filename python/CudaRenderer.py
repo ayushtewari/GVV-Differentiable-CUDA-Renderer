@@ -105,7 +105,12 @@ class CudaRendererGpu:
     ########################################################################################################################
 
     def getRenderBufferTF(self):
-        return 255.0 * self.cudaRendererOperator[2]
+        return self.cudaRendererOperator[2]
+
+    ########################################################################################################################
+
+    def getTargetBufferTF(self):
+        return self.cudaRendererOperator[4]
 
     ########################################################################################################################
 
@@ -136,42 +141,20 @@ class CudaRendererGpu:
 
     ########################################################################################################################
 
-    def smoothImage(self, size: int, mean: float, std: float, ):
-
-        if(size ==0 or std == 0.0):
-            return self.getRenderBufferTF()
-
-        #create kernel
-        d = tfp.distributions.Normal(mean, std)
-        vals = d.prob(tf.range(start=-size, limit=size + 1, dtype=tf.float32))
-        gauss_kernel = tf.einsum('i,j->ij', vals, vals)
-        gauss_kernel = gauss_kernel / tf.reduce_sum(gauss_kernel)
-        gauss_kernel = gauss_kernel[:, :, tf.newaxis, tf.newaxis]
-        gauss_kernel = tf.tile(gauss_kernel, [1, 1, 3, 1])
-
-        #smooth
-        renderTensorShape = tf.shape(self.getRenderBufferTF())
-        smoothed = tf.reshape(self.getRenderBufferTF(),  [renderTensorShape[0] * renderTensorShape[1], renderTensorShape[2], renderTensorShape[3],  renderTensorShape[4]])
-        smoothed = tf.nn.depthwise_conv2d(smoothed, gauss_kernel, strides=[1, 1, 1, 1], padding="SAME")
-        smoothed = tf.reshape(smoothed, [renderTensorShape[0], renderTensorShape[1], renderTensorShape[2], renderTensorShape[3],  renderTensorShape[4]])
-
-        return smoothed
-
-    ########################################################################################################################
-
 ########################################################################################################################
 # Register gradients
 ########################################################################################################################
 
 @ops.RegisterGradient("CudaRendererGpu")
-def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm):
+def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm, gradTarget):
 
     albedoMode = op.get_attr('albedo_mode').decode("utf-8")
 
-    if(albedoMode == 'vertexColor' or albedoMode == 'textured' ):
+    if(albedoMode == 'vertexColor' or albedoMode == 'textured' or albedoMode == 'foregroundMask'):
         gradients = customOperators.cuda_renderer_grad_gpu(
             # grads
             render_buffer_grad          = gradRender,
+            target_buffer_grad          = gradTarget,
 
             # inputs
             vertex_pos                  = op.inputs[0],

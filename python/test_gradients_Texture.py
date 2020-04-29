@@ -32,6 +32,8 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 numberOfBatches = 1
 renderResolutionU = 1024
 renderResolutionV = 1024
+imageFilterSize = 1
+textureFilterSize = 1
 
 cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
 objreader = OBJReader.OBJReader('data/magdalena.obj')
@@ -74,11 +76,14 @@ def test_color_gradient():
                                         renderResolutionV_attr       = renderResolutionV,
                                         albedoMode_attr              = 'textured',
                                         shadingMode_attr             = 'shaded',
+                                        image_filter_size_attr       = imageFilterSize,
+                                        texture_filter_size_attr     = textureFilterSize,
 
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
-                                        shCoeff_input                = SHCConst
+                                        shCoeff_input                = SHCConst,
+                                        targetImage_input            = tf.zeros(  [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
                                         )
 
     target = rendererTarget.getRenderBufferTF()
@@ -101,10 +106,14 @@ def test_color_gradient():
                 renderResolutionV_attr=renderResolutionV,
                 albedoMode_attr='textured',
                 shadingMode_attr='shaded',
+                image_filter_size_attr=imageFilterSize,
+                texture_filter_size_attr=textureFilterSize,
+
                 vertexPos_input=VertexPosConst,
                 vertexColor_input=VertexColorConst,
                 texture_input=VertexTextureRand,
-                shCoeff_input=SHCConst
+                shCoeff_input=SHCConst,
+                targetImage_input =target
             )
 
             output = renderer.getRenderBufferTF()
@@ -120,11 +129,11 @@ def test_color_gradient():
         print(i, Loss.numpy())
 
         # output images
-        outputCV = renderer.getRenderBufferOpenCV(0, 0)
-        targetCV = rendererTarget.getRenderBufferOpenCV(0, 0)
+        outputCV = renderer.getRenderBufferOpenCV(0, 2)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0, 2)
 
         combined = targetCV
-        cv.addWeighted(outputCV, 0.8, targetCV, 0.2, 0.0, combined)
+        cv.addWeighted(outputCV, 0.0, targetCV, 1.0, 0.0, combined)
         cv.imshow('combined', combined)
         cv.waitKey(1)
 

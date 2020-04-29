@@ -282,11 +282,38 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 						finalTexCoord.x = fminf(finalTexCoord.x, input.texWidth - 1);
 						finalTexCoord.y = fmaxf(finalTexCoord.y, 0);
 						finalTexCoord.y = fminf(finalTexCoord.y, input.texHeight - 1);
+						 
+						float U0 = finalTexCoord.x;
+						float V0 = finalTexCoord.y;
 
-						color = make_float3(
-							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 0],
-							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 1],
-							input.d_textureMap[3 * input.texWidth *(int)finalTexCoord.y + 3 * (int)finalTexCoord.x + 2]);
+						float  LU = int(finalTexCoord.x - 0.5f) + 0.5f;
+						float  HU = int(finalTexCoord.x - 0.5f) + 1.5f;
+
+						float  LV = int(finalTexCoord.y - 0.5f) + 0.5f;
+						float  HV = int(finalTexCoord.y - 0.5f) + 1.5f;
+
+						float3 colorLULV = make_float3(
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)LU + 0],
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)LU + 1],
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)LU + 2]);
+
+						float3 colorLUHV = make_float3(
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)LU + 0],
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)LU + 1],
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)LU + 2]);
+
+						float3 colorHULV = make_float3(
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)HU + 0],
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)HU + 1],
+							input.d_textureMap[3 * input.texWidth *(int)LV + 3 * (int)HU + 2]);
+
+						float3 colorHUHV = make_float3(
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 0],
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 1],
+							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 2]);
+
+						color = (V0 - LV) * (((U0 - LU) * colorLULV) + ((HU - U0) * colorHULV)) +
+							    (HV - V0) * (((U0 - LU) * colorLUHV) + ((HU - U0) * colorHUHV));
 					}
 					else if (input.albedoMode == AlbedoMode::VertexColor)
 					{
