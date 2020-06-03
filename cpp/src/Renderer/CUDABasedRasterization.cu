@@ -194,7 +194,7 @@ __global__ void renderDepthBufferDevice(CUDABasedRasterizationInput input)
 				if (isInsideTriangle)
 				{
 					z = 1.f / (abc.x / vertex0.z + abc.y / vertex1.z + abc.z / vertex2.z); //Perspective-Correct Interpolation
-
+					z *= 10000.f;
 					int pixelId = idc* input.w* input.h + input.w * v + u;
 					atomicMin(&input.d_depthBuffer[pixelId], z);
 				}
@@ -237,6 +237,7 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 				bool isInsideTriangle = (abc.x >= -0.001f) && (abc.y >= -0.001f) && (abc.z >= -0.001f) && (abc.x <= 1.001f) && (abc.y <= 1.001f) && (abc.z <= 1.001f);
 	
 				float z = 1.f / (abc.x / vertex0.z + abc.y / vertex1.z + abc.z / vertex2.z); //Perspective-Correct Interpolation
+				z *= 10000.f;
 
 				int pixelId = idc* input.w* input.h + input.w * v + u;
 
@@ -312,7 +313,7 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 1],
 							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 2]);
 
-						color = (V0 - LV) * (((U0 - LU) * colorLULV) + ((HU - U0) * colorHULV)) +
+						color =  (V0 - LV) * (((U0 - LU) * colorLULV) + ((HU - U0) * colorHULV)) +
 							    (HV - V0) * (((U0 - LU) * colorLUHV) + ((HU - U0) * colorHUHV));
 					}
 					else if (input.albedoMode == AlbedoMode::VertexColor)

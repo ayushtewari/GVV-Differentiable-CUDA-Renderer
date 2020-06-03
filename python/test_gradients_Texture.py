@@ -83,7 +83,7 @@ def test_color_gradient():
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
                                         shCoeff_input                = SHCConst,
-                                        targetImage_input            = tf.zeros(  [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                        targetImage_input            = tf.zeros([numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
                                         )
 
     target = rendererTarget.getRenderBufferTF()
@@ -133,9 +133,13 @@ def test_color_gradient():
         targetCV = rendererTarget.getRenderBufferOpenCV(0, 2)
 
         combined = targetCV
-        cv.addWeighted(outputCV, 0.0, targetCV, 1.0, 0.0, combined)
+        cv.addWeighted(outputCV, 1.0, targetCV, 0.0, 0.0, combined)
         cv.imshow('combined', combined)
+        textureCV = cv.cvtColor(VertexTextureRand[0,:,:,:].numpy(), cv.COLOR_RGB2BGR)
+        cv.imshow('texture', textureCV)
         cv.waitKey(1)
+
+    cv.imwrite('D:/texture.png', textureCV * 255.0)
 
 ########################################################################################################################
 # main

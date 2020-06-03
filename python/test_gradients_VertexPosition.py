@@ -145,11 +145,38 @@ def test_color_gradient():
                 outputOriginal      = renderer.getRenderBufferTF()
                 targetOri           = renderer.getTargetBufferTF()
 
-                output = tf.image.rgb_to_yuv(outputOriginal)[:, :, :, :, 1:3]
-                target = tf.image.rgb_to_yuv(targetOri)[:,:,:,:,1:3]
+                # output = tf.image.rgb_to_yuv(outputOriginal)[:, :, :, :, 1:3]
+                # target = tf.image.rgb_to_yuv(targetOri)[:,:,:,:,1:3]
+                # L = tf.zeros([numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 1])
+                # output = tf.concat([output, L], 4)
+                # target = tf.concat([target,  L], 4)
+
+                #################
+                def rgb_to_hs(images, tape):
+                    IR = images[:, :, :, :, 0:1]
+                    IG = images[:, :, :, :, 1:2]
+                    IB = images[:, :, :, :, 2:3]
+                    Ialpha = 0.5 * (2.0 * IR - IG - IB)
+                    Ibeta = (tf.sqrt(3.0) / 2.0) * (IG - IB)
+
+                    tape.watch(Ialpha)
+                    tape.watch(Ibeta)
+
+                    IHue = tf.math.atan2(Ibeta, Ialpha)
+
+                    grads = tape.gradient(IHue,[Ialpha,Ibeta])
+
+                    ISaturation = tf.sqrt(Ialpha * Ialpha + Ibeta * Ibeta)
+                    return IHue, ISaturation
+
+                outputHue, outputSat = rgb_to_hs(outputOriginal, tape)
+                targetHue, targetSat= rgb_to_hs(targetOri, tape)
+
+
                 L = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU,1])
-                output = tf.concat([L, output],4)
-                target = tf.concat([L, target], 4)
+                output = tf.concat([outputHue,L,L],4)
+                target = tf.concat([targetHue,L,L], 4)
+                ################
 
                 # Smooth 1
                 #target = GaussianSmoothing.smoothImage(targetOri, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
@@ -178,10 +205,10 @@ def test_color_gradient():
             print('Iter '+ str(i) + ' | Loss '+ str(loss.numpy()) + ' | Image '+ str(imageLoss.numpy()) + ' | Spatial '+ str(spatialLossEval.numpy()) + '       |        GTLoss '+ str(gtLoss))
 
             #output images
-            outputCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
+            outputCV = cv.cvtColor(output[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
             targetCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
             combined = outputCV
-            cv.addWeighted(outputCV, 0.5, targetCV, 0.5, 0.0, combined)
+            cv.addWeighted(outputCV, 0.0, targetCV, 1.0, 0.0, combined)
             combined = cv.resize(combined, (1024,1024))
          #   cv.imshow('combined',combined)
             cv.imwrite('test_gradients/image_'+str(i) + '.png',combined * 255)

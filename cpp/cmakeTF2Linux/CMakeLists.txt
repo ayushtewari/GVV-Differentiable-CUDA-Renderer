@@ -7,8 +7,13 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED
 
-SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
-SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf201/lib/python3.5/site-packages/tensorflow_core)
+#SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
+SET (CUDA_PATH    /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/bin/nvcc)
+SET (CUDA_INCLUDE /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/include)
+#SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf201/lib/python3.5/site-packages/tensorflow_core)
+SET (TENSORFLOW_PATH /u/mhaberma/.local/lib/python3.7/site-packages/tensorflow_core)
+
+
 SET (TFVERSION "2.1.0")
 
 #############################################################################################
@@ -47,6 +52,7 @@ MESSAGE("++++ Prepare includes and libs")
 	
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/../)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/../thirdParty/Shared/cutil/inc/)
+INCLUDE_DIRECTORIES(${CUDA_INCLUDE})
 
 #-------TENSORFLOW-------
 

@@ -299,24 +299,24 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 				float V0 = finalTexCoord.y;
 
 				float weightLULV = (V0 - LV) * (U0 - LU);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, LV)].x, gradTexColor(0, 0) * weightLULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, LV)].y, gradTexColor(0, 1) * weightLULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, LV)].z, gradTexColor(0, 2) * weightLULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x, gradTexColor(0, 0) * weightLULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].y, gradTexColor(0, 1) * weightLULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].z, gradTexColor(0, 2) * weightLULV);
 
 				float weightLUHV = (HV - V0) * (U0 - LU);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, HV)].x, gradTexColor(0, 0) * weightLUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, HV)].y, gradTexColor(0, 1) * weightLUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LU, HV)].z, gradTexColor(0, 2) * weightLUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].x, gradTexColor(0, 0) * weightLUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].y, gradTexColor(0, 1) * weightLUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].z, gradTexColor(0, 2) * weightLUHV);
 
 				float weightHULV = (V0 - LV) * (HU - U0);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, LV)].x, gradTexColor(0, 0) * weightHULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, LV)].y, gradTexColor(0, 1) * weightHULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, LV)].z, gradTexColor(0, 2) * weightHULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].x, gradTexColor(0, 0) * weightHULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].y, gradTexColor(0, 1) * weightHULV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].z, gradTexColor(0, 2) * weightHULV);
 
 				float weightHUHV = (HV - V0) * (HU - U0);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, HV)].x, gradTexColor(0, 0) * weightHUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, HV)].y, gradTexColor(0, 1) * weightHUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HU, HV)].z, gradTexColor(0, 2) * weightHUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].x, gradTexColor(0, 0) * weightHUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].y, gradTexColor(0, 1) * weightHUHV);
+				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].z, gradTexColor(0, 2) * weightHUHV);
 			}
 			else if (input.albedoMode == AlbedoMode::ForegroundMask)
 			{
@@ -488,7 +488,6 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		addGradients9I(model2DataGrad.getTranspose(), input.d_vertexPosGrad, faceVerticesIds);
 
 		//////////////////////////////////////////////////////////////////////////////////
-
 
 		if (input.shadingMode == ShadingMode::Shaded)
 		{
