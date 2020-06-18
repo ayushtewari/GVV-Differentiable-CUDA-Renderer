@@ -155,6 +155,9 @@ CUDABasedRasterization::CUDABasedRasterization(
 	cutilSafeCall(cudaMalloc(&input.d_faceNormal,			sizeof(float3) *	input.F * input.numberOfCameras));
 
 	cutilSafeCall(cudaMalloc(&input.d_depthBuffer, sizeof(int) * input.numberOfCameras * input.h * input.w ));
+
+	textureMapFaceIdSet = false;
+	texCoords = textureCoordinates;
 }
 
 //==============================================================================================//
@@ -207,7 +210,133 @@ void CUDABasedRasterization::getVertexFaces(int numberOfVertices, std::vector<in
 
 //==============================================================================================//
 
+bool rayTriangleIntersectHost(float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
+{
+	//just to make it numerically more stable
+	v0 = v0 / 1000.f;
+	v1 = v1 / 1000.f;
+	v2 = v2 / 1000.f;
+	orig = orig / 1000.f;
+
+	// compute plane's normal
+	float3  v0v1 = v1 - v0;
+	float3  v0v2 = v2 - v0;
+
+	// no need to normalize
+	float3  N = cross(v0v1, v0v2); // N 
+
+								   /////////////////////////////
+								   // Step 1: finding P
+								   /////////////////////////////
+
+								   // check if ray and plane are parallel ?
+	float NdotRayDirection = dot(dir, N);
+	if (fabs(NdotRayDirection) < 0.0000001f) // almost 0 
+	{
+		return false; // they are parallel so they don't intersect ! 
+	}
+	// compute d parameter using equation 2
+	float d = dot(N, v0);
+
+	// compute t (equation 3)
+	t = (dot(v0, N) - dot(orig, N)) / NdotRayDirection;
+	// check if the triangle is in behind the ray
+	if (t < 0)
+	{
+		return false; // the triangle is behind 
+	}
+	// compute the intersection point using equation 1
+	float3 P = orig + t * dir;
+
+	/////////////////////////////
+	// Step 2: inside-outside test
+	/////////////////////////////
+
+	float3 C; // vector perpendicular to triangle's plane 
+
+			  // edge 0
+	float3 edge0 = v1 - v0;
+	float3 vp0 = P - v0;
+	C = cross(edge0, vp0);
+	if (dot(N, C) < 0)
+	{
+		return false;
+	}
+	// edge 1
+	float3 edge1 = v2 - v1;
+	float3 vp1 = P - v1;
+	C = cross(edge1, vp1);
+	if ((a = dot(N, C)) < 0)
+	{
+		return false;
+	}
+	// edge 2
+	float3 edge2 = v0 - v2;
+	float3 vp2 = P - v2;
+	C = cross(edge2, vp2);
+
+	if ((b = dot(N, C)) < 0)
+	{
+		return false;
+	}
+
+	float denom = dot(N, N);
+	a /= denom;
+	b /= denom;
+
+	return true; // this ray hits the triangle 
+}
+
+//==============================================================================================//
+
 void CUDABasedRasterization::renderBuffers()
 {
+	//init the texture map face ids 
+	if (!textureMapFaceIdSet)
+	{
+		//texture map ids 
+		float4* h_textureMapFaceIds = new float4[input.texHeight * input.texWidth];
+		cutilSafeCall(cudaMalloc(&input.d_textureMapIds, sizeof(float4) *	input.texHeight * input.texWidth));
+
+		for (int x = 0; x < input.texWidth; x++)
+		{
+			for (int y = 0; y < input.texHeight; y++)
+			{
+				//init pixel
+				h_textureMapFaceIds[y * input.texWidth + x] = make_float4(0, 0, 0, 0);
+
+				//pixel ray
+				float3 d = make_float3(0.f, 0.f, -1.f);
+				float3 o = make_float3(x + 0.5f, y + 0.5f, 1.f);
+
+				//check if it is inside a triangle
+				for (int f = 0; f < input.F; f++)
+				{
+					float3 texCoord0 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 0 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 0 * 2 + 1]), 0.f);
+					float3 texCoord1 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 1 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 1 * 2 + 1]), 0.f);
+					float3 texCoord2 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 2 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 2 * 2 + 1]), 0.f);
+					
+					float a, b,c, t;
+
+					bool intersect = rayTriangleIntersectHost(o, d, texCoord0, texCoord1, texCoord2, t, a, b);
+
+					if (!intersect)
+						a = b = c = -1.f;
+					else
+						c = 1.f - a - b;
+
+					if (a != -1.f && b != -1.f && c != -1.f)
+					{	
+						std::cout << "Pixel: " << x << " | " << y << " : " << f << " " << std::to_string(a) << " " << std::to_string(b) << " " << std::to_string(c) << std::endl;
+						h_textureMapFaceIds[y * input.texWidth + x] = make_float4(f, a, b, c);
+					}
+				}
+			}
+		}
+
+		cutilSafeCall(cudaMemcpy(input.d_textureMapIds, h_textureMapFaceIds, sizeof(float4) *	input.texHeight * input.texWidth, cudaMemcpyHostToDevice));
+		textureMapFaceIdSet = true;
+	}
+
 	renderBuffersGPU(input);
 }

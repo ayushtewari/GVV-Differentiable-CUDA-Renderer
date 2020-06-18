@@ -90,6 +90,7 @@ class CUDABasedRasterization
 		inline void							set_D_renderBuffer(float* newRenderBuffer)						{ input.d_renderBuffer = newRenderBuffer; };
 
 		inline void							set_D_vertexNormal(float3* d_inputvertexNormal)					{ input.d_vertexNormal= d_inputvertexNormal; };
+		inline void							set_D_normalMap(float3* d_inputNormalMap)						{ input.d_normalMap = d_inputNormalMap; };
 
 
 	//variables
@@ -98,6 +99,8 @@ class CUDABasedRasterization
 
 		//device memory
 		CUDABasedRasterizationInput input;
+		bool textureMapFaceIdSet;
+		std::vector<float> texCoords;
 };
 
 //==============================================================================================//

@@ -353,6 +353,45 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 
 //==============================================================================================//
 
+/*
+Render the normal map buffers
+*/
+__global__ void renderNormalMapDevice(CUDABasedRasterizationInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < input.texHeight * input.texWidth)
+	{
+		int2 index = index1DTo2D(input.texHeight, input.texWidth, idx);
+		int pixV = index.x;
+		int pixU = index.y;
+
+		float4 pixInfo = input.d_textureMapIds[pixV * input.texWidth + pixU];
+		int idf = pixInfo.x;
+		float3 abc = make_float3(pixInfo.y, pixInfo.z, pixInfo.w);
+
+		int indexv0 = input.d_facesVertex[idf].x;
+		int indexv1 = input.d_facesVertex[idf].y;
+		int indexv2 = input.d_facesVertex[idf].z;
+
+		//get pix normal
+		float3 v0_norm = input.d_vertexNormal[indexv0];
+		float3 v1_norm = input.d_vertexNormal[indexv1];
+		float3 v2_norm = input.d_vertexNormal[indexv2];
+		float3 pixNorm = v0_norm * abc.x + v1_norm * abc.y + v2_norm * abc.z;
+
+		if (length(pixNorm) != 0.f)
+			pixNorm = pixNorm / length(pixNorm);
+
+		pixNorm = (pixNorm + make_float3(1.f, 1.f, 1.f)) / 2.f;
+		input.d_normalMap[pixV * input.texWidth + pixU] = pixNorm;
+
+
+	}
+}
+
+//==============================================================================================//
+
 extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input)
 {
 	initializeDevice			<< <(input.w*input.h*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
@@ -368,4 +407,6 @@ extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input)
 	renderDepthBufferDevice		<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 
 	renderBuffersDevice			<< <(input.F*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
+
+	renderNormalMapDevice		<< <(input.texWidth*input.texHeight + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);
 }

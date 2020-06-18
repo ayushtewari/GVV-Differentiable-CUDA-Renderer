@@ -1,0 +1,1212 @@
+/HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:7: warning: "CLOCKS_PER_SEC" redefined
+ #define CLOCKS_PER_SEC ((clock_t)1000)
+ 
+In file included from /usr/include/time.h:33,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:8,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/x86_64-linux-gnu/bits/time.h:34: note: this is the location of the previous definition
+ #define CLOCKS_PER_SEC  ((__clock_t) 1000000)
+ 
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterization.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cpp:3:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/src/Renderer/CUDABasedRasterizationGrad.cu(85): warning: variable "pullingDim" was set but never used
+
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:76: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                            ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:65: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                 ^
+/usr/lib/cuda-10.1/bin/../targets/x86_64-linux/include/cuda.h:3034:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterization.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRenderer.cpp:1:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:101:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:117:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘int cutilDrvGetMaxGflopsGraphicsDeviceId()’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:160:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:185:84: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+   cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, current_device ) );
+                                                                                    ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h: In function ‘bool cutilDrvCudaDevCapabilities(int, int, int)’:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:21,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:350:74: warning: ‘CUresult cuDeviceComputeCapability(int*, int*, CUdevice)’ is deprecated [-Wdeprecated-declarations]
+     cutilDrvSafeCallNoSync( cuDeviceComputeCapability(&major, &minor, dev));
+                                                                          ^
+/HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline_drvapi.h:24:62: note: in definition of macro ‘cutilDrvSafeCallNoSync’
+ #define cutilDrvSafeCallNoSync(err)     __cuSafeCallNoSync  (err, __FILE__, __LINE__)
+                                                              ^~~
+In file included from /HPS/RTMPC/work/CudaRenderer/cpp/cmakeTF2Linux/../thirdParty/Shared/cutil/inc/cutil_inline.h:15,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cudaUtil.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/float2x2.h:7,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/../Utils/cuda_SimpleMatrixUtil.h:19,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGradInput.h:17,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/../../Renderer/CUDABasedRasterizationGrad.h:10,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.h:32,
+                 from /HPS/RTMPC/work/CudaRenderer/cpp/src/TensorflowOperators/CudaRenderer/CudaRendererGrad.cpp:2:
+/usr/include/cuda.h:2531:36: note: declared here
+ __CUDA_DEPRECATED CUresult CUDAAPI cuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~

@@ -114,6 +114,11 @@ class CudaRendererGpu:
 
     ########################################################################################################################
 
+    def getNormalMap(self):
+        return self.cudaRendererOperator[5]
+
+    ########################################################################################################################
+
     def getModelMaskTF(self):
         shape = tf.shape(self.cudaRendererOperator[1])
         mask = tf.greater_equal(self.cudaRendererOperator[1], 0)
@@ -141,12 +146,17 @@ class CudaRendererGpu:
 
     ########################################################################################################################
 
+    def getNormalMapOpenCV(self, batchId):
+        return  cv.cvtColor(self.cudaRendererOperator[5][batchId].numpy(), cv.COLOR_RGB2BGR)
+
+    ########################################################################################################################
+
 ########################################################################################################################
 # Register gradients
 ########################################################################################################################
 
 @ops.RegisterGradient("CudaRendererGpu")
-def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm, gradTarget):
+def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm, gradTarget, gradNormalMap):
 
     albedoMode = op.get_attr('albedo_mode').decode("utf-8")
 

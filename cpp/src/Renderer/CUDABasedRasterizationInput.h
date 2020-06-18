@@ -14,6 +14,7 @@
 //==============================================================================================//
 
 #include <cuda_runtime.h> 
+#include "../Utils/cuda_SimpleMatrixUtil.h"
 
 //==============================================================================================//
 
@@ -57,6 +58,7 @@ struct CUDABasedRasterizationInput
 
 	//texture 
 	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR
+	float4*				d_textureMapIds;						//per pixel face and barycentric coords								//INIT IN CONSTRUCTOR
 
 	//////////////////////////
 	//STATES 
@@ -94,5 +96,7 @@ struct CUDABasedRasterizationInput
 	float*				d_barycentricCoordinatesBuffer;			//barycentric coordinates per pixel per view
 	float*				d_renderBuffer;							//buffer for the final image
 
-	float3*				d_vertexNormal;							//vertex normals				
+	float3*				d_vertexNormal;							//vertex normals			
+	float3*				d_normalMap;							//normals in normal map space
 };
+

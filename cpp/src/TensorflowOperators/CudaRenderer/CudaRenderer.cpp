@@ -16,6 +16,7 @@ REGISTER_OP("CudaRendererGpu")
 
 .Output("vertex_normal: float")
 .Output("target_image_out: float")
+.Output("normal_map: float")
 
 .Attr("faces: list(int)")
 .Attr("texture_coordinates: list(float)")
@@ -229,6 +230,14 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	vertexNormalDim.push_back(3);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexNormalDimSize(vertexNormalDim);
 
+
+	std::vector<tensorflow::int64> vertexNormalSingleDim;
+	vertexNormalSingleDim.push_back(numberOfBatches);
+	vertexNormalSingleDim.push_back(textureResolutionV);
+	vertexNormalSingleDim.push_back(textureResolutionU);
+	vertexNormalSingleDim.push_back(3);
+	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexNormalSingleDimSize(vertexNormalSingleDim);
+
 	//[0]
 	//barycentric
 	tensorflow::Tensor* outputTensorBarycentric;
@@ -264,6 +273,13 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorTargetFlat = outputTensorTarget->flat<float>();
 	d_outputTargetImage = outputTensorTargetFlat.data();
 	cutilSafeCall(cudaMemcpy(d_outputTargetImage, d_inputTargetImage, sizeof(float) * numberOfBatches * numberOfCameras * renderResolutionV * renderResolutionU * 3, cudaMemcpyDeviceToDevice));
+
+	//[5]
+	//target
+	tensorflow::Tensor* outputTensorNormalMap;
+	OP_REQUIRES_OK(context, context->allocate_output(5, tensorflow::TensorShape(vertexNormalSingleDimSize), &outputTensorNormalMap));
+	Eigen::TensorMap<Eigen::Tensor<float, 1, 1, Eigen::DenseIndex>, 16> outputTensorNormalMapFlat = outputTensorNormalMap->flat<float>();
+	d_outputNormalMap = outputTensorNormalMapFlat.data();
 }
 
 //==============================================================================================//
@@ -293,6 +309,7 @@ void CudaRenderer::Compute(OpKernelContext* context)
 			cudaBasedRasterization->set_D_renderBuffer(					d_outputRenderBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
 
 			cudaBasedRasterization->set_D_vertexNormal(		(float3*)	d_outputVertexNormal					+ b * numberOfCameras * numberOfPoints );
+			cudaBasedRasterization->set_D_normalMap(		(float3*)	d_outputNormalMap						+ b * textureResolutionU * textureResolutionV);
 
 			//render
 			cudaBasedRasterization->renderBuffers();

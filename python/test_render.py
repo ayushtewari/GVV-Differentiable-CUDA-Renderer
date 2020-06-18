@@ -19,9 +19,9 @@ freeGPU = CheckGPU.get_free_gpu()
 # CudaRendererGpu class
 ########################################################################################################################
 
-numberOfBatches = 2
-renderResolutionU = 1024
-renderResolutionV = 1024
+numberOfBatches     = 2
+renderResolutionU   = 1024
+renderResolutionV   = 1024
 
 cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
 objreader = OBJReader.OBJReader('data/magdalena.obj')
@@ -49,10 +49,10 @@ inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfC
 
 if freeGPU:
 
-    VertexPosConst = tf.constant(inputVertexPositions, dtype=tf.float32)
-    VertexColorConst = tf.constant(inputVertexColors, dtype=tf.float32)
-    VertexTextureConst = tf.constant(inputTexture, dtype=tf.float32)
-    SHCConst = tf.constant(inputSHCoeff, dtype=tf.float32)
+    VertexPosConst      = tf.constant(inputVertexPositions, dtype=tf.float32)
+    VertexColorConst    = tf.constant(inputVertexColors, dtype=tf.float32)
+    VertexTextureConst  = tf.constant(inputTexture, dtype=tf.float32)
+    SHCConst            = tf.constant(inputSHCoeff, dtype=tf.float32)
 
     renderer = CudaRenderer.CudaRendererGpu(
                                             faces_attr                  = objreader.facesVertexId,
@@ -62,9 +62,10 @@ if freeGPU:
                                             intrinsics_attr             = cameraReader.intrinsics,
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
-                                            albedoMode_attr             = 'normal',
+                                            albedoMode_attr             = 'textured',
                                             shadingMode_attr            = 'shaded',
                                             image_filter_size_attr      = 1,
+                                            texture_filter_size_attr    = 1,
                                             vertexPos_input             = VertexPosConst,
                                             vertexColor_input           = VertexColorConst,
                                             texture_input               = VertexTextureConst,
@@ -73,7 +74,8 @@ if freeGPU:
 
                                             nodeName                    = 'test')
 
+    print('here')
     # output images
-    outputCV = renderer.getRenderBufferOpenCV(1, 0)
+    outputCV = renderer.getNormalMapOpenCV(1)
     cv.imshow('output', outputCV)
     cv.waitKey(-1)

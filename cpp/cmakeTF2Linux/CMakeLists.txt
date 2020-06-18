@@ -7,12 +7,15 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED
 
-#SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
-SET (CUDA_PATH    /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/bin/nvcc)
-SET (CUDA_INCLUDE /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/include)
-#SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf201/lib/python3.5/site-packages/tensorflow_core)
-SET (TENSORFLOW_PATH /u/mhaberma/.local/lib/python3.7/site-packages/tensorflow_core)
+SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
+SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf201/lib/python3.5/site-packages/tensorflow_core)
+SET (BINARY_DIR /HPS/RTMPC/work/CudaRenderer/cpp/binaries/Linux/ReleaseTF2GCC8)
 
+# GARCHING
+#SET (CUDA_PATH    /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/bin/nvcc)
+#SET (CUDA_INCLUDE /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/include)
+#SET (TENSORFLOW_PATH /u/mhaberma/.local/lib/python3.7/site-packages/tensorflow_core)
+#SET (BINARY_DIR  /u/mhaberma/RTMPC/work/CudaRenderer/cpp/binaries/Linux/Release)
 
 SET (TFVERSION "2.1.0")
 
@@ -96,9 +99,9 @@ MESSAGE("++++ Set output lib properties")
 
 ADD_DEFINITIONS(-DGOOGLE_CUDA -D_USE_MATH_DEFINES)
 
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${projectDir}/binaries/Linux/Release")
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BINARY_DIR})
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BINARY_DIR})
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR})
 
 IF (TFVERSION EQUAL  "2.0.0-beta0" OR TFVERSION EQUAL  "2.1.0" )
 	MESSAGE("TF VERSION IS 2.0.0-beta0 or 2.1.0  --> SET -D_GLIBCXX_USE_CXX11_ABI=0")
