@@ -32,25 +32,26 @@ class CudaRendererGpu:
     ########################################################################################################################
 
     def __init__(self,
-                 faces_attr,
-                 texCoords_attr,
-                 numberOfVertices_attr,
-                 extrinsics_attr,
-                 intrinsics_attr,
-                 renderResolutionU_attr,
-                 renderResolutionV_attr,
-                 albedoMode_attr,
-                 shadingMode_attr,
-                 image_filter_size_attr,
-                 texture_filter_size_attr,
+                 faces_attr                 = [],
+                 texCoords_attr             = [],
+                 numberOfVertices_attr      = -1,
+                 extrinsics_attr            = [],
+                 intrinsics_attr            = [],
+                 renderResolutionU_attr     = -1,
+                 renderResolutionV_attr     = -1,
+                 albedoMode_attr            = 'textured',
+                 shadingMode_attr           = 'shaded',
+                 image_filter_size_attr     = 1,
+                 texture_filter_size_attr   = 1,
+                 compute_normal_map_attr    = False,
 
-                 vertexPos_input ,
-                 vertexColor_input,
-                 texture_input,
-                 shCoeff_input,
-                 targetImage_input,
+                 vertexPos_input            = None,
+                 vertexColor_input          = None,
+                 texture_input              = None,
+                 shCoeff_input              = None,
+                 targetImage_input          = None,
 
-                 nodeName=''):
+                 nodeName                   = 'CudaRenderer'):
 
         self.faces_attr                 = faces_attr
         self.texCoords_attr             = texCoords_attr
@@ -63,6 +64,7 @@ class CudaRendererGpu:
         self.shadingMode_attr           = shadingMode_attr
         self.image_filter_size_attr     = image_filter_size_attr
         self.texture_filter_size_attr   = texture_filter_size_attr
+        self.compute_normal_map_attr    = compute_normal_map_attr
 
         self.vertexPos_input            = vertexPos_input
         self.vertexColor_input          = vertexColor_input
@@ -83,6 +85,7 @@ class CudaRendererGpu:
                                                                         shading_mode            = self.shadingMode_attr,
                                                                         image_filter_size       = self.image_filter_size_attr,
                                                                         texture_filter_size     = self.texture_filter_size_attr,
+                                                                        compute_normal_map      = self.compute_normal_map_attr,
 
                                                                         vertex_pos              = self.vertexPos_input,
                                                                         vertex_color            = self.vertexColor_input,
@@ -115,7 +118,13 @@ class CudaRendererGpu:
     ########################################################################################################################
 
     def getNormalMap(self):
-        return self.cudaRendererOperator[5]
+        if self.compute_normal_map_attr:
+            normalMap = self.cudaRendererOperator[5]
+            normalMap = tf.reshape(normalMap, tf.shape(self.texture_input))
+            return normalMap
+        else:
+            tf.print('Requesting normal map but computation was not enabled!')
+            return None
 
     ########################################################################################################################
 

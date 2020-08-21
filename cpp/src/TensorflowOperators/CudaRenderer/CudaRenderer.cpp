@@ -28,7 +28,8 @@ REGISTER_OP("CudaRendererGpu")
 .Attr("albedo_mode: string")
 .Attr("shading_mode: string")
 .Attr("image_filter_size: int = 2")
-.Attr("texture_filter_size: int = 2");
+.Attr("texture_filter_size: int = 2")
+.Attr("compute_normal_map: bool = false");
 
 //==============================================================================================//
 
@@ -62,7 +63,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	OP_REQUIRES(context, renderResolutionV > 0, errors::InvalidArgument("render_resolution_v not set!", renderResolutionV));
 
 	OP_REQUIRES_OK(context, context->GetAttr("albedo_mode", &albedoMode));
-	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "normal"  && albedoMode != "foregroundMask")
+	if (albedoMode != "vertexColor" && albedoMode != "textured" && albedoMode != "normal"  && albedoMode != "foregroundMask" && albedoMode != "lighting")
 	{
 		std::cout << "INVALID ALBEDO MODE" << std::endl;
 		return;
@@ -79,6 +80,9 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 		std::cout << "Automatically chose shading mode: shadeless" << std::endl;
 		shadingMode = "shadeless";
 	}
+
+	bool computeNormal;
+	OP_REQUIRES_OK(context, context->GetAttr("compute_normal_map", &computeNormal));
 
 	//---CONSOLE OUTPUT---
 
@@ -116,6 +120,8 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 		std::cout << "Foreground mask mode: automatically choose shadeless" << std::endl;
 	}
 
+	std::cout << "Compute Normal : " << computeNormal << std::endl;
+	
 	/////////////////////////////////////////
 	/////////////////////////////////////////
 
@@ -151,7 +157,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 	std::cout << std::endl;
 
-	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode);
+	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode, computeNormal);
 }
 
 //==============================================================================================//

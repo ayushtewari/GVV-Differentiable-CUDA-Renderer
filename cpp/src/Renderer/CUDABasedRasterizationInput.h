@@ -58,7 +58,11 @@ struct CUDABasedRasterizationInput
 
 	//texture 
 	float*				d_textureCoordinates;																						//INIT IN CONSTRUCTOR
-	float4*				d_textureMapIds;						//per pixel face and barycentric coords								//INIT IN CONSTRUCTOR
+	float4*				d_textureMapIds;						//per pixel face and barycentric coords								//INIT IN FIRST RUN OF FORWARD PASS
+
+	//computation
+	bool				computeNormal;							//flag whether the normal map or the rendered image is comp			//INIT IN CONSTRUCTOR
+
 
 	//////////////////////////
 	//STATES 

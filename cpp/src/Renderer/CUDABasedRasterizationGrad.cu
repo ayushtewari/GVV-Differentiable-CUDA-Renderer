@@ -78,69 +78,69 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		int idw = index.z;
 		int idf = input.d_faceIDBuffer[idx];
 
-		int T = 20;
+		//int T = 20;
 
 		bool outsideModel = false;
-		int closestX = 100000;
-		int pullingDim = -1;
-		if (idf == -1)
-		{
-			//search for closest face in x 
-			for (int x = 1; x < T; x++)
-			{
-				//right
-				int sampleX = min(idw + x, input.w - 1);
-				int idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, idh, sampleX)];
-				if (idfSample != -1)
-				{
-					closestX = x;
-					idf = idfSample;
-					pullingDim = 0;
-					break;
-				}
+		//int closestX = 100000;
+		//int pullingDim = -1;
+		//if (idf == -1)
+		//{
+		//	//search for closest face in x 
+		//	for (int x = 1; x < T; x++)
+		//	{
+		//		//right
+		//		int sampleX = min(idw + x, input.w - 1);
+		//		int idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, idh, sampleX)];
+		//		if (idfSample != -1)
+		//		{
+		//			closestX = x;
+		//			idf = idfSample;
+		//			pullingDim = 0;
+		//			break;
+		//		}
 
-				//left
-				sampleX = max(idw - x, 0);
-				idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, idh, sampleX)];
-				if (idfSample != -1)
-				{
-					closestX = x;
-					idf = idfSample;
-					pullingDim = 0;
-					break;
-				}
-			}
+		//		//left
+		//		sampleX = max(idw - x, 0);
+		//		idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, idh, sampleX)];
+		//		if (idfSample != -1)
+		//		{
+		//			closestX = x;
+		//			idf = idfSample;
+		//			pullingDim = 0;
+		//			break;
+		//		}
+		//	}
 
-			//search for closest face in y
-			for (int y = 1; y < T; y++)
-			{
-				//down
-				int sampleY = min(idh + y, input.h - 1);
-				int idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, sampleY, idw)];
-				if (idfSample != -1 && y < closestX)
-				{
-					closestX = y;
-					idf = idfSample;
-					pullingDim = 1;
-					break;
-				}
+		//	//search for closest face in y
+		//	for (int y = 1; y < T; y++)
+		//	{
+		//		//down
+		//		int sampleY = min(idh + y, input.h - 1);
+		//		int idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, sampleY, idw)];
+		//		if (idfSample != -1 && y < closestX)
+		//		{
+		//			closestX = y;
+		//			idf = idfSample;
+		//			pullingDim = 1;
+		//			break;
+		//		}
 
-				//up
-				sampleY = max(idh - y, 0);
-				idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, sampleY, idw)];
-				if (idfSample != -1 && y < closestX)
-				{
-					closestX = y;
-					idf = idfSample;
-					pullingDim = 1;
-					break;
-				}
-			}
-			outsideModel = true;//todo
-		}
+		//		//up
+		//		sampleY = max(idh - y, 0);
+		//		idfSample = input.d_faceIDBuffer[index3DTo1D(input.numberOfCameras, input.h, input.w, idc, sampleY, idw)];
+		//		if (idfSample != -1 && y < closestX)
+		//		{
+		//			closestX = y;
+		//			idf = idfSample;
+		//			pullingDim = 1;
+		//			break;
+		//		}
+		//	}
+		//	outsideModel = true;//todo
+		//}
 
 		//still no face found
-		if (idf == -1 || outsideModel) //todo
+		if (idf == -1)
 		{
 			return;
 		}
@@ -181,8 +181,12 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		float  pixNormVal	= sqrtf(pixNormUn.x*pixNormUn.x + pixNormUn.y*pixNormUn.y + pixNormUn.z*pixNormUn.z);
 		float3 pixNorm		= pixNormUn / pixNormVal;
 
+		bool flippedNormal = false;
 		if (dot(pixNorm, d) > 0.f)
+		{
 			pixNorm = -pixNorm;
+			flippedNormal = true;
+		}
 
 		if (input.albedoMode == AlbedoMode::ForegroundMask)
 		{
@@ -287,36 +291,42 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 			}
 			else if (input.albedoMode == AlbedoMode::Textured)
 			{
-				mat1x3 gradTexColor = GVCBVertexColor * JCoAl;
+				if (!flippedNormal)
+				{
+					mat1x3 gradTexColor = GVCBVertexColor * JCoAl;
 
-				float  LU = int(finalTexCoord.x - 0.5f) + 0.5f;
-				float  HU = int(finalTexCoord.x - 0.5f) + 1.5f;
+					float  LU = int(finalTexCoord.x - 0.5f) + 0.5f;
+					float  HU = int(finalTexCoord.x - 0.5f) + 1.5f;
 
-				float  LV = int(finalTexCoord.y - 0.5f) + 0.5f;
-				float  HV = int(finalTexCoord.y - 0.5f) + 1.5f;
+					float  LV = int(finalTexCoord.y - 0.5f) + 0.5f;
+					float  HV = int(finalTexCoord.y - 0.5f) + 1.5f;
 
-				float U0 = finalTexCoord.x;
-				float V0 = finalTexCoord.y;
+					float U0 = finalTexCoord.x;
+					float V0 = finalTexCoord.y;
 
-				float weightLULV = (V0 - LV) * (U0 - LU);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x, gradTexColor(0, 0) * weightLULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].y, gradTexColor(0, 1) * weightLULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].z, gradTexColor(0, 2) * weightLULV);
+					float weightLULV = (V0 - LV) * (U0 - LU);
 
-				float weightLUHV = (HV - V0) * (U0 - LU);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].x, gradTexColor(0, 0) * weightLUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].y, gradTexColor(0, 1) * weightLUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].z, gradTexColor(0, 2) * weightLUHV);
+					float weighting = fabs(dot(pixNorm, d));
 
-				float weightHULV = (V0 - LV) * (HU - U0);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].x, gradTexColor(0, 0) * weightHULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].y, gradTexColor(0, 1) * weightHULV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].z, gradTexColor(0, 2) * weightHULV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x, weighting * gradTexColor(0, 0) * weightLULV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].y, weighting * gradTexColor(0, 1) * weightLULV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].z, weighting * gradTexColor(0, 2) * weightLULV);
 
-				float weightHUHV = (HV - V0) * (HU - U0);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].x, gradTexColor(0, 0) * weightHUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].y, gradTexColor(0, 1) * weightHUHV);
-				atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].z, gradTexColor(0, 2) * weightHUHV);
+					float weightLUHV = (HV - V0) * (U0 - LU);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].x, weighting * gradTexColor(0, 0) * weightLUHV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].y, weighting * gradTexColor(0, 1) * weightLUHV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, LU)].z, weighting * gradTexColor(0, 2) * weightLUHV);
+
+					float weightHULV = (V0 - LV) * (HU - U0);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].x, weighting * gradTexColor(0, 0) * weightHULV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].y, weighting * gradTexColor(0, 1) * weightHULV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, HU)].z, weighting * gradTexColor(0, 2) * weightHULV);
+
+					float weightHUHV = (HV - V0) * (HU - U0);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].x, weighting * gradTexColor(0, 0) * weightHUHV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].y, weighting * gradTexColor(0, 1) * weightHUHV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].z, weighting * gradTexColor(0, 2) * weightHUHV);
+				}
 			}
 			else if (input.albedoMode == AlbedoMode::ForegroundMask)
 			{
@@ -395,7 +405,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		mat3x3 JLiNo;
 		getJLiNo(JLiNo, pixNorm, shCoeff);
 
-		mat3x3 JAlBc;
+		/*mat3x3 JAlBc;
 		if (input.albedoMode == AlbedoMode::VertexColor)
 		{
 			getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
@@ -407,7 +417,7 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		else if (input.albedoMode == AlbedoMode::ForegroundMask)
 		{
 			getJAlBc(JAlBc, vertexCol0, vertexCol1, vertexCol2);
-		}
+		}*/
 
 		mat3x3 JNoBc;
 		getJNoBc(JNoBc, vertexNor0, vertexNor1, vertexNor2);
@@ -416,35 +426,36 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 		dJBCDVerpos(JBcVp, o,d,vertexPos0, vertexPos1, vertexPos2);
 
 		mat1x9 gradVerPos;
-		
+		gradVerPos.setZero();
+
 		if (!outsideModel)
 		{
-			gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp  * 0.f;
+			gradVerPos = gradVerPos *0.f;//GVCBPosition * JCoAl * JAlBc * JBcVp  * 0.f;
 		}
 		else
 		{
-			float3 green = make_float3(0.f, 1.f, 0.f);
+			//float3 green = make_float3(0.f, 1.f, 0.f);
 
-			mat3x9 JInterpolation;
-			JInterpolation.setZero();
+			//mat3x9 JInterpolation;
+			//JInterpolation.setZero();
 
-			mat2x3 dProj;
-			getJProjection(dProj, fragmentPosition, input.d_cameraIntrinsics + 3 * idc, input.d_cameraExtrinsics + 3 * idc);
+			//mat2x3 dProj;
+			//getJProjection(dProj, fragmentPosition, input.d_cameraIntrinsics + 3 * idc, input.d_cameraExtrinsics + 3 * idc);
 
-			//dFrag 
-			mat3x9 dFrag;
-			dFrag.setZero();
-			dFrag(0, 0) = bcc.x;
-			dFrag(1, 1) = bcc.x;
-			dFrag(2, 2) = bcc.x;
+			////dFrag 
+			//mat3x9 dFrag;
+			//dFrag.setZero();
+			//dFrag(0, 0) = bcc.x;
+			//dFrag(1, 1) = bcc.x;
+			//dFrag(2, 2) = bcc.x;
 
-			dFrag(0, 3) = bcc.y;
-			dFrag(1, 4) = bcc.y;
-			dFrag(2, 5) = bcc.y;
+			//dFrag(0, 3) = bcc.y;
+			//dFrag(1, 4) = bcc.y;
+			//dFrag(2, 5) = bcc.y;
 
-			dFrag(0, 6) = bcc.z;
-			dFrag(1, 7) = bcc.z;
-			dFrag(2, 8) = bcc.z;
+			//dFrag(0, 6) = bcc.z;
+			//dFrag(1, 7) = bcc.z;
+			//dFrag(2, 8) = bcc.z;
 			
 			/*(1.f / (float)T) * (dProj * dFrag) * ;
 			gradVerPos = GVCBPosition * JCoAl * JAlBc * JBcVp  * 0.f;*/

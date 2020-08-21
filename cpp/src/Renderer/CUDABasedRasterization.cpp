@@ -17,7 +17,8 @@ CUDABasedRasterization::CUDABasedRasterization(
 	int frameResolutionU, 
 	int frameResolutionV, 
 	std::string albedoMode, 
-	std::string shadingMode)
+	std::string shadingMode,
+	bool computeNormal)
 {
 	//faces
 	if(faces.size() % 3 == 0)
@@ -156,6 +157,7 @@ CUDABasedRasterization::CUDABasedRasterization(
 
 	cutilSafeCall(cudaMalloc(&input.d_depthBuffer, sizeof(int) * input.numberOfCameras * input.h * input.w ));
 
+	input.computeNormal = computeNormal;
 	textureMapFaceIdSet = false;
 	texCoords = textureCoordinates;
 }
@@ -225,11 +227,11 @@ bool rayTriangleIntersectHost(float3 orig, float3 dir, float3 v0, float3 v1, flo
 	// no need to normalize
 	float3  N = cross(v0v1, v0v2); // N 
 
-								   /////////////////////////////
-								   // Step 1: finding P
-								   /////////////////////////////
+	/////////////////////////////
+	// Step 1: finding P
+	/////////////////////////////
 
-								   // check if ray and plane are parallel ?
+	// check if ray and plane are parallel ?
 	float NdotRayDirection = dot(dir, N);
 	if (fabs(NdotRayDirection) < 0.0000001f) // almost 0 
 	{
@@ -292,31 +294,46 @@ bool rayTriangleIntersectHost(float3 orig, float3 dir, float3 v0, float3 v1, flo
 void CUDABasedRasterization::renderBuffers()
 {
 	//init the texture map face ids 
+	//this has to be done in the forward once since the texture size cannot be determined in the constructor
 	if (!textureMapFaceIdSet)
 	{
 		//texture map ids 
 		float4* h_textureMapFaceIds = new float4[input.texHeight * input.texWidth];
 		cutilSafeCall(cudaMalloc(&input.d_textureMapIds, sizeof(float4) *	input.texHeight * input.texWidth));
 
+		//init pixels
 		for (int x = 0; x < input.texWidth; x++)
 		{
 			for (int y = 0; y < input.texHeight; y++)
 			{
 				//init pixel
 				h_textureMapFaceIds[y * input.texWidth + x] = make_float4(0, 0, 0, 0);
+			}
+		}
 
-				//pixel ray
-				float3 d = make_float3(0.f, 0.f, -1.f);
-				float3 o = make_float3(x + 0.5f, y + 0.5f, 1.f);
+#pragma omp parallel for
+		//check if it is inside a triangle
+		for (int f = 0; f < input.F; f++)
+		{
+			float3 texCoord0 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 0 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 0 * 2 + 1]), 0.f);
+			float3 texCoord1 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 1 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 1 * 2 + 1]), 0.f);
+			float3 texCoord2 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 2 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 2 * 2 + 1]), 0.f);
 
-				//check if it is inside a triangle
-				for (int f = 0; f < input.F; f++)
+			int xMin = fmax(fmin(texCoord0.x, fmin(texCoord1.x, texCoord2.x)) - 2, 0);
+			int xMax = fmin(fmax(texCoord0.x, fmax(texCoord1.x, texCoord2.x)) + 2, input.texWidth);
+
+			int yMin = fmax(fmin(texCoord0.y, fmin(texCoord1.y, texCoord2.y)) - 2, 0);
+			int yMax = fmin(fmax(texCoord0.y, fmax(texCoord1.y, texCoord2.y)) + 2, input.texHeight);
+
+			for (int x = xMin; x < xMax; x++)
+			{
+				for (int y = yMin; y < yMax; y++)
 				{
-					float3 texCoord0 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 0 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 0 * 2 + 1]), 0.f);
-					float3 texCoord1 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 1 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 1 * 2 + 1]), 0.f);
-					float3 texCoord2 = make_float3(input.texWidth * texCoords[f * 3 * 2 + 2 * 2 + 0], input.texHeight * (1.f - texCoords[f * 3 * 2 + 2 * 2 + 1]), 0.f);
-					
-					float a, b,c, t;
+					//pixel ray
+					float3 d = make_float3(0.f, 0.f, -1.f);
+					float3 o = make_float3(x + 0.5f, y + 0.5f, 1.f);
+
+					float a, b, c, t;
 
 					bool intersect = rayTriangleIntersectHost(o, d, texCoord0, texCoord1, texCoord2, t, a, b);
 
@@ -327,7 +344,6 @@ void CUDABasedRasterization::renderBuffers()
 
 					if (a != -1.f && b != -1.f && c != -1.f)
 					{	
-						std::cout << "Pixel: " << x << " | " << y << " : " << f << " " << std::to_string(a) << " " << std::to_string(b) << " " << std::to_string(c) << std::endl;
 						h_textureMapFaceIds[y * input.texWidth + x] = make_float4(f, a, b, c);
 					}
 				}

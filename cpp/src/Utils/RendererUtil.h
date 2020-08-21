@@ -21,51 +21,6 @@
 //==============================================================================================//
 
 /*
-Takes albedo color, normal direction and shading coefficients and computes the shaded color
-*/
-inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoeffs)
-{
-	float3 dirSq = dir * dir;
-	float3 shadedColor;
-
-	shadedColor.x = shCoeffs[0];
-	shadedColor.x += shCoeffs[1] * dir.y;
-	shadedColor.x += shCoeffs[2] * dir.z;
-	shadedColor.x += shCoeffs[3] * dir.x;
-	shadedColor.x += shCoeffs[4] * (dir.x * dir.y);
-	shadedColor.x += shCoeffs[5] * (dir.z * dir.y);
-	shadedColor.x += shCoeffs[6] * (3 * dirSq.z - 1);
-	shadedColor.x += shCoeffs[7] * (dir.x * dir.z);
-	shadedColor.x += shCoeffs[8] * (dirSq.x - dirSq.y);
-	shadedColor.x = shadedColor.x * color.x;
-
-	shadedColor.y = shCoeffs[9 + 0];
-	shadedColor.y += shCoeffs[9 + 1] * dir.y;
-	shadedColor.y += shCoeffs[9 + 2] * dir.z;
-	shadedColor.y += shCoeffs[9 + 3] * dir.x;
-	shadedColor.y += shCoeffs[9 + 4] * (dir.x * dir.y);
-	shadedColor.y += shCoeffs[9 + 5] * (dir.z * dir.y);
-	shadedColor.y += shCoeffs[9 + 6] * (3 * dirSq.z - 1);
-	shadedColor.y += shCoeffs[9 + 7] * (dir.x * dir.z);
-	shadedColor.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
-	shadedColor.y = shadedColor.y * color.y;
-
-	shadedColor.z = shCoeffs[18 + 0];
-	shadedColor.z += shCoeffs[18 + 1] * dir.y;
-	shadedColor.z += shCoeffs[18 + 2] * dir.z;
-	shadedColor.z += shCoeffs[18 + 3] * dir.x;
-	shadedColor.z += shCoeffs[18 + 4] * (dir.x * dir.y);
-	shadedColor.z += shCoeffs[18 + 5] * (dir.z * dir.y);
-	shadedColor.z += shCoeffs[18 + 6] * (3 * dirSq.z - 1);
-	shadedColor.z += shCoeffs[18 + 7] * (dir.x * dir.z);
-	shadedColor.z += shCoeffs[18 + 8] * (dirSq.x - dirSq.y);
-	shadedColor.z = shadedColor.z * color.z;
-	return shadedColor;
-}
-
-//==============================================================================================//
-
-/*
 Computes the ray triangle intersection and returns the barycentric coordinates
 */
 inline __device__  bool rayTriangleIntersect(float3 orig, float3 dir, float3 v0, float3 v1, float3 v2, float &t, float &a, float &b)
@@ -175,6 +130,50 @@ inline __device__ float3 uv2barycentric(float u, float v, float3 v0, float3 v1, 
 //==============================================================================================//
 
 /*
+Takes albedo color, normal direction and shading coefficients and computes the shaded color
+*/
+inline __device__ float3 getShading(float3 color, float3 dir, const float *shCoeffs)
+{
+	float3 dirSq = dir * dir;
+	float3 shadedColor;
+
+	shadedColor.x  = shCoeffs[0];
+	shadedColor.x += shCoeffs[1] * dir.y;
+	shadedColor.x += shCoeffs[2] * dir.z;
+	shadedColor.x += shCoeffs[3] * dir.x;
+	shadedColor.x += shCoeffs[4] * (dir.x * dir.y);
+	shadedColor.x += shCoeffs[5] * (dir.z * dir.y);
+	shadedColor.x += shCoeffs[6] * (3.f * dirSq.z - 1.f);
+	shadedColor.x += shCoeffs[7] * (dir.x * dir.z);
+	shadedColor.x += shCoeffs[8] * (dirSq.x - dirSq.y);
+	shadedColor.x = shadedColor.x * color.x;
+
+	shadedColor.y  = shCoeffs[9 + 0];
+	shadedColor.y += shCoeffs[9 + 1] * dir.y;
+	shadedColor.y += shCoeffs[9 + 2] * dir.z;
+	shadedColor.y += shCoeffs[9 + 3] * dir.x;
+	shadedColor.y += shCoeffs[9 + 4] * (dir.x * dir.y);
+	shadedColor.y += shCoeffs[9 + 5] * (dir.z * dir.y);
+	shadedColor.y += shCoeffs[9 + 6] * (3.f * dirSq.z - 1.f);
+	shadedColor.y += shCoeffs[9 + 7] * (dir.x * dir.z);
+	shadedColor.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
+	shadedColor.y = shadedColor.y * color.y;
+
+	shadedColor.z  = shCoeffs[18 + 0];
+	shadedColor.z += shCoeffs[18 + 1] * dir.y;
+	shadedColor.z += shCoeffs[18 + 2] * dir.z;
+	shadedColor.z += shCoeffs[18 + 3] * dir.x;
+	shadedColor.z += shCoeffs[18 + 4] * (dir.x * dir.y);
+	shadedColor.z += shCoeffs[18 + 5] * (dir.z * dir.y);
+	shadedColor.z += shCoeffs[18 + 6] * (3.f * dirSq.z - 1.f);
+	shadedColor.z += shCoeffs[18 + 7] * (dir.x * dir.z);
+	shadedColor.z += shCoeffs[18 + 8] * (dirSq.x - dirSq.y);
+	shadedColor.z = shadedColor.z * color.z;
+	return shadedColor;
+}
+//==============================================================================================//
+
+/*
 Computes the illumination from the surface normal and the lighting coefficients
 */
 __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
@@ -182,33 +181,33 @@ __inline__ __device__ float3 getIllum(float3 dir, const float *shCoeffs)
 	float3 dirSq = dir * dir;
 	float3 light;
 
-	light.x = shCoeffs[0];
+	light.x  = shCoeffs[0];
 	light.x += shCoeffs[1] * dir.y;
 	light.x += shCoeffs[2] * dir.z;
 	light.x += shCoeffs[3] * dir.x;
 	light.x += shCoeffs[4] * (dir.x * dir.y);
 	light.x += shCoeffs[5] * (dir.z * dir.y);
-	light.x += shCoeffs[6] * (3 * dirSq.z - 1);
+	light.x += shCoeffs[6] * (3.f * dirSq.z - 1.f);
 	light.x += shCoeffs[7] * (dir.x * dir.z);
 	light.x += shCoeffs[8] * (dirSq.x - dirSq.y);
 
-	light.y = shCoeffs[9 + 0];
+	light.y  = shCoeffs[9 + 0];
 	light.y += shCoeffs[9 + 1] * dir.y;
 	light.y += shCoeffs[9 + 2] * dir.z;
 	light.y += shCoeffs[9 + 3] * dir.x;
 	light.y += shCoeffs[9 + 4] * (dir.x * dir.y);
 	light.y += shCoeffs[9 + 5] * (dir.z * dir.y);
-	light.y += shCoeffs[9 + 6] * (3 * dirSq.z - 1);
+	light.y += shCoeffs[9 + 6] * (3.f * dirSq.z - 1.f);
 	light.y += shCoeffs[9 + 7] * (dir.x * dir.z);
 	light.y += shCoeffs[9 + 8] * (dirSq.x - dirSq.y);
 
-	light.z = shCoeffs[18 + 0];
+	light.z  = shCoeffs[18 + 0];
 	light.z += shCoeffs[18 + 1] * dir.y;
 	light.z += shCoeffs[18 + 2] * dir.z;
 	light.z += shCoeffs[18 + 3] * dir.x;
 	light.z += shCoeffs[18 + 4] * (dir.x * dir.y);
 	light.z += shCoeffs[18 + 5] * (dir.z * dir.y);
-	light.z += shCoeffs[18 + 6] * (3 * dirSq.z - 1);
+	light.z += shCoeffs[18 + 6] * (3.f * dirSq.z - 1.f);
 	light.z += shCoeffs[18 + 7] * (dir.x * dir.z);
 	light.z += shCoeffs[18 + 8] * (dirSq.x - dirSq.y);
 	return light;
