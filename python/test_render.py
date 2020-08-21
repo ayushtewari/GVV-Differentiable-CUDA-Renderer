@@ -41,8 +41,8 @@ inputTexture = np.asarray(inputTexture)
 inputTexture = inputTexture.reshape([1, objreader.texHeight, objreader.texWidth, 3])
 inputTexture = np.tile(inputTexture, (numberOfBatches, 1, 1, 1))
 
-#inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
-inputSHCoeff = np.load('Z:/RTMPC2/work/DeepCap/Dataset/Magdalena/results/tensorboardLogDeepDynamicCharacters/2426x2468x2471x2784/snapshot_iter_75000/lighting.npy')
+inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
+#inputSHCoeff = np.load('Z:/RTMPC2/work/DeepCap/Dataset/Magdalena/results/tensorboardLogDeepDynamicCharacters/2426x2468x2471x2784/snapshot_iter_75000/lighting.npy')
 #inputSHCoeff = np.load('Z:/RTMPC2/work/DeepCap/Dataset/Magdalena/results/tensorboardLogDeepDynamicCharacters/2556x2766/snapshot_iter_119999/lighting.npy')
 
 ########################################################################################################################
@@ -60,11 +60,10 @@ if freeGPU:
                                             faces_attr                  = objreader.facesVertexId,
                                             texCoords_attr              = objreader.textureCoordinates,
                                             numberOfVertices_attr       = len(objreader.vertexCoordinates),
-                                            extrinsics_attr             = cameraReader.extrinsics,
-                                            intrinsics_attr             = cameraReader.intrinsics,
+                                            numberOfCameras_attr        = cameraReader.numberOfCameras,
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
-                                            albedoMode_attr             = 'lighting',
+                                            albedoMode_attr             = 'normal',
                                             shadingMode_attr            = 'shaded',
                                             image_filter_size_attr      = 1,
                                             texture_filter_size_attr    = 1,
@@ -74,13 +73,15 @@ if freeGPU:
                                             texture_input               = VertexTextureConst,
                                             shCoeff_input               = SHCConst,
                                             targetImage_input           = tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                            extrinsics_input            = [cameraReader.extrinsics,cameraReader.extrinsics],
+                                            intrinsics_input            = [cameraReader.intrinsics,cameraReader.intrinsics],
 
                                             nodeName                    = 'test')
 
 
     # output images
 
-    for c in range(0,14):
-        outputCV1 = renderer.getRenderBufferOpenCV(0,c)
+    for c in range(0,cameraReader.numberOfCameras):
+        outputCV1 = renderer.getRenderBufferOpenCV(1,c)
         cv.imshow('output' + str(c), outputCV1)
     cv.waitKey(-1)

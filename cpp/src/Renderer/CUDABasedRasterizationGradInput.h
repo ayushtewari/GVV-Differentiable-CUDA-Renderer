@@ -53,8 +53,6 @@ struct CUDABasedRasterizationGradInput
 	ShadingMode			shadingMode;							//which shading is used												//INIT IN CONSTRUCTOR
 	float4*				d_inverseExtrinsics;					//inverse camera extrinsics											//INIT IN CONSTRUCTOR
 	float4*				d_inverseProjection;					//inverse camera projection											//INIT IN CONSTRUCTOR
-	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
-	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR
 	int					imageFilterSize;						//filter size of the sobel operator									//INIT IN CONSTRUCTOR
 	int					textureFilterSize;						//filter size of texture for the sobel operator						//INIT IN CONSTRUCTOR
 		
@@ -75,7 +73,10 @@ struct CUDABasedRasterizationGradInput
 	const float*		d_targetImage;							//target image used for model to data gradient
 	
 	int					texWidth;								//dimension of texture																				
-	int					texHeight;								//dimension of texture																				
+	int					texHeight;								//dimension of texture		
+
+	float4*				d_cameraExtrinsics;						//camera extrinsics													
+	float3*				d_cameraIntrinsics;						//camera intrinsics													
 
 	//////////////////////////
 	//OUTPUT 

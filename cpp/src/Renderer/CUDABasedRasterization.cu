@@ -18,6 +18,57 @@
 //==============================================================================================//
 
 /*
+Initializes camera data
+*/
+__global__ void initializeCamerasDevice(CUDABasedRasterizationInput input)
+{
+	const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (idx < 1)
+	{
+		for (int idc = 0; idc < input.numberOfCameras; idc++)
+		{
+			float4x4 h_intrinsics;
+			float4x4 h_extrinsics;
+
+			h_extrinsics.setIdentity();
+			h_intrinsics.setIdentity();
+
+			for (int row = 0; row < 3; row++)
+			{
+				h_intrinsics(row, 0) = input.d_cameraIntrinsics[3 * idc + row].x;
+				h_intrinsics(row, 1) = input.d_cameraIntrinsics[3 * idc + row].y;
+				h_intrinsics(row, 2) = input.d_cameraIntrinsics[3 * idc + row].z;
+				h_intrinsics(row, 3) = 0.f;
+
+				h_extrinsics(row, 0) = input.d_cameraExtrinsics[3 * idc + row].x;
+				h_extrinsics(row, 1) = input.d_cameraExtrinsics[3 * idc + row].y;
+				h_extrinsics(row, 2) = input.d_cameraExtrinsics[3 * idc + row].z;
+				h_extrinsics(row, 3) = input.d_cameraExtrinsics[3 * idc + row].w;
+			}
+
+			float4x4 h_inExtrinsics = h_extrinsics.getInverse();
+			float4x4 h_invProjection = (h_intrinsics * h_extrinsics).getInverse();
+
+			for (int row = 0; row < 4; row++)
+			{
+				input.d_inverseExtrinsics[4 * idc + row].x = h_inExtrinsics(row, 0);
+				input.d_inverseExtrinsics[4 * idc + row].y = h_inExtrinsics(row, 1);
+				input.d_inverseExtrinsics[4 * idc + row].z = h_inExtrinsics(row, 2);
+				input.d_inverseExtrinsics[4 * idc + row].w = h_inExtrinsics(row, 3);
+
+				input.d_inverseProjection[4 * idc + row].x = h_invProjection(row, 0);
+				input.d_inverseProjection[4 * idc + row].y = h_invProjection(row, 1);
+				input.d_inverseProjection[4 * idc + row].z = h_invProjection(row, 2);
+				input.d_inverseProjection[4 * idc + row].w = h_invProjection(row, 3);
+			}
+		}
+	}
+}
+
+//==============================================================================================//
+
+/*
 Initializes all arrays
 */
 __global__ void initializeDevice(CUDABasedRasterizationInput input)
@@ -393,6 +444,8 @@ __global__ void renderNormalMapDevice(CUDABasedRasterizationInput input)
 
 extern "C" void renderBuffersGPU(CUDABasedRasterizationInput& input)
 {
+	initializeCamerasDevice		<< < 1, 1 >> > (input);
+
 	initializeDevice			<< <(input.w*input.h*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> > (input);
 
 	projectVerticesDevice		<< <(input.N*input.numberOfCameras + THREADS_PER_BLOCK_CUDABASEDRASTERIZER - 1) / THREADS_PER_BLOCK_CUDABASEDRASTERIZER, THREADS_PER_BLOCK_CUDABASEDRASTERIZER >> >(input);

@@ -44,8 +44,7 @@ struct CUDABasedRasterizationInput
 
 	//camera and frame
 	int					numberOfCameras;						//number of cameras													//INIT IN CONSTRUCTOR
-	float4*				d_cameraExtrinsics;						//camera extrinsics													//INIT IN CONSTRUCTOR
-	float3*				d_cameraIntrinsics;						//camera intrinsics													//INIT IN CONSTRUCTOR
+	
 	int					w;										//frame width														//INIT IN CONSTRUCTOR
 	int					h;										//frame height														//INIT IN CONSTRUCTOR
 
@@ -62,7 +61,6 @@ struct CUDABasedRasterizationInput
 
 	//computation
 	bool				computeNormal;							//flag whether the normal map or the rendered image is comp			//INIT IN CONSTRUCTOR
-
 
 	//////////////////////////
 	//STATES 
@@ -89,6 +87,9 @@ struct CUDABasedRasterizationInput
 	int					texHeight;								//dimension of texture
 	const float*		d_textureMap;							//texture map
 	const float*		d_shCoeff;								//shading coefficients
+
+	float4*				d_cameraExtrinsics;						//camera extrinsics												
+	float3*				d_cameraIntrinsics;						//camera intrinsics													
 
 	//////////////////////////
 	//OUTPUT 

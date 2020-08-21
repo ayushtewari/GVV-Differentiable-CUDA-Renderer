@@ -33,8 +33,7 @@ class CUDABasedRasterizationGrad
 		CUDABasedRasterizationGrad( std::vector<int>faces, 
 									std::vector<float>textureCoordinates, 
 									int numberOfVertices, 
-									std::vector<float>extrinsics, 
-									std::vector<float>intrinsics, 
+									int numberOfCameras,
 									int frameResolutionU,		
 									int frameResolutionV, 
 									std::string albedoMode, 
@@ -100,6 +99,9 @@ class CUDABasedRasterizationGrad
 		inline void							set_D_vertexColorGrad(float3* d_outputVertexColorGrad)					{ input.d_vertexColorGrad				= d_outputVertexColorGrad; };
 		inline void							set_D_textureGrad(float3* d_outputTexGrad)								{ input.d_textureGrad					= d_outputTexGrad; };
 		inline void							set_D_shCoeffGrad(float* d_outputSHCoeffGrad)							{ input.d_shCoeffGrad					= d_outputSHCoeffGrad; };
+
+		inline void							set_D_extrinsics(const float* d_inputExtrinsics)						{ input.d_cameraExtrinsics = (float4*)d_inputExtrinsics; };
+		inline void							set_D_intrinsics(const float* d_inputIntrinsics)						{ input.d_cameraIntrinsics = (float3*)d_inputIntrinsics; };
 
 		
 	//variables

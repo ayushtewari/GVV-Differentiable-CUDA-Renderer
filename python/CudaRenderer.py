@@ -35,8 +35,7 @@ class CudaRendererGpu:
                  faces_attr                 = [],
                  texCoords_attr             = [],
                  numberOfVertices_attr      = -1,
-                 extrinsics_attr            = [],
-                 intrinsics_attr            = [],
+                 numberOfCameras_attr       = -1,
                  renderResolutionU_attr     = -1,
                  renderResolutionV_attr     = -1,
                  albedoMode_attr            = 'textured',
@@ -50,14 +49,15 @@ class CudaRendererGpu:
                  texture_input              = None,
                  shCoeff_input              = None,
                  targetImage_input          = None,
+                 extrinsics_input           = [],
+                 intrinsics_input           = [],
 
                  nodeName                   = 'CudaRenderer'):
 
         self.faces_attr                 = faces_attr
         self.texCoords_attr             = texCoords_attr
         self.numberOfVertices_attr      = numberOfVertices_attr
-        self.extrinsics_attr            = extrinsics_attr
-        self.intrinsics_attr            = intrinsics_attr
+        self.numberOfCameras_attr       = numberOfCameras_attr
         self.renderResolutionU_attr     = renderResolutionU_attr
         self.renderResolutionV_attr     = renderResolutionV_attr
         self.albedoMode_attr            = albedoMode_attr
@@ -71,14 +71,15 @@ class CudaRendererGpu:
         self.texture_input              = texture_input
         self.shCoeff_input              = shCoeff_input
         self.targetImage_input          = targetImage_input
+        self.extrinsics_input           = extrinsics_input
+        self.intrinsics_input           = intrinsics_input
 
         self.nodeName                   = nodeName
 
         self.cudaRendererOperator = customOperators.cuda_renderer_gpu(  faces                   = self.faces_attr,
                                                                         texture_coordinates     = self.texCoords_attr,
                                                                         number_of_vertices      = self.numberOfVertices_attr,
-                                                                        extrinsics              = self.extrinsics_attr ,
-                                                                        intrinsics              = self.intrinsics_attr,
+                                                                        number_of_cameras       = self.numberOfCameras_attr,
                                                                         render_resolution_u     = self.renderResolutionU_attr,
                                                                         render_resolution_v     = self.renderResolutionV_attr,
                                                                         albedo_mode             = self.albedoMode_attr,
@@ -92,6 +93,8 @@ class CudaRendererGpu:
                                                                         texture                 = self.texture_input,
                                                                         sh_coeff                = self.shCoeff_input,
                                                                         target_image            = self.targetImage_input,
+                                                                        extrinsics              = self.extrinsics_input,
+                                                                        intrinsics              = self.intrinsics_input,
 
                                                                         name                    = self.nodeName)
 
@@ -181,17 +184,19 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm, 
             texture                     = op.inputs[2],
             sh_coeff                    = op.inputs[3],
             target_image                = op.inputs[4],
+            extrinsics                  = op.inputs[5],
+            intrinsics                  = op.inputs[6],
 
             barycentric_buffer          = op.outputs[0],
             face_buffer                 = op.outputs[1],
             vertex_normal               = op.outputs[3],
 
+
             # attr
             faces                       = op.get_attr('faces'),
             texture_coordinates         = op.get_attr('texture_coordinates'),
             number_of_vertices          = op.get_attr('number_of_vertices'),
-            extrinsics                  = op.get_attr('extrinsics'),
-            intrinsics                  = op.get_attr('intrinsics'),
+            number_of_cameras           = op.get_attr('number_of_cameras'),
             render_resolution_u         = op.get_attr('render_resolution_u'),
             render_resolution_v         = op.get_attr('render_resolution_v'),
             albedo_mode                 = op.get_attr('albedo_mode'),
@@ -207,7 +212,7 @@ def cuda_renderer_gpu_grad(op, gradBarycentric, gradFace, gradRender, gradNorm, 
             tf.zeros(tf.shape(op.inputs[3])),
         ]
 
-    return gradients[0], gradients[1], gradients[2], gradients[3],  tf.zeros(tf.shape(op.inputs[4])),
+    return gradients[0], gradients[1], gradients[2], gradients[3],  tf.zeros(tf.shape(op.inputs[4])), tf.zeros(tf.shape(op.inputs[5])), tf.zeros(tf.shape(op.inputs[6]))
 
 ########################################################################################################################
 #

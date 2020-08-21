@@ -76,6 +76,9 @@ class CudaRenderer : public OpKernel
 		const float* d_inputSHCoeff;
 		const float* d_inputTargetImage;
 
+		const float* d_inputExtrinsics;
+		const float* d_inputIntrinsics;
+
 		//GPU output
 		float*	d_outputBarycentricCoordinatesBuffer;
 		int*	d_outputFaceIDBuffer;

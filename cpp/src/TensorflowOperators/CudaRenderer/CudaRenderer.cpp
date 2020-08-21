@@ -9,6 +9,8 @@ REGISTER_OP("CudaRendererGpu")
 .Input("texture: float")
 .Input("sh_coeff: float")
 .Input("target_image: float")
+.Input("extrinsics: float")
+.Input("intrinsics: float")
 
 .Output("barycentric_buffer: float")
 .Output("face_buffer: int32")
@@ -21,8 +23,7 @@ REGISTER_OP("CudaRendererGpu")
 .Attr("faces: list(int)")
 .Attr("texture_coordinates: list(float)")
 .Attr("number_of_vertices: int")
-.Attr("extrinsics: list(float)")
-.Attr("intrinsics: list(float)")
+.Attr("number_of_cameras: int")
 .Attr("render_resolution_u: int = 512")
 .Attr("render_resolution_v: int = 512")
 .Attr("albedo_mode: string")
@@ -46,15 +47,8 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("number_of_vertices", &numberOfPoints));
 	OP_REQUIRES(context, numberOfPoints > 0, errors::InvalidArgument("number_of_vertices not set!", numberOfPoints));
 
-	std::vector<float> extrinsics;
-	OP_REQUIRES_OK(context, context->GetAttr("extrinsics", &extrinsics));
-	if (extrinsics.size() % 12 == 0)
-		numberOfCameras = extrinsics.size() / 12;
-	else
-		std::cout << "Camera extrinsics have wrong dimensionality!" << std::endl;
-
-	std::vector<float> intrinsics;
-	OP_REQUIRES_OK(context, context->GetAttr("intrinsics", &intrinsics));
+	OP_REQUIRES_OK(context, context->GetAttr("number_of_cameras", &numberOfCameras));
+	OP_REQUIRES(context, numberOfCameras > 0, errors::InvalidArgument("number_of_cameras not set!", numberOfCameras));
 
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_u", &renderResolutionU));
 	OP_REQUIRES(context, renderResolutionU > 0, errors::InvalidArgument("render_resolution_u not set!", renderResolutionU));
@@ -157,7 +151,7 @@ CudaRenderer::CudaRenderer(OpKernelConstruction* context)
 	std::cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << std::endl;
 	std::cout << std::endl;
 
-	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode, computeNormal);
+	cudaBasedRasterization = new CUDABasedRasterization(faces, textureCoordinates, numberOfPoints, numberOfCameras, renderResolutionU, renderResolutionV, albedoMode, shadingMode, computeNormal);
 }
 
 //==============================================================================================//
@@ -195,6 +189,18 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	const Tensor& inputTargetImage = context->input(4);
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTargetImageFlat = inputTargetImage.flat_inner_dims<float, 1>();
 	d_inputTargetImage = inputTargetImageFlat.data();
+
+	//[5]
+	//Grab the extrinsics
+	const Tensor& inputExtrinsicsTensor = context->input(5);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputExtrinsicsTensorFlat = inputExtrinsicsTensor.flat_inner_dims<float, 1>();
+	d_inputExtrinsics = inputExtrinsicsTensorFlat.data();
+
+	//[6]
+	//Grab the intrinsics
+	const Tensor& inputIntrinsicsTensor = context->input(6);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputIntrinsicsTensorFlat = inputIntrinsicsTensor.flat_inner_dims<float, 1>();
+	d_inputIntrinsics = inputIntrinsicsTensorFlat.data();
 
 	//---MISC---
 
@@ -235,7 +241,6 @@ void CudaRenderer::setupInputOutputTensorPointers(OpKernelContext* context)
 	vertexNormalDim.push_back(numberOfPoints);
 	vertexNormalDim.push_back(3);
 	tensorflow::gtl::ArraySlice<tensorflow::int64> vertexNormalDimSize(vertexNormalDim);
-
 
 	std::vector<tensorflow::int64> vertexNormalSingleDim;
 	vertexNormalSingleDim.push_back(numberOfBatches);
@@ -308,12 +313,13 @@ void CudaRenderer::Compute(OpKernelContext* context)
 			cudaBasedRasterization->set_D_vertexColors(		(float3*)	d_inputVertexColor						+ b * numberOfPoints );
 			cudaBasedRasterization->set_D_textureMap(					d_inputTexture							+ b * textureResolutionV * textureResolutionU * 3);
 			cudaBasedRasterization->set_D_shCoeff(						d_inputSHCoeff							+ b * numberOfCameras * 27);
+			cudaBasedRasterization->set_D_extrinsics(					d_inputExtrinsics						+ b * numberOfCameras * 12);
+			cudaBasedRasterization->set_D_intrinsics(					d_inputIntrinsics						+ b * numberOfCameras * 9);
 
 			//set output
 			cudaBasedRasterization->set_D_barycentricCoordinatesBuffer(	d_outputBarycentricCoordinatesBuffer	+ b * numberOfCameras * renderResolutionV * renderResolutionU * 2);
 			cudaBasedRasterization->set_D_faceIDBuffer(					d_outputFaceIDBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU);
 			cudaBasedRasterization->set_D_renderBuffer(					d_outputRenderBuffer					+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
-
 			cudaBasedRasterization->set_D_vertexNormal(		(float3*)	d_outputVertexNormal					+ b * numberOfCameras * numberOfPoints );
 			cudaBasedRasterization->set_D_normalMap(		(float3*)	d_outputNormalMap						+ b * textureResolutionU * textureResolutionV);
 

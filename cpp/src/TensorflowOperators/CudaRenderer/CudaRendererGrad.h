@@ -80,6 +80,9 @@ class CudaRendererGrad : public OpKernel
 		const float* d_inputTargetImage;
 		const float* d_inputTargetImageGrad;
 
+		const float* d_inputExtrinsics;
+		const float* d_inputIntrinsics;
+
 		//GPU output
 		float*	d_outputVertexPosGrad;
 		float*	d_outputVertexColorGrad;

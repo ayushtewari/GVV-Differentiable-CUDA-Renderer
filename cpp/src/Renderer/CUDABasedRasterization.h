@@ -32,9 +32,8 @@ class CUDABasedRasterization
 
 		CUDABasedRasterization(std::vector<int>faces, 
 			std::vector<float>textureCoordinates, 
-			int numberOfVertices, 
-			std::vector<float>extrinsics, 
-			std::vector<float>intrinsics, 
+			int numberOfVertices,
+			int numberOfCameras,
 			int frameResolutionU, 
 			int frameResolutionV, 
 			std::string albedoMode, 
@@ -101,6 +100,9 @@ class CUDABasedRasterization
 
 		inline void							set_D_vertexNormal(float3* d_inputvertexNormal)					{ input.d_vertexNormal= d_inputvertexNormal; };
 		inline void							set_D_normalMap(float3* d_inputNormalMap)						{ input.d_normalMap = d_inputNormalMap; };
+
+		inline void							set_D_extrinsics(const float* d_inputExtrinsics)				{ input.d_cameraExtrinsics = (float4*)d_inputExtrinsics; };
+		inline void							set_D_intrinsics(const float* d_inputIntrinsics)				{ input.d_cameraIntrinsics = (float3*)d_inputIntrinsics; };
 
 
 	//variables

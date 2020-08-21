@@ -19,6 +19,9 @@ REGISTER_OP("CudaRendererGradGpu")
 
 .Input("target_buffer_grad: float")
 
+.Input("extrinsics: float")
+.Input("intrinsics: float")
+
 .Output("vertex_pos_grad: float")
 .Output("vertex_color_grad: float")
 .Output("texture_grad: float")
@@ -27,8 +30,7 @@ REGISTER_OP("CudaRendererGradGpu")
 .Attr("faces: list(int)")
 .Attr("texture_coordinates: list(float)")
 .Attr("number_of_vertices: int")
-.Attr("extrinsics: list(float)")
-.Attr("intrinsics: list(float)")
+.Attr("number_of_cameras: int")
 .Attr("render_resolution_u: int = 512")
 .Attr("render_resolution_v: int = 512")
 .Attr("albedo_mode: string")
@@ -51,15 +53,8 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 	OP_REQUIRES_OK(context, context->GetAttr("number_of_vertices", &numberOfPoints));
 	OP_REQUIRES(context, numberOfPoints > 0, errors::InvalidArgument("number_of_vertices not set!", numberOfPoints));
 
-	std::vector<float> extrinsics;
-	OP_REQUIRES_OK(context, context->GetAttr("extrinsics", &extrinsics));
-	if (extrinsics.size() % 12 == 0)
-		numberOfCameras = extrinsics.size() / 12;
-	else
-		std::cout << "Camera extrinsics have wrong dimensionality!" << std::endl;
-
-	std::vector<float> intrinsics;
-	OP_REQUIRES_OK(context, context->GetAttr("intrinsics", &intrinsics));
+	OP_REQUIRES_OK(context, context->GetAttr("number_of_cameras", &numberOfCameras));
+	OP_REQUIRES(context, numberOfCameras > 0, errors::InvalidArgument("number_of_cameras not set!", numberOfCameras));
 
 	OP_REQUIRES_OK(context, context->GetAttr("render_resolution_u", &renderResolutionU));
 	OP_REQUIRES(context, renderResolutionU > 0, errors::InvalidArgument("render_resolution_u not set!", renderResolutionU));
@@ -102,7 +97,7 @@ CudaRendererGrad::CudaRendererGrad(OpKernelConstruction* context)
 		return;
 	}
 
-	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, extrinsics, intrinsics, renderResolutionU, renderResolutionV, albedoMode, shadingMode, imageFilterSize, textureFilterSize);
+	cudaBasedRasterizationGrad = new CUDABasedRasterizationGrad(faces, textureCoordinates, numberOfPoints, numberOfCameras, renderResolutionU, renderResolutionV, albedoMode, shadingMode, imageFilterSize, textureFilterSize);
 }
 
 //==============================================================================================//
@@ -183,6 +178,17 @@ void CudaRendererGrad::setupInputOutputTensorPointers(OpKernelContext* context)
 	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputTensorTargetGradFlat = inputTensorTargetGrad.flat_inner_dims<float, 1>();
 	d_inputTargetImageGrad = inputTensorTargetGradFlat.data();
 
+	//[10]
+	//Grab the extrinsics
+	const Tensor& inputExtrinsicsTensor = context->input(10);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputExtrinsicsTensorFlat = inputExtrinsicsTensor.flat_inner_dims<float, 1>();
+	d_inputExtrinsics = inputExtrinsicsTensorFlat.data();
+
+	//[11]
+	//Grab the intrinsics
+	const Tensor& inputIntrinsicsTensor = context->input(11);
+	Eigen::TensorMap<Eigen::Tensor< const float, 1, 1, Eigen::DenseIndex>, 16> inputIntrinsicsTensorFlat = inputIntrinsicsTensor.flat_inner_dims<float, 1>();
+	d_inputIntrinsics = inputIntrinsicsTensorFlat.data();
 
 	//---MISC---
 
@@ -267,6 +273,8 @@ void CudaRendererGrad::Compute(OpKernelContext* context)
 			
 			cudaBasedRasterizationGrad->set_D_faceIDBuffer(					(int*)				d_inputFaceBuffer						+ b * numberOfCameras * renderResolutionV * renderResolutionU);
 			cudaBasedRasterizationGrad->set_D_targetImage(										d_inputTargetImage						+ b * numberOfCameras * renderResolutionV * renderResolutionU * 3);
+			cudaBasedRasterizationGrad->set_D_extrinsics(										d_inputExtrinsics						+ b * numberOfCameras * 12);
+			cudaBasedRasterizationGrad->set_D_intrinsics(										d_inputIntrinsics						+ b * numberOfCameras * 9);
 			
 			//set output
 			cudaBasedRasterizationGrad->set_D_vertexPosGrad(				(float3*)			d_outputVertexPosGrad					+ b * numberOfPoints);

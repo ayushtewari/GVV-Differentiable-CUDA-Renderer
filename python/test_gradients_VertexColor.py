@@ -68,8 +68,7 @@ def test_color_gradient():
                                         faces_attr                   = objreader.facesVertexId,
                                         texCoords_attr               = objreader.textureCoordinates,
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
-                                        extrinsics_attr              = cameraReader.extrinsics ,
-                                        intrinsics_attr              = cameraReader.intrinsics,
+                                        numberOfCameras_attr         = cameraReader.numberOfCameras,
                                         renderResolutionU_attr       = renderResolutionU,
                                         renderResolutionV_attr       = renderResolutionV,
                                         albedoMode_attr              = 'vertexColor',
@@ -78,8 +77,12 @@ def test_color_gradient():
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
-                                        shCoeff_input                = SHCConst
-                                        )
+                                        shCoeff_input                = SHCConst,
+                                        targetImage_input            = tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                        extrinsics_input             = [cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                                        intrinsics_input             = [cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                                        nodeName                     = 'target'
+                                    )
 
     target = rendererTarget.getRenderBufferTF()
 
@@ -95,8 +98,7 @@ def test_color_gradient():
                 faces_attr=objreader.facesVertexId,
                 texCoords_attr=objreader.textureCoordinates,
                 numberOfVertices_attr=len(objreader.vertexCoordinates),
-                extrinsics_attr=cameraReader.extrinsics,
-                intrinsics_attr=cameraReader.intrinsics,
+                numberOfCameras_attr        = cameraReader.numberOfCameras,
                 renderResolutionU_attr=renderResolutionU,
                 renderResolutionV_attr=renderResolutionV,
                 albedoMode_attr='vertexColor',
@@ -105,7 +107,11 @@ def test_color_gradient():
                 vertexPos_input=VertexPosConst,
                 vertexColor_input=VertexColor_rnd,
                 texture_input=VertexTextureConst,
-                shCoeff_input=SHCConst
+                shCoeff_input=SHCConst,
+                targetImage_input=tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                extrinsics_input=[cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                intrinsics_input=[cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                nodeName='train'
             )
 
             output = renderer.getRenderBufferTF()
@@ -121,8 +127,8 @@ def test_color_gradient():
         print(i, Loss.numpy())
 
         # output images
-        outputCV = renderer.getRenderBufferOpenCV(0, 0)
-        targetCV = rendererTarget.getRenderBufferOpenCV(0, 0)
+        outputCV = renderer.getRenderBufferOpenCV(1, 1)
+        targetCV = rendererTarget.getRenderBufferOpenCV(1, 1)
 
         combined = targetCV
         cv.addWeighted(outputCV, 0.8, targetCV, 0.2, 0.0, combined)
