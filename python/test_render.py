@@ -63,7 +63,7 @@ if freeGPU:
                                             numberOfCameras_attr        = cameraReader.numberOfCameras,
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
-                                            albedoMode_attr             = 'normal',
+                                            albedoMode_attr             = 'vertexColor',
                                             shadingMode_attr            = 'shaded',
                                             image_filter_size_attr      = 1,
                                             texture_filter_size_attr    = 1,
@@ -81,7 +81,7 @@ if freeGPU:
 
     # output images
 
-    for c in range(0,cameraReader.numberOfCameras):
+    for c in range(0,1):
         outputCV1 = renderer.getRenderBufferOpenCV(1,c)
         cv.imshow('output' + str(c), outputCV1)
     cv.waitKey(-1)

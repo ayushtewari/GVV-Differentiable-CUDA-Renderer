@@ -33,7 +33,7 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 def test_color_gradient():
 
     # HYPERPARAMS
-    numberOfBatches             = 1
+    numberOfBatches             = 3
     renderResolutionUStart      = 256
     renderResolutionVStart      = 256
     imageFilterSize             = 1
@@ -89,58 +89,57 @@ def test_color_gradient():
     opt = tf.keras.optimizers.SGD(learning_rate=1.0)
 
     # sampling levels
-    for p in [1,2,4]:
+    for p in [1]:
 
         renderResolutionU = renderResolutionUStart * p
         renderResolutionV = renderResolutionVStart * p
         cameraReader = CameraReader.CameraReader('data/cameras.calibration', renderResolutionU, renderResolutionV)
 
         rendererTarget = CudaRenderer.CudaRendererGpu(
-                                            faces_attr                   = objreader.facesVertexId,
-                                            texCoords_attr               = objreader.textureCoordinates,
-                                            numberOfVertices_attr        = len(objreader.vertexCoordinates),
-                                            extrinsics_attr              = cameraReader.extrinsics ,
-                                            intrinsics_attr              = cameraReader.intrinsics,
-                                            renderResolutionU_attr       = renderResolutionU ,
-                                            renderResolutionV_attr       = renderResolutionV ,
-                                            albedoMode_attr              = albedoMode_attr,
-                                            shadingMode_attr             = shadingMode_attr,
-                                            image_filter_size_attr       = imageFilterSize,
-                                            texture_filter_size_attr     = textureFilterSize,
+                                        faces_attr                   = objreader.facesVertexId,
+                                        texCoords_attr               = objreader.textureCoordinates,
+                                        numberOfVertices_attr        = len(objreader.vertexCoordinates),
+                                        numberOfCameras_attr         = cameraReader.numberOfCameras,
+                                        renderResolutionU_attr       = renderResolutionU,
+                                        renderResolutionV_attr       = renderResolutionV,
+                                        albedoMode_attr              = 'vertexColor',
+                                        shadingMode_attr             = 'shaded',
 
-                                            vertexPos_input              = VertexPosConst,
-                                            vertexColor_input            = VertexColorConst,
-                                            texture_input                = VertexTextureConst,
-                                            shCoeff_input                = SHCConst,
-                                            targetImage_input            = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU, 3]),
-                                            nodeName = 'Target'
-                                            )
+                                        vertexPos_input              = VertexPosConst,
+                                        vertexColor_input            = VertexColorConst,
+                                        texture_input                = VertexTextureConst,
+                                        shCoeff_input                = SHCConst,
+                                        targetImage_input            = tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                        extrinsics_input             = [cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                                        intrinsics_input             = [cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                                        nodeName                     = 'target'
+                                    )
         targetOri2 = rendererTarget.getRenderBufferTF()
 
-        for i in range(2500):
+        for i in range(10):
 
             with tf.GradientTape() as tape:
+                tape.watch(VertexPosition_rnd)
 
                 #render image
                 renderer = CudaRenderer.CudaRendererGpu(
-                    faces_attr                  = objreader.facesVertexId,
-                    texCoords_attr              = objreader.textureCoordinates,
-                    numberOfVertices_attr       = len(objreader.vertexCoordinates),
-                    extrinsics_attr             = cameraReader.extrinsics,
-                    intrinsics_attr             = cameraReader.intrinsics,
-                    renderResolutionU_attr      = renderResolutionU,
-                    renderResolutionV_attr      = renderResolutionV,
-                    albedoMode_attr             = albedoMode_attr,
-                    shadingMode_attr            = shadingMode_attr,
-                    image_filter_size_attr      = imageFilterSize,
-                    texture_filter_size_attr    = textureFilterSize,
+                    faces_attr=objreader.facesVertexId,
+                    texCoords_attr=objreader.textureCoordinates,
+                    numberOfVertices_attr=len(objreader.vertexCoordinates),
+                    numberOfCameras_attr        = cameraReader.numberOfCameras,
+                    renderResolutionU_attr=renderResolutionU,
+                    renderResolutionV_attr=renderResolutionV,
+                    albedoMode_attr='vertexColor',
+                    shadingMode_attr='shaded',
 
-                    vertexPos_input             = VertexPosition_rnd,
-                    vertexColor_input           = VertexColorConst,
-                    texture_input               = VertexTextureConst,
-                    shCoeff_input               = SHCConst,
-                    targetImage_input           = targetOri2,
-                    nodeName                    = 'CudaRenderer'
+                    vertexPos_input=VertexPosition_rnd,
+                    vertexColor_input=VertexColorConst,
+                    texture_input=VertexTextureConst,
+                    shCoeff_input=SHCConst,
+                    targetImage_input=tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                    extrinsics_input=[cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                    intrinsics_input=[cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                    nodeName='train'
                 )
                 outputOriginal      = renderer.getRenderBufferTF()
                 targetOri           = renderer.getTargetBufferTF()
@@ -152,70 +151,72 @@ def test_color_gradient():
                 # target = tf.concat([target,  L], 4)
 
                 #################
-                def rgb_to_hs(images, tape):
-                    IR = images[:, :, :, :, 0:1]
-                    IG = images[:, :, :, :, 1:2]
-                    IB = images[:, :, :, :, 2:3]
-                    Ialpha = 0.5 * (2.0 * IR - IG - IB)
-                    Ibeta = (tf.sqrt(3.0) / 2.0) * (IG - IB)
+                # def rgb_to_hs(images, tape):
+                #     IR = images[:, :, :, :, 0:1]
+                #     IG = images[:, :, :, :, 1:2]
+                #     IB = images[:, :, :, :, 2:3]
+                #     Ialpha = 0.5 * (2.0 * IR - IG - IB)
+                #     Ibeta = (tf.sqrt(3.0) / 2.0) * (IG - IB)
 
-                    tape.watch(Ialpha)
-                    tape.watch(Ibeta)
+                #     # tape.watch(Ialpha)
+                #     # tape.watch(Ibeta)
 
-                    IHue = tf.math.atan2(Ibeta, Ialpha)
+                #     IHue = tf.math.atan2(Ibeta, Ialpha)
 
-                    grads = tape.gradient(IHue,[Ialpha,Ibeta])
+                #     # grads = tape.gradient(IHue,[Ialpha,Ibeta])
 
-                    ISaturation = tf.sqrt(Ialpha * Ialpha + Ibeta * Ibeta)
-                    return IHue, ISaturation
+                #     ISaturation = tf.sqrt(Ialpha * Ialpha + Ibeta * Ibeta)
+                #     return IHue, ISaturation
 
-                outputHue, outputSat = rgb_to_hs(outputOriginal, tape)
-                targetHue, targetSat= rgb_to_hs(targetOri, tape)
+                # outputHue, outputSat = rgb_to_hs(outputOriginal, tape)
+                # targetHue, targetSat= rgb_to_hs(targetOri, tape)
 
 
-                L = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU,1])
-                output = tf.concat([outputHue,L,L],4)
-                target = tf.concat([targetHue,L,L], 4)
-                ################
+                # L = tf.zeros([numberOfBatches,cameraReader.numberOfCameras,renderResolutionV,renderResolutionU,1])
+                # output = tf.concat([outputHue,L,L],4)
+                # target = tf.concat([targetHue,L,L], 4)
+                # ################
 
-                # Smooth 1
-                #target = GaussianSmoothing.smoothImage(targetOri, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
-                #output = GaussianSmoothing.smoothImage(output, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
+                # # Smooth 1
+                # #target = GaussianSmoothing.smoothImage(targetOri, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
+                # #output = GaussianSmoothing.smoothImage(output, imageSmoothingSize, 0.0, imageSmoothingStandardDev)
 
-                target = target * 255.0
-                output = output * 255.0
+                # target = target * 255.0
+                # output = output * 255.0
 
-                #image loss
-                difference = (output - target)
+                # #image loss
+                # difference = (output - target)
 
-                foregroundPixels = tf.math.count_nonzero(difference)
+                # foregroundPixels = tf.math.count_nonzero(difference)
 
-                imageLoss = 100.0  * tf.nn.l2_loss((difference) ) / (float(foregroundPixels))
+                # imageLoss = 100.0  * tf.nn.l2_loss((difference) ) / (float(foregroundPixels))
 
-                #spatial loss
-                spatialLossEval = 500.0 * spatialLoss.getLoss(VertexPosition_rnd)
+                # #spatial loss
+                # spatialLossEval = 500.0 * spatialLoss.getLoss(VertexPosition_rnd)
 
-                #combined loss
-                loss = imageLoss + spatialLossEval
+                # #combined loss
+                # loss = imageLoss + spatialLossEval
 
-                #gt loss
-                gtLoss = tf.reduce_sum(tf.sqrt( tf.reduce_sum((VertexPosition_rnd - VertexPosConst) * ( VertexPosition_rnd - VertexPosConst),2))).numpy() / float(objreader.numberOfVertices)
-
+                # #gt loss
+                # gtLoss = tf.reduce_sum(tf.sqrt( tf.reduce_sum((VertexPosition_rnd - VertexPosConst) * ( VertexPosition_rnd - VertexPosConst),2))).numpy() / float(objreader.numberOfVertices)
+                Loss=tf.nn.l2_loss(targetOri2-outputOriginal)
+                
             # print loss
-            print('Iter '+ str(i) + ' | Loss '+ str(loss.numpy()) + ' | Image '+ str(imageLoss.numpy()) + ' | Spatial '+ str(spatialLossEval.numpy()) + '       |        GTLoss '+ str(gtLoss))
+            # print('Iter '+ str(i) + ' | Loss '+ str(loss.numpy()) + ' | Image '+ str(imageLoss.numpy()) + ' | Spatial '+ str(spatialLossEval.numpy()) + '       |        GTLoss '+ str(gtLoss))
 
             #output images
-            outputCV = cv.cvtColor(output[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
-            targetCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
-            combined = outputCV
-            cv.addWeighted(outputCV, 0.0, targetCV, 1.0, 0.0, combined)
-            combined = cv.resize(combined, (1024,1024))
-         #   cv.imshow('combined',combined)
-            cv.imwrite('test_gradients/image_'+str(i) + '.png',combined * 255)
-          #  cv.waitKey(1)
+        #     outputCV = cv.cvtColor(output[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
+        #     targetCV = cv.cvtColor(target[0][1].numpy(), cv.COLOR_RGB2BGR) / 255.0
+        #     combined = outputCV
+        #     cv.addWeighted(outputCV, 0.0, targetCV, 1.0, 0.0, combined)
+        #     combined = cv.resize(combined, (1024,1024))
+        #  #   cv.imshow('combined',combined)
+        #     cv.imwrite('test_gradients/image_'+str(i) + '.png',combined * 255)
+        #   #  cv.waitKey(1)
 
             #apply gradient
-            Color_Grad = tape.gradient(loss, VertexPosition_rnd)
+            Color_Grad = tape.gradient(Loss, VertexPosition_rnd)
+            print(Color_Grad)
             opt.apply_gradients(zip([Color_Grad], [VertexPosition_rnd]))
 
 ########################################################################################################################

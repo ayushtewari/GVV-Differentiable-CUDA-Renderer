@@ -28,7 +28,7 @@ customOperators = tf.load_op_library(RENDER_OPERATORS_PATH)
 # CudaRendererGpu class
 ########################################################################################################################
 
-numberOfBatches = 1
+numberOfBatches = 3
 renderResolutionU = 1024
 renderResolutionV = 1024
 
@@ -64,53 +64,60 @@ def test_SHC_gradient():
     SHCConst                = tf.constant(inputSHCoeff,             dtype=tf.float32)
 
     rendererTarget = CudaRenderer.CudaRendererGpu(
-                                            faces_attr=objreader.facesVertexId,
-                                            texCoords_attr=objreader.textureCoordinates,
-                                            numberOfVertices_attr=len(objreader.vertexCoordinates),
-                                            extrinsics_attr=cameraReader.extrinsics,
-                                            intrinsics_attr=cameraReader.intrinsics,
-                                            renderResolutionU_attr=renderResolutionU,
-                                            renderResolutionV_attr=renderResolutionV,
-                                            albedoMode_attr='vertexColor',
-                                            shadingMode_attr='shaded',
+                                        faces_attr                   = objreader.facesVertexId,
+                                        texCoords_attr               = objreader.textureCoordinates,
+                                        numberOfVertices_attr        = len(objreader.vertexCoordinates),
+                                        numberOfCameras_attr         = cameraReader.numberOfCameras,
+                                        renderResolutionU_attr       = renderResolutionU,
+                                        renderResolutionV_attr       = renderResolutionV,
+                                        albedoMode_attr              = 'vertexColor',
+                                        shadingMode_attr             = 'shaded',
 
-                                            vertexPos_input=VertexPosConst,
-                                            vertexColor_input=VertexColorConst,
-                                            texture_input=VertexTextureConst,
-                                            shCoeff_input=SHCConst
-                                        )
-
+                                        vertexPos_input              = VertexPosConst,
+                                        vertexColor_input            = VertexColorConst,
+                                        texture_input                = VertexTextureConst,
+                                        shCoeff_input                = SHCConst,
+                                        targetImage_input            = tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                        extrinsics_input             = [cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                                        intrinsics_input             = [cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                                        nodeName                     = 'target'
+                                    )
     target = rendererTarget.getRenderBufferTF()
 
     SHC_rnd = tf.Variable(SHCConst+tf.random.uniform([1,1, 27],0, 0.5) )
 
     opt = tf.keras.optimizers.Adam(learning_rate=0.01)
 
-    for i in range(2000):
+    for i in range(10):
         with tf.GradientTape() as g:
             g.watch(SHC_rnd)
             renderer = CudaRenderer.CudaRendererGpu(
-                                            faces_attr=objreader.facesVertexId,
-                                            texCoords_attr=objreader.textureCoordinates,
-                                            numberOfVertices_attr=len(objreader.vertexCoordinates),
-                                            extrinsics_attr=cameraReader.extrinsics,
-                                            intrinsics_attr=cameraReader.intrinsics,
-                                            renderResolutionU_attr=renderResolutionU,
-                                            renderResolutionV_attr=renderResolutionV,
-                                            albedoMode_attr='vertexColor',
-                                            shadingMode_attr='shaded',
+                faces_attr=objreader.facesVertexId,
+                texCoords_attr=objreader.textureCoordinates,
+                numberOfVertices_attr=len(objreader.vertexCoordinates),
+                numberOfCameras_attr        = cameraReader.numberOfCameras,
+                renderResolutionU_attr=renderResolutionU,
+                renderResolutionV_attr=renderResolutionV,
+                albedoMode_attr='vertexColor',
+                shadingMode_attr='shaded',
 
-                                            vertexPos_input=VertexPosConst,
-                                            vertexColor_input=VertexColorConst,
-                                            texture_input=VertexTextureConst,
-                                            shCoeff_input=SHC_rnd
-                                        )
+                vertexPos_input=VertexPosConst,
+                vertexColor_input=VertexColorConst,
+                texture_input=VertexTextureConst,
+                shCoeff_input=SHC_rnd,
+                targetImage_input=tf.zeros( [numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                extrinsics_input=[cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                intrinsics_input=[cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                nodeName='train'
+            )
+
             output = renderer.getRenderBufferTF()
 
             Loss=tf.nn.l2_loss(target-output)
 
         # apply gradient
         SHC_Grad=g.gradient(Loss,SHC_rnd)
+        print(SHC_Grad)
         opt.apply_gradients(zip([SHC_Grad], [SHC_rnd]))
 
         # print loss

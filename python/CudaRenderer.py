@@ -8,7 +8,7 @@ from tensorflow.python.framework import ops
 from sys import platform
 import cv2 as cv
 import numpy as np
-import tensorflow_probability as tfp
+# import tensorflow_probability as tfp
 
 ########################################################################################################################
 # Load custom operators

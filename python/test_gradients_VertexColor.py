@@ -90,7 +90,7 @@ def test_color_gradient():
 
     opt = tf.keras.optimizers.SGD(learning_rate=10.0)
 
-    for i in range(3000):
+    for i in range(10):
 
         with tf.GradientTape() as tape:
             tape.watch(VertexColor_rnd)
@@ -115,12 +115,14 @@ def test_color_gradient():
             )
 
             output = renderer.getRenderBufferTF()
-
+            print(output.shape)
             Loss1 = (output-target) * (output-target)
             Loss = tf.reduce_sum(Loss1) / (float(cameraReader.numberOfCameras) * float(objreader.numberOfVertices))
 
         #apply gradient
         Color_Grad = tape.gradient(Loss,VertexColor_rnd)
+        # print(Color_Grad)
+        print(numberOfBatches, cameraReader.numberOfCameras)
         opt.apply_gradients(zip([Color_Grad],[VertexColor_rnd]))
 
         # print loss
