@@ -42,8 +42,6 @@ inputTexture = inputTexture.reshape([1, objreader.texHeight, objreader.texWidth,
 inputTexture = np.tile(inputTexture, (numberOfBatches, 1, 1, 1))
 
 inputSHCoeff = test_SH_tensor.getSHCoeff(numberOfBatches, cameraReader.numberOfCameras)
-#inputSHCoeff = np.load('Z:/RTMPC2/work/DeepCap/Dataset/Magdalena/results/tensorboardLogDeepDynamicCharacters/2426x2468x2471x2784/snapshot_iter_75000/lighting.npy')
-#inputSHCoeff = np.load('Z:/RTMPC2/work/DeepCap/Dataset/Magdalena/results/tensorboardLogDeepDynamicCharacters/2556x2766/snapshot_iter_119999/lighting.npy')
 
 ########################################################################################################################
 # Test render
