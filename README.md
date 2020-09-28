@@ -10,7 +10,7 @@ The renderer supports the following features:
 - Rendering from multiple camera views in a single batch
 
 ### Requirements (tested versions):
-- Tensorflow 2.0.0-beta0
+- Tensorflow 2.0.0
 - GPU that supports compute capability 7.0
 - CUDA 10.0
 - CUDNN 7.6.1
@@ -38,4 +38,5 @@ The renderer supports the following features:
 ### Contributors
 - Marc Habermann
 - Mallikarjun B R
+- Linjie Liu
 - Ayush Tewari
