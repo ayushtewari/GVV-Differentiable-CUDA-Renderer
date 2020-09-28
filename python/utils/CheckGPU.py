@@ -19,7 +19,7 @@ def get_free_gpu():
     if platform == "linux" or platform == "linux2":
         gpu_stats = subprocess.check_output(["nvidia-smi", "--format=csv", "--query-gpu=memory.used,memory.free"])
     elif platform == "win32" or platform == "win64":
-        gpu_stats = subprocess.check_output(["C:/Program Files/NVIDIA Corporation/NVSMI/nvidia-smi.exe", "--format=csv", "--query-gpu=memory.used,memory.free"])
+        gpu_stats = subprocess.check_output(["nvidia-smi.exe", "--format=csv", "--query-gpu=memory.used,memory.free"])   #assumes program runs in C drive
 
     gpu_stats = gpu_stats.decode('ascii')
     stringIoGPUStats = StringIO(gpu_stats)

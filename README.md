@@ -1,9 +1,13 @@
-# GVV-Neural-Renderer
-Check our [project page](http://gvv.mpi-inf.mpg.de/) for additional information.
+# GVV-Differentiable-Renderer
 
-Description here!
+This is a simple differentiable rasterization-based renderer which has been used in several GVV publications. The implemtation is free of most third-party libraries such as OpenGL. Rasterization is implemented in CUDA. 
 
-#### NEW: Tensorflow implementation available!
+# Features 
+The renderer supports the following features:
+1. Shading based on spherical harmonics illumination. This shading model is differentiable. 
+2. Different visualizations, such as normals, UV coordinates, phong-shaded surface, spherical-harmonics shading and surface color without shading. 
+3. Texture map lookups.
+
 
 ### Requirements (supported versions we tested):
 1. Tensorflow 2.0.0-beta0
@@ -28,10 +32,5 @@ Description here!
 5. If compilation finished, there should be the files cpp/binaries/Win64/Release/CustomTensorFlowOperators.dll
 
 ### Examples
-1. Run the simple test in python/test_render.py
-
-### Citation:
-	@Inproceedings{gvv_cuda_render,
-	}
-	
-If you encounter any problems with the code, want to report bugs, etc. please contact us at mhaberma@mpi-inf.mpg.de.
+1. Test for forward pass in python/test_render.py
+2. Gradient tests in python/test_gradients*.py
