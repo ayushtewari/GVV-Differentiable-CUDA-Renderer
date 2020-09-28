@@ -1,21 +1,21 @@
 # GVV-Differentiable-Renderer
 
-This is a simple differentiable rasterization-based renderer which has been used in several GVV publications. The implementation is free of most third-party libraries such as OpenGL. Rasterization is implemented in CUDA. 
+This is a simple and efficient differentiable rasterization-based renderer which has been used in several GVV publications. The implementation is free of most third-party libraries such as OpenGL. The core implementation is in CUDA and C++. We use the layer as a custom Tensorflow op.  
 
 # Features 
 The renderer supports the following features:
-. Shading based on spherical harmonics illumination. This shading model is differentiable. 
-. Different visualizations, such as normals, UV coordinates, phong-shaded surface, spherical-harmonics shading and colors without shading. 
-. Texture map lookups.
-. Rendering from multiple camera views in a single batch
+- Shading based on spherical harmonics illumination. This shading model is differentiable. 
+- Different visualizations, such as normals, UV coordinates, phong-shaded surface, spherical-harmonics shading and colors without shading. 
+- Texture map lookups.
+- Rendering from multiple camera views in a single batch
 
 ### Requirements (tested versions):
-. Tensorflow 2.0.0-beta0
-. GPU that supports compute capability 7.0
-. CUDA 10.0
-. CUDNN 7.6.1
-. Python 3.5
-. CMake 3.9 and higher
+- Tensorflow 2.0.0-beta0
+- GPU that supports compute capability 7.0
+- CUDA 10.0
+- CUDNN 7.6.1
+- Python 3.5
+- CMake 3.9 and higher
 
 ### Installation Linux:
 1. Clone the repository 
@@ -36,4 +36,6 @@ The renderer supports the following features:
 2. Gradient tests in python/test_gradients*.py
 
 ### Contributors
-
+- Marc Habermann
+- Mallikarjun B R
+- Ayush Tewari
