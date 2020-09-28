@@ -36,7 +36,7 @@ The renderer supports the following features:
 2. Gradient tests in python/test_gradients*.py
 
 ### Contributors
-- Marc Habermann
-- Mallikarjun B R
+- [Marc Habermann](https://people.mpi-inf.mpg.de/~mhaberma/)
+- [Mallikarjun B R](https://people.mpi-inf.mpg.de/~mbr/)
 - Linjie Liu
-- Ayush Tewari
+- [Ayush Tewari](https://people.mpi-inf.mpg.de/~atewari/)
