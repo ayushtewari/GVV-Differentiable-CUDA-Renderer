@@ -10,7 +10,7 @@ The renderer supports the following features:
 - Texture map lookups.
 - Rendering from multiple camera views in a single batch
 
-Visibility is not differentiable. We also do not approximate the gradients due to occlusions. This simple strategy works for many use cases such as parametric shape fitting. 
+Visibility is not differentiable. We also do not approximate the gradients due to occlusions. This simple strategy works for many use cases such as fitting parametric shape models to images. 
 
 ### Requirements (tested versions):
 - Tensorflow 2.0.0
