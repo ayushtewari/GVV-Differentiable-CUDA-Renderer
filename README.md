@@ -36,6 +36,19 @@ The renderer supports the following features:
 1. Forward pass in python/test_render.py
 2. Gradient tests in python/test_gradients*.py
 
+### Citations
+Please cite the following papers if you use the renderer in your project:
+
+    @inproceedings{deepcap,
+    title = {DeepCap: Monocular Human Performance Capture Using Weak Supervision},
+    author = {Habermann, Marc and Xu, Weipeng and Zollhoefer, Michael and Pons-Moll, Gerard and Theobalt, Christian},
+    booktitle = {{IEEE} Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month = {jun},
+    organization = {{IEEE}},
+    year = {2020},
+    }	
+
+
 ### Contributors
 - [Marc Habermann](https://people.mpi-inf.mpg.de/~mhaberma/)
 - [Mallikarjun B R](https://people.mpi-inf.mpg.de/~mbr/)
