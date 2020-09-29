@@ -364,9 +364,13 @@ __global__ void renderBuffersDevice(CUDABasedRasterizationInput input)
 							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 1],
 							input.d_textureMap[3 * input.texWidth *(int)HV + 3 * (int)HU + 2]);
 
-						color =  (V0 - LV) * (((U0 - LU) * colorLULV) + ((HU - U0) * colorHULV)) +
-							    (HV - V0) * (((U0 - LU) * colorLUHV) + ((HU - U0) * colorHUHV));
-
+						float weightLULV = (V0 - LV) * (U0 - LU);
+						float weightLUHV = (HV - V0) * (U0 - LU);
+						float weightHULV = (V0 - LV) * (HU - U0);
+						float weightHUHV = (HV - V0) * (HU - U0);
+						//printf("%f", weightLULV + weightLUHV + weightHULV + weightHUHV);
+						//color = weightLULV * colorLULV + weightHULV * colorHULV + weightLUHV * colorLUHV + weightHUHV * colorHUHV;
+						color = colorLULV;
 					}
 					else if (input.albedoMode == AlbedoMode::VertexColor)
 					{

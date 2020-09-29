@@ -129,8 +129,8 @@ def test_color_gradient():
         print(i, Loss.numpy())
 
         # output images
-        outputCV = renderer.getRenderBufferOpenCV(1, 1)
-        targetCV = rendererTarget.getRenderBufferOpenCV(1, 1)
+        outputCV = renderer.getRenderBufferOpenCV(1, 0)
+        targetCV = rendererTarget.getRenderBufferOpenCV(1, 0)
 
         combined = targetCV
         cv.addWeighted(outputCV, 0.8, targetCV, 0.2, 0.0, combined)

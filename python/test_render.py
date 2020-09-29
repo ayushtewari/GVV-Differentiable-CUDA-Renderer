@@ -24,9 +24,9 @@ renderResolutionU   = 1024
 renderResolutionV   = 1024
 
 cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
-objreader = OBJReader.OBJReader('data/magdalena.obj')
+objreader = OBJReader.OBJReader('data/monkey.obj')
 
-inputVertexPositions = test_mesh_tensor.getGTMesh()
+inputVertexPositions = objreader.vertexCoordinates
 inputVertexPositions = np.asarray(inputVertexPositions)
 inputVertexPositions = inputVertexPositions.reshape([1, objreader.numberOfVertices, 3])
 inputVertexPositions = np.tile(inputVertexPositions, (numberOfBatches, 1, 1))
@@ -62,7 +62,7 @@ if freeGPU:
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
                                             albedoMode_attr             = 'vertexColor',
-                                            shadingMode_attr            = 'shaded',
+                                            shadingMode_attr            = 'shadeless',
                                             image_filter_size_attr      = 1,
                                             texture_filter_size_attr    = 1,
 
@@ -81,5 +81,5 @@ if freeGPU:
 
     for c in range(0,1):
         outputCV1 = renderer.getRenderBufferOpenCV(1,c)
-        cv.imshow('output' + str(c), outputCV1)
+        cv.imshow('output' + str(c), outputCV1 )
     cv.waitKey(-1)

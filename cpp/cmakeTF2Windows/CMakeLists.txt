@@ -7,12 +7,9 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #############################################################################################
 #TO BE CUSTOMIZED 
 
-#Tensorflow 2.0.0-beta0
-
 SET (CUDADIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/")
-SET (TENSORFLOW_PATH D:/Anaconda/Anaconda3/tf2/Lib/site-packages/tensorflow)
-
-#Fix change it manually to cuda 10.0
+SET (TENSORFLOW_PATH D:/Anaconda3/Lib/site-packages/tensorflow)
+SET (CUDA_ARCH "-arch=sm_61")
 
 #############################################################################################
 #CUDA 
@@ -87,8 +84,8 @@ FILE(GLOB cudaFiles
 
 MESSAGE("++++ Set CUDA compilation properties")
 
-SET(CUDA_NVCC_FLAGS "-O3" "-arch=sm_61" "--default-stream per-thread" "-Xptxas -v" CACHE STRING "nvcc flags" FORCE)
-SET(CMAKE_CUDA_FLAGS "-arch=sm_61")
+SET(CUDA_NVCC_FLAGS "-O3" ${CUDA_ARCH} "--default-stream per-thread" "-Xptxas -v" CACHE STRING "nvcc flags" FORCE)
+SET(CMAKE_CUDA_FLAGS ${CUDA_ARCH})
 
 ##############################################################################################
 #OUTPUT LIB

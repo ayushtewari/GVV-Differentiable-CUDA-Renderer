@@ -70,25 +70,26 @@ def test_color_gradient():
                                         faces_attr                   = objreader.facesVertexId,
                                         texCoords_attr               = objreader.textureCoordinates,
                                         numberOfVertices_attr        = len(objreader.vertexCoordinates),
-                                        extrinsics_attr              = cameraReader.extrinsics ,
-                                        intrinsics_attr              = cameraReader.intrinsics,
                                         renderResolutionU_attr       = renderResolutionU,
                                         renderResolutionV_attr       = renderResolutionV,
                                         albedoMode_attr              = 'textured',
-                                        shadingMode_attr             = 'shaded',
+                                        shadingMode_attr             = 'shadeless',
                                         image_filter_size_attr       = imageFilterSize,
                                         texture_filter_size_attr     = textureFilterSize,
-
+                                        numberOfCameras_attr=1,
                                         vertexPos_input              = VertexPosConst,
                                         vertexColor_input            = VertexColorConst,
                                         texture_input                = VertexTextureConst,
                                         shCoeff_input                = SHCConst,
                                         targetImage_input            = tf.zeros([numberOfBatches, cameraReader.numberOfCameras, renderResolutionV, renderResolutionU, 3]),
+                                        extrinsics_input=[cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                                        intrinsics_input=[cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                                        nodeName='target'
                                         )
 
     target = rendererTarget.getRenderBufferTF()
 
-    VertexTextureRand = tf.Variable(tf.zeros(VertexTextureConst.shape))
+    VertexTextureRand = tf.Variable(tf.ones(VertexTextureConst.shape))
 
     opt = tf.keras.optimizers.SGD(learning_rate=100.0)
 
@@ -100,12 +101,11 @@ def test_color_gradient():
                 faces_attr=objreader.facesVertexId,
                 texCoords_attr=objreader.textureCoordinates,
                 numberOfVertices_attr=len(objreader.vertexCoordinates),
-                extrinsics_attr=cameraReader.extrinsics,
-                intrinsics_attr=cameraReader.intrinsics,
                 renderResolutionU_attr=renderResolutionU,
                 renderResolutionV_attr=renderResolutionV,
+                numberOfCameras_attr =1,
                 albedoMode_attr='textured',
-                shadingMode_attr='shaded',
+                shadingMode_attr='shadeless',
                 image_filter_size_attr=imageFilterSize,
                 texture_filter_size_attr=textureFilterSize,
 
@@ -113,7 +113,10 @@ def test_color_gradient():
                 vertexColor_input=VertexColorConst,
                 texture_input=VertexTextureRand,
                 shCoeff_input=SHCConst,
-                targetImage_input =target
+                targetImage_input =target,
+                extrinsics_input = [cameraReader.extrinsics, cameraReader.extrinsics, cameraReader.extrinsics],
+                intrinsics_input = [cameraReader.intrinsics, cameraReader.intrinsics, cameraReader.intrinsics],
+                nodeName = 'render'
             )
 
             output = renderer.getRenderBufferTF()
@@ -129,8 +132,8 @@ def test_color_gradient():
         print(i, Loss.numpy())
 
         # output images
-        outputCV = renderer.getRenderBufferOpenCV(0, 2)
-        targetCV = rendererTarget.getRenderBufferOpenCV(0, 2)
+        outputCV = renderer.getRenderBufferOpenCV(0, 0)
+        targetCV = rendererTarget.getRenderBufferOpenCV(0, 0)
 
         combined = targetCV
         cv.addWeighted(outputCV, 1.0, targetCV, 0.0, 0.0, combined)

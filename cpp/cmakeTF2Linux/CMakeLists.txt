@@ -13,11 +13,19 @@ MESSAGE("++++ Required CMake Version: 3.9")
 #SET (BINARY_DIR /HPS/RTMPC/work/CudaRenderer/cpp/binaries/Linux/ReleaseTF2GCC8)
 #SET (TFVERSION "2.1.0")
 
-#TF 220
+#TF 220 gpu20
+#SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
+#SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf220/lib/python3.5/site-packages/tensorflow)
+#SET (BINARY_DIR /HPS/RTMPC/work/CudaRenderer/cpp/binaries/Linux/ReleaseTF22GCC8)
+#SET (TFVERSION "2.2.0")
+#SET (CUDA_ARCH "-arch=sm_75")
+
+#TF 220 d2volta recon
 SET (CUDA_PATH /usr/lib/cuda-10.1/bin/nvcc)
 SET (TENSORFLOW_PATH /HPS/RTMPC/work/Programs/Anaconda3-4.1.1/envs/tf220/lib/python3.5/site-packages/tensorflow)
-SET (BINARY_DIR /HPS/RTMPC/work/CudaRenderer/cpp/binaries/Linux/ReleaseTF22GCC8)
+SET (BINARY_DIR /HPS/RTMPC/work/CudaRenderer/cpp/binaries/Linux/Release)
 SET (TFVERSION "2.2.0")
+SET (CUDA_ARCH "-arch=sm_70")
 
 # GARCHING
 #SET (CUDA_PATH    /mpcdf/soft/SLE_12/packages/x86_64/cuda/10.1.243/bin/nvcc)
@@ -96,8 +104,8 @@ FILE(GLOB cudaFiles
 
 MESSAGE("++++ Set CUDA compilation properties")
 
-SET(CUDA_NVCC_FLAGS "-O3" "-arch=sm_75" "--default-stream per-thread" "-Xptxas -v" CACHE STRING "nvcc flags" FORCE)
-SET(CMAKE_CUDA_FLAGS "-arch=sm_75")
+SET(CUDA_NVCC_FLAGS "-O3" ${CUDA_ARCH} "--default-stream per-thread" "-Xptxas -v" CACHE STRING "nvcc flags" FORCE)
+SET(CMAKE_CUDA_FLAGS ${CUDA_ARCH})
 
 ##############################################################################################
 #OUTPUT LIB

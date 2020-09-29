@@ -21,8 +21,6 @@ class OBJReader:
 
         self.computePerFaceTextureCoordinated()
 
-        self.loadSegmentationWeights()
-
         self.computeAdjacency()
 
         self.loadMtlTexture(self.mtlFilePathFull, self.mtlFilePath)
@@ -115,26 +113,12 @@ class OBJReader:
                 if(self.adjacency[i,j] > 0.0):
                     self.numberOfEdges = self.numberOfEdges + 1
 
-        #weights matrix
-        if len(self.vertexLabels) == self.numberOfVertices:
-            self.adjacencyWeights = np.zeros((self.numberOfVertices, self.numberOfVertices))
-            for f in range(0, int(len(self.facesVertexId) / 3)):
-                v0 = self.facesVertexId[f * 3 + 0]
-                v1 = self.facesVertexId[f * 3 + 1]
-                v2 = self.facesVertexId[f * 3 + 2]
-
-                self.adjacencyWeights[v0, v1] = (self.vertexWeights[v0] + self.vertexWeights[v1]) / 2.0
-                self.adjacencyWeights[v0, v2] = (self.vertexWeights[v0] + self.vertexWeights[v2]) / 2.0
-                self.adjacencyWeights[v1, v0] = (self.vertexWeights[v1] + self.vertexWeights[v0]) / 2.0
-                self.adjacencyWeights[v1, v2] = (self.vertexWeights[v1] + self.vertexWeights[v2]) / 2.0
-                self.adjacencyWeights[v2, v0] = (self.vertexWeights[v2] + self.vertexWeights[v0]) / 2.0
-                self.adjacencyWeights[v2, v1] = (self.vertexWeights[v2] + self.vertexWeights[v1]) / 2.0
-
     ########################################################################################################################
 
     def loadMtlTexture(self,mtlFileName,shortPath):
         mtlFile = open(mtlFileName)
 
+        texMapLoaded = False
         for line in mtlFile:
             splitted = line.split()
             if len(splitted) > 0:
@@ -145,56 +129,17 @@ class OBJReader:
                     self.textureMap = list(self.textureMap / 255.0)
                     self.texHeight = np.size(self.textureMap, 0)
                     self.texWidth = np.size(self.textureMap, 1)
+                    texMapLoaded = True
+
+
+        if not texMapLoaded:
+            self.textureMapPath = ''
+            self.textureMap = np.zeros([2,2,3])
+            self.texHeight = 2
+            self.texWidth = 2
+            print('No texture map found. Assigned a default black texture!')
 
         mtlFile.close()
 
     ########################################################################################################################
 
-    def loadSegmentationWeights(self):
-
-        self.vertexLabels = []
-        self.vertexWeights = []
-
-        try:
-
-            # labels
-            segmentationFile = open(self.folderPath + 'segmentation.txt')
-
-            for line in segmentationFile:
-                splitted = line.split()
-                if len(splitted) > 0:
-                    self.vertexLabels.append(int(splitted[0]))
-            segmentationFile.close()
-            assert(len(self.vertexLabels) == self.numberOfVertices)
-
-            # weights
-            for v in range(0, len(self.vertexLabels)):
-                label = self.vertexLabels[v]
-                # background / dress / coat / jumpsuit / skirt
-                if (label == 0 or label == 6 or label == 7 or label == 10 or label == 12):
-                    self.vertexWeights.append(10.0)
-                # upper clothes
-                elif (label == 5):
-                    self.vertexWeights.append(10.0)
-                # pants
-                elif (label == 9):
-                    self.vertexWeights.append(15.0)
-                # scarf / socks
-                elif (label == 11 or label == 8):
-                    self.vertexWeights.append(50.0)
-                # skins
-                elif (label == 14 or label == 15 or label == 16  or label == 17):
-                    self.vertexWeights.append(200.0)
-                # shoes / glove / sunglasses / hat
-                elif (label == 18 or label == 19 or label == 1 or label == 3 or label == 4):
-                    self.vertexWeights.append(200.)
-                # hat / hair / face
-                elif (label == 2 or label == 13):
-                    self.vertexWeights.append(200.0)
-                # else
-                else:
-                    self.vertexWeights.append(200.0)
-                    print('Vertex %d has no valid label', v)
-
-        except IOError:
-            print("Could not open file! Please close Excel!")

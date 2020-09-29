@@ -355,11 +355,10 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 					float U0 = finalTexCoord.x;
 					float V0 = finalTexCoord.y;
 
+					float weighting = 1.f;// fabs(dot(pixNorm, d));
+
 					float weightLULV = (V0 - LV) * (U0 - LU);
-
-					float weighting = fabs(dot(pixNorm, d));
-
-					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x, weighting * gradTexColor(0, 0) * weightLULV);
+					/*atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x, weighting * gradTexColor(0, 0) * weightLULV);
 					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].y, weighting * gradTexColor(0, 1) * weightLULV);
 					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].z, weighting * gradTexColor(0, 2) * weightLULV);
 
@@ -376,7 +375,13 @@ __global__ void renderBuffersGradDevice(CUDABasedRasterizationGradInput input)
 					float weightHUHV = (HV - V0) * (HU - U0);
 					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].x, weighting * gradTexColor(0, 0) * weightHUHV);
 					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].y, weighting * gradTexColor(0, 1) * weightHUHV);
-					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].z, weighting * gradTexColor(0, 2) * weightHUHV);
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, HV, HU)].z, weighting * gradTexColor(0, 2) * weightHUHV);*/
+
+					//printf("%f", weightLULV + weightLUHV + weightHULV + weightHUHV);
+
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].x,  gradTexColor(0, 0) );
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].y,  gradTexColor(0, 1) );
+					atomicAdd(&input.d_textureGrad[index2DTo1D(input.texHeight, input.texWidth, LV, LU)].z,  gradTexColor(0, 2) );
 				}
 			}
 			else if (input.albedoMode == AlbedoMode::ForegroundMask)
