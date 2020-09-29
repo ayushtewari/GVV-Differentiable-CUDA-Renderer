@@ -5,10 +5,12 @@ This is a simple and efficient differentiable rasterization-based renderer which
 
 # Features 
 The renderer supports the following features:
-- Shading based on spherical harmonics illumination. This shading model is differentiable. 
+- Shading based on spherical harmonics illumination. This shading model is differentiable with respect to geometry, texture, and lighting. 
 - Different visualizations, such as normals, UV coordinates, phong-shaded surface, spherical-harmonics shading and colors without shading. 
 - Texture map lookups.
 - Rendering from multiple camera views in a single batch
+
+Visibility is not differentiable. We also do not approximate the gradients due to occlusions. This simple strategy works for many use cases such as parametric shape fitting. 
 
 ### Requirements (tested versions):
 - Tensorflow 2.0.0
