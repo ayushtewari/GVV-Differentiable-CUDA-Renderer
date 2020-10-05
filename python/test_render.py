@@ -24,7 +24,7 @@ renderResolutionU   = 1024
 renderResolutionV   = 1024
 
 cameraReader = CameraReader.CameraReader('data/cameras.calibration',renderResolutionU,renderResolutionV)
-objreader = OBJReader.OBJReader('data/monkey.obj')
+objreader = OBJReader.OBJReader('data/cone.obj')
 
 inputVertexPositions = objreader.vertexCoordinates
 inputVertexPositions = np.asarray(inputVertexPositions)
@@ -62,7 +62,7 @@ if freeGPU:
                                             renderResolutionU_attr      = renderResolutionU,
                                             renderResolutionV_attr      = renderResolutionV,
                                             albedoMode_attr             = 'vertexColor',
-                                            shadingMode_attr            = 'shadeless',
+                                            shadingMode_attr            = 'shaded',
                                             image_filter_size_attr      = 1,
                                             texture_filter_size_attr    = 1,
 
