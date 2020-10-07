@@ -51,6 +51,9 @@ Please cite the following papers if you use the renderer in your project:
     }	
 
 
+### License 
+The contents of this repository, and the pretrained models are made available under CC BY 4.0. Please read the [license terms](https://creativecommons.org/licenses/by/4.0/legalcode).
+
 ### Contributors
 - [Marc Habermann](https://people.mpi-inf.mpg.de/~mhaberma/)
 - [Mallikarjun B R](https://people.mpi-inf.mpg.de/~mbr/)
