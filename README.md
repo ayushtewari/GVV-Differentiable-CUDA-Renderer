@@ -13,7 +13,7 @@ The renderer supports the following features:
 Visibility is not differentiable. We also do not approximate the gradients due to occlusions. This simple strategy works for many use cases such as fitting parametric shape models to images. 
 
 ### Requirements (tested versions):
-- Tensorflow 2.0.0
+- Tensorflow 2.2.0
 - GPU that supports compute capability 7.0
 - CUDA 10.0
 - CUDNN 7.6.1
@@ -49,6 +49,15 @@ Please cite the following papers if you use the renderer in your project:
     organization = {{IEEE}},
     year = {2020},
     }	
+    
+    @misc{r2020learning,
+    title={Learning Complete 3D Morphable Face Models from Images and Videos}, 
+    author={Mallikarjun B R and Ayush Tewari and Hans-Peter Seidel and Mohamed Elgharib and Christian Theobalt},
+    year={2020},
+    eprint={2010.01679},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+    }
 
 
 ### License 
