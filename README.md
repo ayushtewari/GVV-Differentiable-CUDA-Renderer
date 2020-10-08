@@ -10,7 +10,7 @@ The renderer supports the following features:
 - Texture map lookups.
 - Rendering from multiple camera views in a single batch
 
-Visibility is not differentiable. We also do not approximate the gradients due to occlusions. This simple strategy works for many use cases such as fitting parametric shape models to images. 
+Visibility is not differentiable. We do not approximate the gradients for the occluded regions. This simple strategy works for many use cases such as fitting parametric shape models to images. 
 
 ### Requirements (tested versions):
 - Tensorflow 2.2.0
@@ -55,6 +55,15 @@ Please cite the following papers if you use the renderer in your project:
     author={Mallikarjun B R and Ayush Tewari and Hans-Peter Seidel and Mohamed Elgharib and Christian Theobalt},
     year={2020},
     eprint={2010.01679},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+    }
+    
+    @misc{r2020monocular,
+    title={Monocular Reconstruction of Neural Face Reflectance Fields}, 
+    author={Mallikarjun B R. and Ayush Tewari and Tae-Hyun Oh and Tim Weyrich and Bernd Bickel and Hans-Peter Seidel and Hanspeter Pfister and Wojciech Matusik and Mohamed Elgharib and Christian Theobalt},
+    year={2020},
+    eprint={2008.10247},
     archivePrefix={arXiv},
     primaryClass={cs.CV}
     }
